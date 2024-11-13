@@ -34,7 +34,7 @@ class _QuoteTypeState extends State<QuoteType> {
       'isHovering': false,
     },
     AJRoute.manofacture: {
-      'name': 'Manofacture',
+      'name': 'Services/Material',
       'icon': FontAwesomeIcons.robot,
       'isHovering': false,
     }

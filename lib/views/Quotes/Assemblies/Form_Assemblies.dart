@@ -1997,7 +1997,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
                                     setState(() {
                                       days = value;
                                       switch (value) {
-                                        case "0 days":
+                                        case "In cash":
                                           porcentajeAjComponents.text = "1.0";
                                         case "30 days":
                                           porcentajeAjComponents.text = "1.1";

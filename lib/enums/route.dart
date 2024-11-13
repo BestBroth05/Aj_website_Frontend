@@ -129,9 +129,9 @@ extension AJRouteExt on AJRoute {
       case AJRoute.assemblies:
         return Assemblies();
       case AJRoute.proyects:
-        return Manofacture();
-      case AJRoute.manofacture:
         return Projects();
+      case AJRoute.manofacture:
+        return Manofacture();
       case AJRoute.adminAddCustomers:
         return CustomersView();
       case AJRoute.services:

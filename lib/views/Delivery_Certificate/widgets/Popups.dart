@@ -7,6 +7,7 @@ import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/productClas
 import 'package:guadalajarav2/views/Delivery_Certificate/widgets/Texts.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/PDF/PDFEnglish.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/PDF/PDFSpanish.dart';
+import 'package:guadalajarav2/views/Quotes/Manofacture/PDFManofacture.dart';
 import 'package:pdf/pdf.dart';
 import '../../../utils/tools.dart';
 import '../../Quotes/Assemblies/ExportToPDF.dart';
@@ -76,7 +77,7 @@ void PDFLanguage(context, id_OC, entrega, ordenCompra, nombreEmpresa,
 }
 
 void PDFLanguageQuotes(context, addPCB, addComponents, dataTable, quote,
-    customer, isPDF, notes) async {
+    customer, isPDF, notes, type) async {
   //DeviceAV device;
   return showDialog(
       context: context,
@@ -98,17 +99,29 @@ void PDFLanguageQuotes(context, addPCB, addComponents, dataTable, quote,
                   child: Text('Spanish', style: buttonsPopUp),
                   onPressed: () async {
                     bool onErrore = false;
+
                     try {
-                      await ExportToPDFAssemblies(
-                              isPDF: isPDF,
-                              isEnglish: false,
-                              addPCB: addPCB,
-                              addComponents: addComponents,
-                              dataTable: dataTable,
-                              quote: quote,
-                              customer: customer,
-                              notes: notes)
-                          .createPDF(PdfPageFormat.a3);
+                      if (type == "assemblies") {
+                        await ExportToPDFAssemblies(
+                                isPDF: isPDF,
+                                isEnglish: false,
+                                addPCB: addPCB,
+                                addComponents: addComponents,
+                                dataTable: dataTable,
+                                quote: quote,
+                                customer: customer,
+                                notes: notes)
+                            .createPDF(PdfPageFormat.a3);
+                      } else {
+                        await ExportToPDFManofacture(
+                                isPDF: isPDF,
+                                isEnglish: false,
+                                dataTable: dataTable,
+                                quote: quote,
+                                customer: customer,
+                                notes: notes)
+                            .createPDF(PdfPageFormat.a3);
+                      }
                     } catch (e) {
                       print("Error my broo $e");
                       onErrore = true;
@@ -133,16 +146,27 @@ void PDFLanguageQuotes(context, addPCB, addComponents, dataTable, quote,
                   onPressed: () async {
                     bool onErrore = false;
                     try {
-                      await ExportToPDFAssemblies(
-                              isPDF: isPDF,
-                              isEnglish: true,
-                              addPCB: addPCB,
-                              addComponents: addComponents,
-                              dataTable: dataTable,
-                              quote: quote,
-                              customer: customer,
-                              notes: notes)
-                          .createPDF(PdfPageFormat.a3);
+                      if (type == "assemblies") {
+                        await ExportToPDFAssemblies(
+                                isPDF: isPDF,
+                                isEnglish: true,
+                                addPCB: addPCB,
+                                addComponents: addComponents,
+                                dataTable: dataTable,
+                                quote: quote,
+                                customer: customer,
+                                notes: notes)
+                            .createPDF(PdfPageFormat.a3);
+                      } else {
+                        await ExportToPDFManofacture(
+                                isPDF: isPDF,
+                                isEnglish: true,
+                                dataTable: dataTable,
+                                quote: quote,
+                                customer: customer,
+                                notes: notes)
+                            .createPDF(PdfPageFormat.a3);
+                      }
                     } catch (e) {
                       print("Error my broo $e");
                       onErrore = true;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:guadalajarav2/utils/SuperGlobalVariables/ObjVar.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/Controllers/DAO.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/CustomerClass.dart';
+import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/productClass.dart';
 import 'package:guadalajarav2/views/Quotes/Assemblies/TextDialogWidget.dart';
 import 'package:guadalajarav2/views/Quotes/Clases/QuoteClass.dart';
 import 'package:guadalajarav2/views/Quotes/Text_Quotes.dart';
@@ -14,17 +15,19 @@ import '../../Delivery_Certificate/widgets/Texts.dart';
 import '../../admin_view/Tools.dart';
 import '../Clases/QuoteTableClass.dart';
 
-class Preview_Assemblies extends StatefulWidget {
+class PreviewManofacture extends StatefulWidget {
   bool? isSavedQuote;
   QuoteClass? quote;
   CustomersClass? customer;
-  Preview_Assemblies({super.key, this.quote, this.customer, this.isSavedQuote});
+  List<ProductCertificateDelivery>? products;
+  PreviewManofacture(
+      {super.key, this.quote, this.products, this.customer, this.isSavedQuote});
 
   @override
-  State<Preview_Assemblies> createState() => _Preview_AssembliesState();
+  State<PreviewManofacture> createState() => _PreviewManofactureState();
 }
 
-class _Preview_AssembliesState extends State<Preview_Assemblies> {
+class _PreviewManofactureState extends State<PreviewManofacture> {
   String? date;
   String currency = "MXN";
   String? conIva;
@@ -45,21 +48,13 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
 
   @override
   void initState() {
+    fillColumns();
     if (widget.isSavedQuote!) {
       getPreview();
     }
     if (widget.quote!.id_Quote == null) {
       getIdQuote();
     }
-    setState(() {
-      if (widget.quote!.PCBTotalMXN == 0) {
-        addPCB = false;
-      }
-      if (widget.quote!.totalComponentsMXN == 0) {
-        addComponents = false;
-      }
-    });
-
     date =
         DateFormat('MMMM d, yyyy').format(DateTime.parse(widget.quote!.date!));
     super.initState();
@@ -72,118 +67,15 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
     });
   }
 
-  colorsSpanish() {
-    setState(() {
-      switch (widget.quote!.PCBColor) {
-        case "Green":
-          colorNameSpanish = "Verde";
-          break;
-        case "Purple":
-          colorNameSpanish = "Morado";
-          break;
-        case "Red":
-          colorNameSpanish = "Rojo";
-          break;
-        case "Yellow":
-          colorNameSpanish = "Amarillo";
-          break;
-        case "Blue":
-          colorNameSpanish = "Azul";
-          break;
-        case "White":
-          colorNameSpanish = "Blanco";
-          break;
-        default:
-          colorNameSpanish = "Negro";
-          break;
-      }
-      fillColumnsSpanish();
-    });
-  }
-
-  fillColumnsSpanish() {
+  fillColumns() {
     notes.text =
         "-Los costos son calculados de acuerdo con el volumen solicitado, en caso de necesitar diferente volumen favor de solicitar cotización\n-Componentes sujetos a disponibilidad y precio de mercado\n-Para poder manufacturar su pedido es necesario que genere una orden de compra firmada por el responsable de su empresa\n-Vigencia de cotización: 8 dìas hábiles\n-El cliente se hace responsable de los archivos entregados para la fabricación de su producto, en dado caso de tener algún error se debe hacer cargo de los gastos generados al 100%\n-Una vez iniciada el proceso de compra/fabricación, no se aceptan cambios en el diseño a menos de que se paguen los cambios a realizar.";
-    if (!addComponents && !addPCB) {
-      rows = [
-        QuoteTableClass(
-            description:
-                "Ensamble \"${widget.quote!.proyectName}\"\n               ${widget.quote!.assemblyLayers}\n               ${widget.quote!.assemblyMPN} MPN\n               ${widget.quote!.assemblySMT} SMT\nIncluye inspección visual, limpieza y empaque antiestático.\nTiempo de entrega ${widget.quote!.assemblyDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perAssemblyMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.assemblyTotalMXN)),
-        QuoteTableClass(
-            description: "Envío GDL – \nPAQUETE ASEGURADO",
-            unitario: "0.0",
-            cantidad: "1",
-            total: "0.0")
-      ];
-    } else if (!addComponents) {
-      rows = [
-        QuoteTableClass(
-            description:
-                "Fabricación de PCB \"${widget.quote!.proyectName}\"\n                ${widget.quote!.PCBLayers}. Top y Bottom 1oz FR4 .062¨ Color: ${colorNameSpanish}\n                Size: ${widget.quote!.PCBSize}\nTiempo de entrega ${widget.quote!.PCBDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.PCBPerMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.PCBTotalMXN)),
-        QuoteTableClass(
-            description:
-                "Ensamble \"${widget.quote!.proyectName}\"\n               ${widget.quote!.assemblyLayers}\n               ${widget.quote!.assemblyMPN} MPN\n               ${widget.quote!.assemblySMT} SMT\nIncluye inspección visual, limpieza y empaque antiestático.\nTiempo de entrega ${widget.quote!.assemblyDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perAssemblyMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.assemblyTotalMXN)),
-        QuoteTableClass(
-            description: "Envío GDL – \nPAQUETE ASEGURADO",
-            unitario: "0.0",
-            cantidad: "1",
-            total: "0.0")
-      ];
-    } else if (!addPCB) {
-      rows = [
-        QuoteTableClass(
-            description:
-                "Components \"${widget.quote!.excelName!}\"\n               ${widget.quote!.componentsMPN} MPN PUESTOS EN MEXICO\n               ${widget.quote!.componentsAvailables} no disponibles-envía ${widget.customer!.name}\nTiempo de entrega ${widget.quote!.componentsDeliverTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perComponentMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.totalComponentsMXN)),
-        QuoteTableClass(
-            description:
-                "Ensamble \"${widget.quote!.proyectName}\"\n               ${widget.quote!.assemblyLayers}\n               ${widget.quote!.assemblyMPN} MPN\n               ${widget.quote!.assemblySMT} SMT\n               ${widget.quote!.assemblyTH} TH\nIncluye inspección visual, limpieza y empaque antiestático.\nTiempo de entrega ${widget.quote!.assemblyDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perAssemblyMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.assemblyTotalMXN)),
-        QuoteTableClass(
-            description: "Envío GDL – \nPAQUETE ASEGURADO",
-            unitario: "0.0",
-            cantidad: "1",
-            total: "0.0")
-      ];
-    } else {
-      rows = [
-        QuoteTableClass(
-            description:
-                "Components \"${widget.quote!.excelName!}\"\n               ${widget.quote!.componentsMPN} MPN PUESTOS EN MEXICO\n               ${widget.quote!.componentsAvailables} no disponibles-envía ${widget.customer!.name}\nTiempo de entrega ${widget.quote!.componentsDeliverTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perComponentMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.totalComponentsMXN)),
-        QuoteTableClass(
-            description:
-                "Fabricación de PCB \"${widget.quote!.proyectName}\"\n                ${widget.quote!.PCBLayers}. Top y Bottom 1oz FR4 .062¨ Color: ${colorNameSpanish}\n                Size: ${widget.quote!.PCBSize}\nTiempo de entrega ${widget.quote!.PCBDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.PCBPerMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.PCBTotalMXN)),
-        QuoteTableClass(
-            description:
-                "Ensamble \"${widget.quote!.proyectName}\"\n               ${widget.quote!.assemblyLayers}\n               ${widget.quote!.assemblyMPN} MPN\n               ${widget.quote!.assemblySMT} SMT\n               ${widget.quote!.assemblyTH} TH\nIncluye inspección visual, limpieza y empaque antiestático.\nTiempo de entrega ${widget.quote!.assemblyDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perAssemblyMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.assemblyTotalMXN)),
-        QuoteTableClass(
-            description: "Envío GDL – \nPAQUETE ASEGURADO",
-            unitario: "0.0",
-            cantidad: "1",
-            total: "0.0")
-      ];
+    for (var i = 0; i < widget.products!.length; i++) {
+      rows.add(QuoteTableClass(
+          description: widget.products![i].descripcion,
+          cantidad: widget.products![i].cantidad.toString(),
+          unitario: widget.products![i].precioUnitario.toString(),
+          total: widget.products![i].importe.toString()));
     }
   }
 
@@ -230,8 +122,6 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
         notes.text = preview1[0].notas!;
         rows = preview1;
         isUpdate = true;
-      } else {
-        colorsSpanish();
       }
     });
   }
@@ -438,7 +328,7 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
                   widget.customer,
                   true,
                   notes.text,
-                  "assemblies");
+                  "manofacture");
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -468,7 +358,7 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
                   widget.customer,
                   false,
                   notes.text,
-                  "assemblies");
+                  "manofacture");
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
