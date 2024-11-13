@@ -1,0 +1,122 @@
+case 'Connector':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('mounting', sql.Int, req.body['mounting']);
+request.input('current', sql.Float, req.body['current']);
+request.input('pinCount', sql.Int, req.body['pinCount']);
+request.input('pitch', sql.Float, req.body['pitch']);
+request.input('row', sql.Int, req.body['row']);
+request.input('contactType', sql.NVarChar, req.body['contactType']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @mounting, @current, @pinCount, @pitch, @row, @contactType, )";
+break;
+case 'DiscreteSemiconductor':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('mounting', sql.Int, req.body['mounting']);
+request.input('package', sql.NVarChar, req.body['package']);
+request.input('current', sql.Float, req.body['current']);
+request.input('speed', sql.Float, req.body['speed']);
+request.input('voltageBreakdown', sql.Float, req.body['voltageBreakdown']);
+request.input('voltageReverse', sql.Float, req.body['voltageReverse']);
+request.input('voltageClamping', sql.Float, req.body['voltageClamping']);
+request.input('loadCapacitance', sql.Float, req.body['loadCapacitance']);
+request.input('channelType', sql.NVarChar, req.body['channelType']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @mounting, @package, @current, @speed, @voltageBreakdown, @voltageReverse, @voltageClamping, @loadCapacitance, @channelType, )";
+break;
+case 'Display':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('current', sql.Float, req.body['current']);
+request.input('interface', sql.NVarChar, req.body['interface']);
+request.input('resolution', sql.NVarChar, req.body['resolution']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @current, @interface, @resolution, )";
+break;
+case 'Inductor':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('mounting', sql.Int, req.body['mounting']);
+request.input('package', sql.NVarChar, req.body['package']);
+request.input('current', sql.Float, req.body['current']);
+request.input('value', sql.Float, req.body['value']);
+request.input('tolerance', sql.Int, req.body['tolerance']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @mounting, @package, @current, @value, @tolerance, )";
+break;
+case 'IntegratedCircuit':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('mounting', sql.Int, req.body['mounting']);
+request.input('package', sql.NVarChar, req.body['package']);
+request.input('current', sql.Float, req.body['current']);
+request.input('power', sql.Float, req.body['power']);
+request.input('speed', sql.Float, req.body['speed']);
+request.input('pinCount', sql.Int, req.body['pinCount']);
+request.input('flash', sql.Float, req.body['flash']);
+request.input('ram', sql.Float, req.body['ram']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @mounting, @package, @current, @power, @speed, @pinCount, @flash, @ram, )";
+break;
+case 'Led':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('mounting', sql.Int, req.body['mounting']);
+request.input('package', sql.NVarChar, req.body['package']);
+request.input('temperature', sql.Float, req.body['temperature']);
+request.input('color', sql.Int, req.body['color']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @mounting, @package, @temperature, @color, )";
+break;
+case 'Mechanic':
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, )";
+break;
+case 'Microcontroller':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('mounting', sql.Int, req.body['mounting']);
+request.input('package', sql.NVarChar, req.body['package']);
+request.input('speed', sql.Float, req.body['speed']);
+request.input('pinCount', sql.Int, req.body['pinCount']);
+request.input('flash', sql.Float, req.body['flash']);
+request.input('ram', sql.Float, req.body['ram']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @mounting, @package, @speed, @pinCount, @flash, @ram, )";
+break;
+case 'Miscellaneous':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('mounting', sql.Int, req.body['mounting']);
+request.input('package', sql.NVarChar, req.body['package']);
+request.input('current', sql.Float, req.body['current']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @mounting, @package, @current, )";
+break;
+case 'Optocoupler':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('mounting', sql.Int, req.body['mounting']);
+request.input('package', sql.NVarChar, req.body['package']);
+request.input('current', sql.Float, req.body['current']);
+request.input('speed', sql.Float, req.body['speed']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @mounting, @package, @current, @speed, )";
+break;
+case 'Pcb':
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, )";
+break;
+case 'PowerSupply':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('mounting', sql.Int, req.body['mounting']);
+request.input('package', sql.NVarChar, req.body['package']);
+request.input('current', sql.Float, req.body['current']);
+request.input('power', sql.Float, req.body['power']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @mounting, @package, @current, @power, )";
+break;
+case 'ProtectionCircuit':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('mounting', sql.Int, req.body['mounting']);
+request.input('package', sql.NVarChar, req.body['package']);
+request.input('current', sql.Float, req.body['current']);
+request.input('power', sql.Float, req.body['power']);
+request.input('voltageBreakdown', sql.Float, req.body['voltageBreakdown']);
+request.input('voltageReverse', sql.Float, req.body['voltageReverse']);
+request.input('voltageClamping', sql.Float, req.body['voltageClamping']);
+request.input('channelType', sql.NVarChar, req.body['channelType']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @mounting, @package, @current, @power, @voltageBreakdown, @voltageReverse, @voltageClamping, @channelType, )";
+break;
+case 'Resistor':
+request.input('voltage', sql.Float, req.body['voltage']);
+request.input('mounting', sql.Int, req.body['mounting']);
+request.input('package', sql.NVarChar, req.body['package']);
+request.input('power', sql.Float, req.body['power']);
+request.input('value', sql.Float, req.body['value']);
+request.input('tolerance', sql.Int, req.body['tolerance']);
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES (@description, @unitPrice, @mpn, @manufacturer, @quantity, @status, @voltage, @mounting, @package, @power, @value, @tolerance, )";
+break;
+case 'Switch':
+var QueryCmd = "INSERT INTO "+category.toString()+" VALUES ()";
+break;
