@@ -110,10 +110,22 @@ class ExportToPDFManofacture {
       fecha = "Date";
       if (quote!.currency == "MXN") {
         currency = "MXN";
-        columns = ['Description', 'Unit\nprice', 'Quantity', 'Total\nMXN'];
+        columns = [
+          'Description',
+          'Unit\nprice',
+          'Quantity',
+          'Imagen',
+          'Total\nMXN'
+        ];
       } else {
         currency = "USD";
-        columns = ['Description', 'Unit\nprice', 'Quantity', 'Total\nUSD'];
+        columns = [
+          'Description',
+          'Unit\nprice',
+          'Quantity',
+          'Imagen',
+          'Total\nUSD'
+        ];
       }
       if (quote!.conIva!) {
         conIva = "* With IVA";
@@ -131,10 +143,22 @@ class ExportToPDFManofacture {
       fecha = "Fecha";
       if (quote!.currency == "MXN") {
         currency = "MXN";
-        columns = ['Descripción', 'Costo\nunitario', 'Cantidad', 'Total\nMXN'];
+        columns = [
+          'Descripción',
+          'Costo\nunitario',
+          'Cantidad',
+          'Imagen',
+          'Total\nMXN'
+        ];
       } else {
         currency = "USD";
-        columns = ['Descripción', 'Costo\nunitario', 'Cantidad', 'Total\nUSD'];
+        columns = [
+          'Descripción',
+          'Costo\nunitario',
+          'Cantidad',
+          'Imagen',
+          'Total\nUSD'
+        ];
       }
       if (quote!.conIva!) {
         conIva = "* Con IVA";
@@ -415,6 +439,22 @@ class ExportToPDFManofacture {
                                                 .cantidad!,
                                             style: arial(9, "normal"),
                                             textAlign: pw.TextAlign.center),
+                                        dataTableTridimencional[iMaster][index]
+                                                .image!
+                                                .isNotEmpty
+                                            ? pw.Container(
+                                                margin: pw.EdgeInsets.only(
+                                                    top: 5, bottom: 5),
+                                                child: pw.Center(
+                                                    child: pw.Image(
+                                                        pw.MemoryImage(base64.decode(
+                                                            dataTableTridimencional[
+                                                                        iMaster]
+                                                                    [index]
+                                                                .image!)),
+                                                        height: 30,
+                                                        width: 50)))
+                                            : pw.Text(""),
                                         pw.Text(
                                             "\$${dataTableTridimencional[iMaster][index].total!}",
                                             style: arial(9, "normal"),

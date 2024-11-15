@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:datepicker_dropdown/datepicker_dropdown.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/entypo_icons.dart';
@@ -49,6 +52,7 @@ class _ManofactureState extends State<Manofacture> {
   double? importe;
   List<ProductCertificateDelivery> products = [];
   List<OrdenCompraClass> OC = [];
+  TextEditingController imageName = TextEditingController();
   //Porcentajes
   TextEditingController porcentajeIva = TextEditingController();
   TextEditingController porcentajeIsr = TextEditingController();
@@ -57,7 +61,11 @@ class _ManofactureState extends State<Manofacture> {
   final _formKeyGeneralData = GlobalKey<FormState>();
   final _formKeyInformative = GlobalKey<FormState>();
   final _formKeyProduct = GlobalKey<FormState>();
+  final _formKeyImage = GlobalKey<FormState>();
   //Tools
+  String selcFile = "";
+  String fileName = '';
+  Uint8List? selectedImageInBytes;
   QuoteClass? quote;
   List<CustomersClass> allCustomers = [];
   String? day;
@@ -140,6 +148,18 @@ class _ManofactureState extends State<Manofacture> {
       }
       quoteNumber.text = "${split[0]}_$number";
     });
+  }
+
+  Future getImage() async {
+    FilePickerResult? fileResult =
+        await FilePicker.platform.pickFiles(type: FileType.any, withData: true);
+    if (fileResult != null) {
+      setState(() {
+        selcFile = fileResult.files.first.name;
+        selectedImageInBytes = fileResult.files.first.bytes;
+        imageName.text = fileResult.files.first.name;
+      });
+    }
   }
 
   operationComponentsEmpty() {
@@ -749,64 +769,77 @@ class _ManofactureState extends State<Manofacture> {
           key: _formKeyProduct,
           child: Container(
               margin: EdgeInsets.only(top: 25),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
                 children: [
-                  //Porcentajes
-                  Container(
-                    child: Column(
-                      children: [
-                        fieldPercentages(
-                            porcentajeIva,
-                            Icon(Icons.percent),
-                            "Iva",
-                            TextInputType.numberWithOptions(decimal: true),
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'^(\d+)?\.?\d{0,2}')),
-                            operationComponentsIVA(),
-                            150),
-                        SizedBox(height: 10),
-                        fieldPercentages(
-                            porcentajeIsr,
-                            Icon(Icons.percent),
-                            "ISR",
-                            TextInputType.numberWithOptions(decimal: true),
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'^(\d+)?\.?\d{0,2}')),
-                            operationComponentsISR(),
-                            150),
-                        SizedBox(height: 10),
-                        fieldPercentages(
-                            porcentajeAj,
-                            Icon(Icons.percent),
-                            "AJ",
-                            TextInputType.numberWithOptions(decimal: true),
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'^(\d+)?\.?\d{0,2}')),
-                            operationComponentsAJ(),
-                            150),
-                      ],
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      //Porcentajes
+                      Container(
+                        child: Column(
+                          children: [
+                            fieldPercentages(
+                                porcentajeIva,
+                                Icon(Icons.percent),
+                                "Iva",
+                                TextInputType.numberWithOptions(decimal: true),
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^(\d+)?\.?\d{0,2}')),
+                                operationComponentsIVA(),
+                                150),
+                            SizedBox(height: 10),
+                            fieldPercentages(
+                                porcentajeIsr,
+                                Icon(Icons.percent),
+                                "ISR",
+                                TextInputType.numberWithOptions(decimal: true),
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^(\d+)?\.?\d{0,2}')),
+                                operationComponentsISR(),
+                                150),
+                            SizedBox(height: 10),
+                            fieldPercentages(
+                                porcentajeAj,
+                                Icon(Icons.percent),
+                                "AJ",
+                                TextInputType.numberWithOptions(decimal: true),
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^(\d+)?\.?\d{0,2}')),
+                                operationComponentsAJ(),
+                                150),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          //Cantidad
+                          fieldDeliver(
+                              cantidad,
+                              "Quantity",
+                              TextInputType.number,
+                              FilteringTextInputFormatter.digitsOnly),
+                          //Descripcion
+                          fieldDeliver(
+                              descripcion,
+                              "Description",
+                              TextInputType.text,
+                              FilteringTextInputFormatter.singleLineFormatter),
+                          //Unitario
+                          fieldDeliver(
+                              unitario,
+                              "Unit price",
+                              TextInputType.numberWithOptions(decimal: true),
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'^(\d+)?\.?\d{0,2}'))),
+                        ],
+                      ),
+                    ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      //Cantidad
-                      fieldDeliver(cantidad, "Quantity", TextInputType.number,
-                          FilteringTextInputFormatter.digitsOnly),
-                      //Descripcion
-                      fieldDeliver(
-                          descripcion,
-                          "Description",
-                          TextInputType.text,
-                          FilteringTextInputFormatter.singleLineFormatter),
-                      //Unitario
-                      fieldDeliver(
-                          unitario,
-                          "Unit price",
-                          TextInputType.numberWithOptions(decimal: true),
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^(\d+)?\.?\d{0,2}'))),
+                      imageFieldWidget(),
                       // -------------- Button more -------------- //
                       Container(
                         margin: const EdgeInsets.only(
@@ -831,21 +864,30 @@ class _ManofactureState extends State<Manofacture> {
                                   importe =
                                       precioUnitario * int.parse(cantidad.text);
                                   products.add(ProductCertificateDelivery(
+                                      image: imageName.text.isNotEmpty
+                                          ? base64.encode(selectedImageInBytes!)
+                                          : "",
                                       descripcion: descripcion.text,
                                       cantidad: int.parse(cantidad.text),
                                       precioUnitario: precioUnitario,
                                       importe: importe));
+
                                   totalProducts += int.parse(cantidad.text);
                                   //notes.text = "$totalProducts/${OC[0].cantidad}";
                                   cantidad = TextEditingController();
                                   descripcion = TextEditingController();
                                   unitario = TextEditingController();
+                                  imageName = TextEditingController();
+                                  selcFile = "";
+                                  fileName = '';
+                                  selectedImageInBytes = Uint8List(0);
                                 }
                               });
                             }),
-                      ),
+                      )
                     ],
                   ),
+                  SizedBox(height: 25)
                 ],
               )),
         ),
@@ -863,6 +905,7 @@ class _ManofactureState extends State<Manofacture> {
                   DataColumn(label: Text('Description')),
                   DataColumn(label: Text('Unit price\n($usdOrMxn)')),
                   DataColumn(label: Text('Amount\n($usdOrMxn)')),
+                  DataColumn(label: Text('Image')),
                   DataColumn(label: Text('Delete/Edit'))
                 ],
                 rows:
@@ -873,6 +916,16 @@ class _ManofactureState extends State<Manofacture> {
                     DataCell(
                         Text("\$ ${formatter.format(product.precioUnitario)}")),
                     DataCell(Text("\$ ${formatter.format(product.importe!)}")),
+                    DataCell(product.image!.isNotEmpty
+                        ? Image.memory(
+                            base64.decode(product.image!),
+                            height: 50,
+                            width: 50,
+                          )
+                        : Icon(
+                            Icons.check,
+                            color: Colors.transparent,
+                          )),
                     DataCell(SizedBox(
                         //width: 15,
                         child: Row(
@@ -899,6 +952,11 @@ class _ManofactureState extends State<Manofacture> {
                               cantidad.text = product.cantidad.toString();
                               descripcion.text = product.descripcion!;
                               unitario.text = product.precioUnitario.toString();
+                              imageName.text =
+                                  product.image!.isNotEmpty ? "file.png" : "";
+                              selectedImageInBytes = product.image!.isNotEmpty
+                                  ? base64.decode(product.image!)
+                                  : Uint8List(0);
                               products.remove(product);
                             });
                           },
@@ -916,6 +974,53 @@ class _ManofactureState extends State<Manofacture> {
         ),
         SizedBox(height: 25)
       ],
+    );
+  }
+
+  Widget imageFieldWidget() {
+    return Form(
+      key: _formKeyImage,
+      child: Container(
+        alignment: Alignment.center,
+        margin: EdgeInsets.only(left: 10),
+        child: SizedBox(
+          width: 360,
+          child: TextFormField(
+            //initialValue: "Select image",
+            readOnly: true,
+            keyboardType: TextInputType.text,
+            controller: imageName,
+            inputFormatters: [FilteringTextInputFormatter.singleLineFormatter],
+            style: TextStyle(),
+            decoration: InputDecoration(
+              suffixIcon: IconButton(
+                  onPressed: () => getImage(),
+                  icon: Icon(
+                    Icons.search,
+                    color: Colors.teal,
+                  )),
+              hintText: "Select image",
+              labelText: "Image",
+              labelStyle: TextStyle(
+                color: Colors.teal,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: const BorderSide(color: Colors.green),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: const BorderSide(color: Colors.redAccent),
+              ),
+            ),
+            onChanged: (value) {},
+          ),
+        ),
+      ),
     );
   }
 

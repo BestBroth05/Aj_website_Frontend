@@ -1,4 +1,6 @@
 // ignore_for_file: must_be_immutable
+import 'dart:convert';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/utils/SuperGlobalVariables/ObjVar.dart';
@@ -72,11 +74,19 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
         "-Los costos son calculados de acuerdo con el volumen solicitado, en caso de necesitar diferente volumen favor de solicitar cotización\n-Componentes sujetos a disponibilidad y precio de mercado\n-Para poder manufacturar su pedido es necesario que genere una orden de compra firmada por el responsable de su empresa\n-Vigencia de cotización: 8 dìas hábiles\n-El cliente se hace responsable de los archivos entregados para la fabricación de su producto, en dado caso de tener algún error se debe hacer cargo de los gastos generados al 100%\n-Una vez iniciada el proceso de compra/fabricación, no se aceptan cambios en el diseño a menos de que se paguen los cambios a realizar.";
     for (var i = 0; i < widget.products!.length; i++) {
       rows.add(QuoteTableClass(
-          description: widget.products![i].descripcion,
-          cantidad: widget.products![i].cantidad.toString(),
-          unitario: widget.products![i].precioUnitario.toString(),
-          total: widget.products![i].importe.toString()));
+        description: widget.products![i].descripcion,
+        cantidad: widget.products![i].cantidad.toString(),
+        unitario: widget.products![i].precioUnitario.toString(),
+        image: widget.products![i].image,
+        total: widget.products![i].importe.toString(),
+      ));
     }
+    rows.add(QuoteTableClass(
+        description: "Envío GDL – \nPAQUETE ASEGURADO",
+        unitario: "0.0",
+        cantidad: "1",
+        image: "",
+        total: "0.0"));
   }
 
   postPreview() async {
@@ -199,6 +209,7 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
                       description: "",
                       unitario: "0.0",
                       cantidad: "0.0",
+                      image: "",
                       total: "0.0"));
                 });
               },
@@ -408,10 +419,22 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
   Widget table() {
     if (widget.quote!.currency == "MXN") {
       currency = "MXN";
-      columns = ['Descripción', 'Costo\nunitario', 'Cantidad', 'Total\nMXN'];
+      columns = [
+        'Descripción',
+        'Cantidad',
+        'Costo\nunitario',
+        'Imagen',
+        'Total\nMXN'
+      ];
     } else {
       currency = "USD";
-      columns = ['Descripción', 'Costo\nunitario', 'Cantidad', 'Total\nUSD'];
+      columns = [
+        'Descripción',
+        'Cantidad',
+        'Costo\nunitario',
+        'Imagen',
+        'Total\nUSD'
+      ];
     }
     if (widget.quote!.conIva!) {
       conIva = "* Con IVA";
@@ -419,6 +442,9 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
       conIva = "* Sin IVA";
     }
     setState(() {
+      // for (var i = 0; i < rows.length; i++) {
+      //   rows
+      // }
       List<QuoteTableClass> newQuote = rows;
       total = 0.0;
       double unitario = 0.0;
@@ -510,15 +536,28 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
   List<DataRow> getRows(List<QuoteTableClass> quotes) => quotes.map((quote) {
         final cells = [
           quote.description,
-          quote.unitario,
           quote.cantidad,
+          quote.unitario,
+          quote.image,
           quote.total
         ];
 
         return DataRow(
             cells: Utils.modelBuilder(cells, (index, cell) {
           return DataCell(
-            index == 2 || index == 0 ? Text("$cell") : Text("\$$cell"),
+            index == 3
+                ? cell!.isNotEmpty
+                    ? Center(
+                        child: Image.memory(
+                          base64.decode(cell),
+                          height: 100,
+                          width: 150,
+                        ),
+                      )
+                    : Text("")
+                : index == 0 || index == 1
+                    ? Text("$cell")
+                    : Text("\$$cell"),
             //showEditIcon: true,
             onTap: () {
               switch (index) {
@@ -526,10 +565,10 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
                   editDescription(quote);
                   break;
                 case 1:
-                  editUnitario(quote);
+                  editCantidad(quote);
                   break;
                 case 2:
-                  editCantidad(quote);
+                  editUnitario(quote);
                   break;
                 case 3:
                   //editTotal(quote);

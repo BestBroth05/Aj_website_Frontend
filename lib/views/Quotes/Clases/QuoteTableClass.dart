@@ -8,6 +8,7 @@ class QuoteTableClass {
   String? cantidad;
   String? total;
   String? notas;
+  String? image;
   QuoteTableClass(
       {this.id_quotePreview,
       this.id_quote,
@@ -15,17 +16,19 @@ class QuoteTableClass {
       this.unitario,
       this.cantidad,
       this.total,
-      this.notas});
-  QuoteTableClass copy({
-    String? description,
-    String? unitario,
-    String? cantidad,
-    String? total,
-  }) =>
+      this.notas,
+      this.image});
+  QuoteTableClass copy(
+          {String? description,
+          String? unitario,
+          String? cantidad,
+          String? total,
+          String? image}) =>
       QuoteTableClass(
           description: description ?? this.description,
           unitario: unitario ?? this.unitario,
           cantidad: cantidad ?? this.cantidad,
+          image: image ?? this.image,
           total: total ?? this.total);
   @override
   bool operator ==(Object other) =>
@@ -35,12 +38,14 @@ class QuoteTableClass {
           description == other.description &&
           unitario == other.unitario &&
           cantidad == other.cantidad &&
+          image == other.image &&
           total == other.total;
   @override
   int get hashCode =>
       description.hashCode ^
       unitario.hashCode ^
       cantidad.hashCode ^
+      image.hashCode ^
       total.hashCode;
 }
 

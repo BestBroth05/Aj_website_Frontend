@@ -8,6 +8,7 @@ class ProductCertificateDelivery {
   int? cantidad;
   String? descripcion;
   double? importe;
+  String? image;
   ProductCertificateDelivery(
       {this.id_producto,
       this.id_entrega,
@@ -15,7 +16,8 @@ class ProductCertificateDelivery {
       this.precioUnitario,
       this.cantidad,
       this.descripcion,
-      this.importe});
+      this.importe,
+      this.image});
   Map<String, dynamic> toMap() {
     var map = {
       'id_producto': id_producto,
@@ -25,6 +27,7 @@ class ProductCertificateDelivery {
       'cantidad': cantidad,
       'descripcion': descripcion,
       'importe': importe,
+      'image': image
     };
     return map;
   }
@@ -37,6 +40,7 @@ class ProductCertificateDelivery {
     cantidad = map['cantidad'];
     descripcion = map['descripcion'];
     importe = map['importe'];
+    image = map['image'];
   }
 }
 
