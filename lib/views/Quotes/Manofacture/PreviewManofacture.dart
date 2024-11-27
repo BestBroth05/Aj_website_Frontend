@@ -192,9 +192,10 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
           ElevatedButton(
               onPressed: () {
                 setState(() {
-                  if (rows.length > 3) {
-                    rows.removeAt(rows.length - 1);
-                  }
+                  rows.removeAt(rows.length - 1);
+                  // if (rows.length > 3) {
+                  //   rows.removeAt(rows.length - 1);
+                  // }
                 });
               },
               style: ElevatedButton.styleFrom(
@@ -555,9 +556,11 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
                         ),
                       )
                     : Text("")
-                : index == 0 || index == 1
-                    ? Text("$cell")
-                    : Text("\$$cell"),
+                : index == 0
+                    ? Container(child: Text("$cell"), width: 350)
+                    : index == 1
+                        ? Text("$cell")
+                        : Text("\$$cell"),
             //showEditIcon: true,
             onTap: () {
               switch (index) {

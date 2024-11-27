@@ -820,11 +820,70 @@ class _ManofactureState extends State<Manofacture> {
                               TextInputType.number,
                               FilteringTextInputFormatter.digitsOnly),
                           //Descripcion
-                          fieldDeliver(
-                              descripcion,
-                              "Description",
-                              TextInputType.text,
-                              FilteringTextInputFormatter.singleLineFormatter),
+                          Container(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                // Align(
+                                //   alignment: Alignment.topLeft,
+                                //   child: Text(
+                                //     "* $text:",
+                                //     style: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                                //   ),
+                                // ),
+                                Container(
+                                    child: Padding(
+                                  padding: EdgeInsets.only(left: 10),
+                                  child: SizedBox(
+                                    width: 360,
+                                    child: TextFormField(
+                                      maxLines: null,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Description is required';
+                                        }
+                                        return null;
+                                      },
+                                      keyboardType: TextInputType.multiline,
+                                      controller: descripcion,
+                                      style: TextStyle(),
+                                      decoration: InputDecoration(
+                                        labelText: "* Description",
+                                        labelStyle: TextStyle(
+                                          color: Colors.teal,
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          borderSide: const BorderSide(
+                                              color: Colors.grey),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          borderSide: const BorderSide(
+                                              color: Colors.green),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          borderSide: const BorderSide(
+                                              color: Colors.redAccent),
+                                        ),
+                                        focusedErrorBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          borderSide: const BorderSide(
+                                              color: Colors.redAccent),
+                                        ),
+                                      ),
+                                      onChanged: (value) {},
+                                    ),
+                                  ),
+                                )),
+                              ],
+                            ),
+                          ),
                           //Unitario
                           fieldDeliver(
                               unitario,
@@ -893,41 +952,62 @@ class _ManofactureState extends State<Manofacture> {
         ),
         SelectionArea(
           child: Container(
-            margin: EdgeInsets.only(top: 25),
+            width: (currentUser.width! - 500),
+            margin: EdgeInsets.only(top: 25, left: 50, right: 50),
             child: DataTable(
                 border: TableBorder.all(
                   width: 1.0,
                 ),
-                sortColumnIndex: 0,
-                sortAscending: true,
+                dataRowMinHeight: 50,
+                dataRowMaxHeight: 150,
+                // sortColumnIndex: 0,
+                // sortAscending: true,
                 columns: <DataColumn>[
-                  DataColumn(label: Text('Quantity')),
-                  DataColumn(label: Text('Description')),
-                  DataColumn(label: Text('Unit price\n($usdOrMxn)')),
-                  DataColumn(label: Text('Amount\n($usdOrMxn)')),
+                  DataColumn(
+                      label: Container(
+                    child: Text('Quantity'),
+                  )),
+                  DataColumn(
+                      label: Container(
+                    child: Text('Description'),
+                  )),
+                  DataColumn(
+                      label: Container(child: Text('Unit price\n($usdOrMxn)'))),
+                  DataColumn(
+                      label: Container(child: Text('Amount\n($usdOrMxn)'))),
                   DataColumn(label: Text('Image')),
-                  DataColumn(label: Text('Delete/Edit'))
+                  DataColumn(
+                      label: Container(
+                    child: Text('Delete/Edit'),
+                  ))
                 ],
                 rows:
                     products.map<DataRow>((ProductCertificateDelivery product) {
                   return DataRow(cells: <DataCell>[
-                    DataCell(Text(product.cantidad!.toString())),
-                    DataCell(Text(product.descripcion!)),
                     DataCell(
-                        Text("\$ ${formatter.format(product.precioUnitario)}")),
-                    DataCell(Text("\$ ${formatter.format(product.importe!)}")),
+                        Container(child: Text(product.cantidad!.toString()))),
+                    DataCell(Container(
+                        width: 300, child: Text(product.descripcion!))),
+                    DataCell(Container(
+                      child: Text(
+                          "\$ ${formatter.format(product.precioUnitario)}"),
+                    )),
+                    DataCell(Container(
+                      child: Text("\$ ${formatter.format(product.importe!)}"),
+                    )),
                     DataCell(product.image!.isNotEmpty
-                        ? Image.memory(
-                            base64.decode(product.image!),
-                            height: 50,
-                            width: 50,
+                        ? Center(
+                            child: Image.memory(
+                              base64.decode(product.image!),
+                              height: 75,
+                              width: 100,
+                            ),
                           )
                         : Icon(
                             Icons.check,
                             color: Colors.transparent,
                           )),
                     DataCell(SizedBox(
-                        //width: 15,
                         child: Row(
                       children: [
                         IconButton(

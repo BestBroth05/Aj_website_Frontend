@@ -419,15 +419,14 @@ class ExportToPDFManofacture {
                                                   ? pw.Container(
                                                       alignment: pw
                                                           .Alignment.centerLeft,
-                                                      margin:
-                                                          pw.EdgeInsets.only(
-                                                              bottom: 5),
-                                                      child: pw.Text(split[i],
-                                                          style: description(
-                                                              true)))
-                                                  : pw.Container(
-                                                      alignment: pw.Alignment.centerLeft,
-                                                      child: pw.Text(split[i], style: description(false)))),
+                                                      margin: pw.EdgeInsets.only(
+                                                          bottom: 5),
+                                                      child: pw.Container(
+                                                          child: pw.Text(split[i],
+                                                              style: description(
+                                                                  false)),
+                                                          width: 250))
+                                                  : pw.Container(alignment: pw.Alignment.centerLeft, child: pw.Text(split[i], style: description(false)))),
                                         ),
                                         pw.Text(
                                             "\$${dataTableTridimencional[iMaster][index].unitario!}",
