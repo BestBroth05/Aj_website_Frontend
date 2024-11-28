@@ -793,6 +793,7 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
           double.parse(porcentajeIva.text),
           double.parse(porcentajeIsr.text),
           //General data
+          widget.quote.quoteType,
           fecha,
           customerName,
           quoteNumber.text,
@@ -863,6 +864,7 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
           double.parse(porcentajeIva.text),
           double.parse(porcentajeIsr.text),
           //General data
+          widget.quote.quoteType,
           fecha,
           customerName,
           quoteNumber.text,
@@ -933,6 +935,7 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
           double.parse(porcentajeIva.text),
           double.parse(porcentajeIsr.text),
           //General data
+          widget.quote.quoteType,
           fecha,
           customerName,
           quoteNumber.text,
@@ -1003,6 +1006,7 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
           double.parse(porcentajeIva.text),
           double.parse(porcentajeIsr.text),
           //General data
+          widget.quote.quoteType,
           fecha,
           customerName,
           quoteNumber.text,

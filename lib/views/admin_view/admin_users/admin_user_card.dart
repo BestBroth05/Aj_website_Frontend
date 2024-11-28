@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:guadalajarav2/administration/user/userType.dart';
 import 'package:guadalajarav2/classes/user.dart';
-import 'package:guadalajarav2/database.dart';
 import 'package:guadalajarav2/extensions/date_time_ext.dart';
 import 'package:guadalajarav2/extensions/str_extension.dart';
 import 'package:guadalajarav2/utils/colors.dart';

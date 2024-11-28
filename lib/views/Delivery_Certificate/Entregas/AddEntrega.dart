@@ -132,6 +132,8 @@ class _AddEntregaState extends State<AddEntrega> {
       int result = await DataAccessObject.postProductoOC(
           Entrega[(Entrega.length - 1)].id_Entrega,
           widget.id_OC,
+          0,
+          "",
           products[i].cantidad!,
           products[i].descripcion,
           products[i].precioUnitario!,

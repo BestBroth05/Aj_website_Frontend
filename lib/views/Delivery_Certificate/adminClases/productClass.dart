@@ -4,6 +4,7 @@ class ProductCertificateDelivery {
   int? id_producto;
   int? id_entrega;
   int? id_OC;
+  int? id_quote;
   double? precioUnitario;
   int? cantidad;
   String? descripcion;
@@ -13,6 +14,7 @@ class ProductCertificateDelivery {
       {this.id_producto,
       this.id_entrega,
       this.id_OC,
+      this.id_quote,
       this.precioUnitario,
       this.cantidad,
       this.descripcion,
@@ -23,6 +25,7 @@ class ProductCertificateDelivery {
       'id_producto': id_producto,
       'id_entrega': id_entrega,
       'id_OC': id_OC,
+      'id_quote': id_quote,
       'precioUnitario': precioUnitario,
       'cantidad': cantidad,
       'descripcion': descripcion,
@@ -36,6 +39,7 @@ class ProductCertificateDelivery {
     id_producto = map['id_producto'];
     id_entrega = map['id_entrega'];
     id_OC = map['id_OC'];
+    id_quote = map['id_quote'];
     precioUnitario = map['precioUnitario'];
     cantidad = map['cantidad'];
     descripcion = map['descripcion'];

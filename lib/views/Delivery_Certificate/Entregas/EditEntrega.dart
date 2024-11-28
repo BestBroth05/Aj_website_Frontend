@@ -212,6 +212,8 @@ class _EditEntregaState extends State<EditEntrega> {
           products[i].id_producto,
           certificadoEntrega!.id_Entrega,
           widget.id_OC,
+          0,
+          "",
           products[i].precioUnitario!,
           products[i].cantidad!,
           products[i].descripcion,
@@ -254,6 +256,8 @@ class _EditEntregaState extends State<EditEntrega> {
     int result = await DataAccessObject.postProductoOC(
         certificadoEntrega!.id_Entrega,
         widget.id_OC,
+        0,
+        "",
         product.cantidad!,
         product.descripcion,
         product.precioUnitario!,

@@ -7,6 +7,7 @@ class QuoteClass {
   double? iva;
   double? isr;
   //General data
+  int? quoteType;
   String? date;
   String? customerName;
   String? quoteNumber;
@@ -76,6 +77,7 @@ class QuoteClass {
       this.iva,
       this.isr,
       //General data
+      this.quoteType,
       this.date,
       this.customerName,
       this.quoteNumber,
@@ -145,6 +147,7 @@ class QuoteClass {
       'IVA': iva,
       'ISR': isr,
       //General data
+      'quoteType': quoteType,
       'date': date,
       'customerName': customerName,
       'quoteNumber': quoteNumber,

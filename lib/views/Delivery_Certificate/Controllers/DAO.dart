@@ -581,8 +581,8 @@ class DataAccessObject {
 
 // ********************************************* Certificado de Entrega Productos ***************************************************** //
 //--------------------------- Post Producto OC --------------------------
-  static Future<int> postProductoOC(id_entrega, id_OC, cantidad, descripcion,
-      precio_unitario, importe) async {
+  static Future<int> postProductoOC(id_entrega, id_OC, id_quote, image,
+      cantidad, descripcion, precio_unitario, importe) async {
     int code;
 
     var res = await http.post(
@@ -593,6 +593,8 @@ class DataAccessObject {
       body: jsonEncode(<String, dynamic>{
         'id_entrega': id_entrega,
         'id_OC': id_OC,
+        'id_quote': id_quote,
+        'image': image,
         'cantidad': cantidad,
         'descripcion': descripcion,
         'precio_unitario': precio_unitario,
@@ -621,6 +623,8 @@ class DataAccessObject {
               id_producto: jsonData[i]['id_producto'],
               id_entrega: jsonData[i]['id_entrega'],
               id_OC: jsonData[i]['id_OC'],
+              id_quote: jsonData[i]['id_quote'],
+              image: jsonData[i]['image'],
               precioUnitario: jsonData[i]['precio_unitario'],
               cantidad: jsonData[i]['cantidad'],
               descripcion: jsonData[i]['descripcion'],
@@ -678,6 +682,8 @@ class DataAccessObject {
               id_producto: jsonData[i]['id_producto'],
               id_entrega: jsonData[i]['id_entrega'],
               id_OC: jsonData[i]['id_OC'],
+              id_quote: jsonData[i]['id_quote'],
+              image: jsonData[i]['image'],
               precioUnitario: jsonData[i]['precio_unitario'],
               cantidad: jsonData[i]['cantidad'],
               descripcion: jsonData[i]['descripcion'],
@@ -691,8 +697,8 @@ class DataAccessObject {
   }
 
   //--------------------------- Update ProductOC --------------------------
-  static Future<int> updateProductOC(id_producto, id_entrega, id_OC,
-      precioUnitario, cantidad, descripcion, importe) async {
+  static Future<int> updateProductOC(id_producto, id_entrega, id_OC, id_quote,
+      image, precioUnitario, cantidad, descripcion, importe) async {
     int code;
 
     var res = await http.post(
@@ -704,6 +710,8 @@ class DataAccessObject {
         'id_producto': id_producto,
         'id_entrega': id_entrega,
         'id_OC': id_OC,
+        'id_quote': id_quote,
+        'image': image,
         'precioUnitario': precioUnitario,
         'cantidad': cantidad,
         'descripcion': descripcion,
@@ -729,6 +737,7 @@ class DataAccessObject {
       id_percentages,
       iva,
       isr,
+      quoteType,
       date,
       customerName,
       quoteNumber,
@@ -799,6 +808,7 @@ class DataAccessObject {
         'iva': iva,
         'isr': isr,
         //General Data
+        'quoteType': quoteType,
         'date': date,
         'customerName': customerName,
         'quoteNumber': quoteNumber,
@@ -891,6 +901,7 @@ class DataAccessObject {
               id_Percentages: jsonData[i]['id_percentages'],
               iva: jsonData[i]['iva'],
               isr: jsonData[i]['isr'],
+              quoteType: jsonData[i]['quoteType'],
               date: jsonData[i]['date'],
               customerName: jsonData[i]['customerName'],
               quoteNumber: jsonData[i]['quoteNumber'],
@@ -968,6 +979,7 @@ class DataAccessObject {
               id_Percentages: jsonData[i]['id_percentages'],
               iva: jsonData[i]['iva'],
               isr: jsonData[i]['isr'],
+              quoteType: jsonData[i]['quoteType'],
               date: jsonData[i]['date'],
               customerName: jsonData[i]['customerName'],
               quoteNumber: jsonData[i]['quoteNumber'],
@@ -1074,6 +1086,7 @@ class DataAccessObject {
               id_Percentages: jsonData[i]['id_percentages'],
               iva: jsonData[i]['iva'],
               isr: jsonData[i]['isr'],
+              quoteType: jsonData[i]['quoteType'],
               date: jsonData[i]['date'],
               customerName: jsonData[i]['customerName'],
               quoteNumber: jsonData[i]['quoteNumber'],
@@ -1141,6 +1154,7 @@ class DataAccessObject {
       id_percentages,
       iva,
       isr,
+      quoteType,
       date,
       customerName,
       quoteNumber,
@@ -1212,6 +1226,7 @@ class DataAccessObject {
         'iva': iva,
         'isr': isr,
         //General Data
+        'quoteType': quoteType,
         'date': date,
         'customerName': customerName,
         'quoteNumber': quoteNumber,
@@ -1546,7 +1561,7 @@ class DataAccessObject {
   // ********************************************* Quotes Preview ***************************************************** //
 //--------------------------- Post Quotes Preview --------------------------
   static Future<int> postPreview(
-      id_quote, description, unitario, cantidad, total, notas) async {
+      id_quote, description, unitario, cantidad, total, notas, image) async {
     int code;
 
     var res = await http.post(
@@ -1560,7 +1575,8 @@ class DataAccessObject {
         'unitario': unitario,
         'cantidad': cantidad,
         'total': total,
-        'notas': notas
+        'notas': notas,
+        'image': image
       }),
     );
 
@@ -1588,7 +1604,8 @@ class DataAccessObject {
               unitario: jsonData[i]['unitario'],
               cantidad: jsonData[i]['cantidad'],
               total: jsonData[i]['total'],
-              notas: jsonData[i]['notas']));
+              notas: jsonData[i]['notas'],
+              image: jsonData[i]['image']));
     } else if (res.statusCode == 404) {
       List<QuoteTableClass> list = [];
       print("Error 404 not found");
@@ -1624,7 +1641,8 @@ class DataAccessObject {
               unitario: jsonData[i]['unitario'],
               cantidad: jsonData[i]['cantidad'],
               total: jsonData[i]['total'],
-              notas: jsonData[i]['notas']));
+              notas: jsonData[i]['notas'],
+              image: jsonData[i]['image']));
     } else {
       return list;
     }
@@ -1654,7 +1672,7 @@ class DataAccessObject {
 
   //--------------------------- Update Quotes Preview --------------------------
   static Future<int> updatePreview(id_quotePreview, id_quote, description,
-      unitario, cantidad, total, notas) async {
+      unitario, cantidad, total, notas, image) async {
     int code;
 
     var res = await http.post(
@@ -1669,7 +1687,8 @@ class DataAccessObject {
         'unitario': unitario,
         'cantidad': cantidad,
         'total': total,
-        'notas': notas
+        'notas': notas,
+        'image': image
       }),
     );
 

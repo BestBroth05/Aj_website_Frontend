@@ -90,6 +90,7 @@ class _QuoteTypeState extends State<QuoteType> {
                       onTap: () {
                         setState(() {
                           currentUser.customerNameQuotes = widget.customer;
+                          currentUser.quoteType = index + 1;
                         });
 
                         openLink(context, route.url, isRoute: true);

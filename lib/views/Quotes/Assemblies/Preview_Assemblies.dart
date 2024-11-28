@@ -197,7 +197,8 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
             rows[i].unitario,
             rows[i].cantidad,
             rows[i].total,
-            notes.text);
+            notes.text,
+            " ");
       }
       print("Code: $code");
       if (code == 200) {
@@ -247,7 +248,8 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
             rows[i].unitario,
             rows[i].cantidad,
             rows[i].total,
-            notes.text);
+            notes.text,
+            " ");
       }
       print("Code: $code");
       if (code == 200) {

@@ -23,7 +23,11 @@ class PreviewManofacture extends StatefulWidget {
   CustomersClass? customer;
   List<ProductCertificateDelivery>? products;
   PreviewManofacture(
-      {super.key, this.quote, this.products, this.customer, this.isSavedQuote});
+      {super.key,
+      required this.quote,
+      required this.products,
+      required this.customer,
+      required this.isSavedQuote});
 
   @override
   State<PreviewManofacture> createState() => _PreviewManofactureState();
@@ -94,12 +98,14 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
       int code = 0;
       for (var i = 0; i < rows.length; i++) {
         code = await DataAccessObject.postPreview(
-            widget.quote!.id_Quote,
-            rows[i].description,
-            rows[i].unitario,
-            rows[i].cantidad,
-            rows[i].total,
-            notes.text);
+          widget.quote!.id_Quote,
+          rows[i].description,
+          rows[i].unitario,
+          rows[i].cantidad,
+          rows[i].total,
+          notes.text,
+          rows[i].image,
+        );
       }
       print("Code: $code");
       if (code == 200) {
@@ -147,7 +153,8 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
             rows[i].unitario,
             rows[i].cantidad,
             rows[i].total,
-            notes.text);
+            notes.text,
+            rows[i].image);
       }
       print("Code: $code");
       if (code == 200) {

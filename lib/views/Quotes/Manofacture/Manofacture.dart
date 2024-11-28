@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'dart:convert';
 
 import 'package:datepicker_dropdown/datepicker_dropdown.dart';
@@ -11,15 +13,20 @@ import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/views/Quotes/Clases/QuoteClass.dart';
 import 'package:guadalajarav2/views/Quotes/Manofacture/PreviewManofacture.dart';
 
+import '../../../utils/tools.dart';
 import '../../Delivery_Certificate/Controllers/DAO.dart';
 import '../../Delivery_Certificate/adminClases/CustomerClass.dart';
 import '../../Delivery_Certificate/adminClases/OrdenCompraClass.dart';
 import '../../Delivery_Certificate/adminClases/productClass.dart';
+import '../../Delivery_Certificate/widgets/Popups.dart';
 import '../../Delivery_Certificate/widgets/Texts.dart';
 import '../../Delivery_Certificate/widgets/deliverFieldWidget.dart';
+import '../Clases/PorcentajesClass.dart';
 
 class Manofacture extends StatefulWidget {
-  const Manofacture({super.key});
+  QuoteClass? quote;
+  bool isEdit;
+  Manofacture({super.key, required this.isEdit, this.quote});
 
   @override
   State<Manofacture> createState() => _ManofactureState();
@@ -51,6 +58,7 @@ class _ManofactureState extends State<Manofacture> {
   int totalProducts = 0;
   double? importe;
   List<ProductCertificateDelivery> products = [];
+  List<ProductCertificateDelivery> productsStart = [];
   List<OrdenCompraClass> OC = [];
   TextEditingController imageName = TextEditingController();
   //Porcentajes
@@ -63,6 +71,7 @@ class _ManofactureState extends State<Manofacture> {
   final _formKeyProduct = GlobalKey<FormState>();
   final _formKeyImage = GlobalKey<FormState>();
   //Tools
+  String? buttonText;
   String selcFile = "";
   String fileName = '';
   Uint8List? selectedImageInBytes;
@@ -78,31 +87,204 @@ class _ManofactureState extends State<Manofacture> {
     decimalDigits: 2,
   );
   ValueChanged<String>? onChanged;
+
 // ************************************************************************************* //
 // ************************************* InitState ************************************* //
 // ************************************************************************************* //
   @override
   void initState() {
-    porcentajeIva.text = "1.16";
-    porcentajeIsr.text = "1.32";
-    porcentajeAj.text = "1.1";
-    customerName = currentUser.customerNameQuotes!.name;
-    attentionTo.text = "Departamento de Compras";
     getAllCustomers();
-    getDollarCost();
-    getAllQuotesPerCustomer();
+    isEditing();
     super.initState();
-    // ***** Getting date ***** \\
-    DateTime now = DateTime.now();
-    day = DateFormat.d().format(now);
-    month = DateFormat.M().format(now);
-    year = DateFormat.y().format(now);
-    fecha = now.toString();
   }
 
 // ************************************************************************************ //
 // ************************************* Gobal Functions ****************************** //
 // ************************************************************************************ //
+  isEditing() async {
+    if (widget.isEdit) {
+      buttonText = "Update";
+      DateTime now = DateTime.parse(widget.quote!.date!);
+      day = DateFormat.d().format(now);
+      month = DateFormat.M().format(now);
+      year = DateFormat.y().format(now);
+      //General data
+      customerName = widget.quote!.customerName!;
+      quoteNumber.text = widget.quote!.quoteNumber!;
+      fecha = widget.quote!.date!;
+      attentionTo.text = widget.quote!.attentionTo!;
+      requestedByName.text = widget.quote!.requestedByName!;
+      requestedByEmail.text = widget.quote!.requestedByEmail!;
+      proyectName.text = widget.quote!.proyectName!;
+      //Informative
+      dollarSell.text = widget.quote!.dollarSell!.toString();
+      dollarBuy.text = widget.quote!.dollarBuy.toString();
+      days = widget.quote!.deliverTimeInfo;
+      currency = widget.quote!.currency;
+      conIva = widget.quote!.conIva;
+      //Percentages
+      porcentajeIva.text = widget.quote!.iva!.toString();
+      porcentajeIsr.text = widget.quote!.isr.toString();
+      porcentajeAj.text = widget.quote!.componentsAJ.toString();
+      //Products delivered
+      await getProductsPerQuote();
+    } else {
+      buttonText = "Save";
+      // ***** Getting date ***** \\
+      DateTime now = DateTime.now();
+      day = DateFormat.d().format(now);
+      month = DateFormat.M().format(now);
+      year = DateFormat.y().format(now);
+      fecha = now.toString();
+      attentionTo.text = "Departamento de Compras";
+      customerName = currentUser.customerNameQuotes!.name;
+      await getAllQuotesPerCustomer();
+      await getPercetages();
+      await getDollarCost();
+    }
+  }
+
+  getProductsPerQuote() async {
+    List<ProductCertificateDelivery> allProducts =
+        await DataAccessObject.getProductosOC();
+
+    setState(() {
+      for (var i = 0; i < allProducts.length; i++) {
+        if (allProducts[i].id_quote == widget.quote!.id_Quote) {
+          products.add(allProducts[i]);
+        }
+      }
+      productsStart = products;
+    });
+  }
+
+  updateQuote(
+      QuoteClass quote, List<ProductCertificateDelivery> productstoPost) async {
+    try {
+      int code = await DataAccessObject.updateQuote(
+          quote.id_Quote,
+          quote.id_Customer,
+          quote.id_Percentages,
+          quote.iva,
+          quote.isr,
+          quote.quoteType,
+          quote.date,
+          quote.customerName,
+          quote.quoteNumber,
+          quote.proyectName,
+          quote.requestedByName,
+          quote.requestedByEmail,
+          quote.attentionTo,
+          quote.quantity,
+          quote.dollarSell,
+          quote.dollarBuy,
+          quote.deliverTimeInfo,
+          quote.currency,
+          quote.conIva,
+          quote.excelName,
+          quote.componentsMPN,
+          quote.componentsAvailables,
+          quote.componentsDeliverTime,
+          quote.componentsAJPercentage,
+          quote.digikeysAJPercentage,
+          quote.dhlCostComponent,
+          quote.componentsMouserCost,
+          quote.componentsIVA,
+          quote.componentsAJ,
+          quote.totalComponentsUSD,
+          quote.totalComponentsMXN,
+          quote.perComponentMXN,
+          quote.PCBName,
+          quote.PCBLayers,
+          quote.PCBSize,
+          quote.PCBImage,
+          quote.PCBColor,
+          quote.PCBDeliveryTime,
+          quote.PCBdhlCost,
+          quote.PCBAJPercentage,
+          quote.PCBReleasePercentage,
+          quote.PCBPurchase,
+          quote.PCBShipment,
+          quote.PCBTax,
+          quote.PCBRelease,
+          quote.PCBAJ,
+          quote.PCBTotalUSD,
+          quote.PCBTotalMXN,
+          quote.PCBPerMXN,
+          quote.assemblyLayers,
+          quote.assemblyMPN,
+          quote.assemblySMT,
+          quote.assemblyTH,
+          quote.assemblyDeliveryTime,
+          quote.assemblyAJPercentage,
+          quote.assembly,
+          quote.assemblyTax,
+          quote.assemblyAJ,
+          quote.assemblyDhlCost,
+          quote.assemblyTotalMXN,
+          quote.perAssemblyMXN);
+
+      print("Error numero: $code");
+      if (code == 200) {
+        await deleteProducts(productsStart);
+        int idQuote = await getIdQuote();
+        int codeP = await postProducts(productstoPost, idQuote);
+        if (codeP == 200) {
+          setState(() => isPressed = true);
+          GoodPopup(context, "Saved");
+          Future.delayed(Duration(seconds: 3), () {
+            Navigator.of(context).pop();
+          });
+        } else {
+          setState(() => isPressed = false);
+          wrongPopup(context, "Error to send quote");
+          Future.delayed(Duration(seconds: 3), () {
+            Navigator.of(context).pop();
+          });
+        }
+      } else {
+        setState(() => isPressed = false);
+        wrongPopup(context, "Error to send quote");
+        Future.delayed(Duration(seconds: 3), () {
+          Navigator.of(context).pop();
+        });
+      }
+    } catch (e) {
+      setState(() => isPressed = false);
+      print("error $e");
+      PopupError(context);
+      Future.delayed(Duration(seconds: 3), () {
+        Navigator.of(context).pop();
+      });
+      return 1005;
+    }
+  }
+
+  deleteProducts(List<ProductCertificateDelivery> productsToDelete) async {
+    for (var i = 0; i < productsToDelete.length; i++) {
+      if (productsToDelete[i].id_producto != null) {
+        await DataAccessObject.deleteProductOC(productsToDelete[i].id_producto);
+      }
+    }
+  }
+
+  getPercetages() async {
+    List<PorcentajesClass> porcentajes1 =
+        await DataAccessObject.selectPorcentajesByCustomer(
+            currentUser.customerNameQuotes!.id_customer);
+    setState(() {
+      if (porcentajes1.isNotEmpty) {
+        porcentajeIva.text = porcentajes1[0].iva.toString();
+        porcentajeIsr.text = porcentajes1[0].isr.toString();
+        porcentajeAj.text = porcentajes1[0].ajComponents.toString();
+      } else {
+        porcentajeIva.text = "1.16";
+        porcentajeIsr.text = "1.32";
+        porcentajeAj.text = "1.1";
+      }
+    });
+  }
+
   getAllCustomers() async {
     List<CustomersClass> allCustomers1 = await DataAccessObject.getCustomer();
     setState(() {
@@ -150,6 +332,16 @@ class _ManofactureState extends State<Manofacture> {
     });
   }
 
+  getIdQuote() async {
+    int id_quote = 0;
+    List<QuoteClass> allQuotes = await DataAccessObject.getQuotes();
+
+    setState(() {
+      id_quote = allQuotes[allQuotes.length - 1].id_Quote!;
+    });
+    return id_quote;
+  }
+
   Future getImage() async {
     FilePickerResult? fileResult =
         await FilePicker.platform.pickFiles(type: FileType.any, withData: true);
@@ -182,6 +374,145 @@ class _ManofactureState extends State<Manofacture> {
     return onChanged = (value) {
       setState(() {});
     };
+  }
+
+  postQuote(
+      QuoteClass quote, List<ProductCertificateDelivery> productstoPost) async {
+    try {
+      int code = await DataAccessObject.postQuote(
+          quote.id_Customer,
+          quote.id_Percentages,
+          quote.iva,
+          quote.isr,
+          quote.quoteType,
+          quote.date,
+          quote.customerName,
+          quote.quoteNumber,
+          quote.proyectName,
+          quote.requestedByName,
+          quote.requestedByEmail,
+          quote.attentionTo,
+          quote.quantity,
+          quote.dollarSell,
+          quote.dollarBuy,
+          quote.deliverTimeInfo,
+          quote.currency,
+          quote.conIva,
+          quote.excelName,
+          quote.componentsMPN,
+          quote.componentsAvailables,
+          quote.componentsDeliverTime,
+          quote.componentsAJPercentage,
+          quote.digikeysAJPercentage,
+          quote.dhlCostComponent,
+          quote.componentsMouserCost,
+          quote.componentsIVA,
+          quote.componentsAJ,
+          quote.totalComponentsUSD,
+          quote.totalComponentsMXN,
+          quote.perComponentMXN,
+          quote.PCBName,
+          quote.PCBLayers,
+          quote.PCBSize,
+          quote.PCBImage,
+          quote.PCBColor,
+          quote.PCBDeliveryTime,
+          quote.PCBdhlCost,
+          quote.PCBAJPercentage,
+          quote.PCBReleasePercentage,
+          quote.PCBPurchase,
+          quote.PCBShipment,
+          quote.PCBTax,
+          quote.PCBRelease,
+          quote.PCBAJ,
+          quote.PCBTotalUSD,
+          quote.PCBTotalMXN,
+          quote.PCBPerMXN,
+          quote.assemblyLayers,
+          quote.assemblyMPN,
+          quote.assemblySMT,
+          quote.assemblyTH,
+          quote.assemblyDeliveryTime,
+          quote.assemblyAJPercentage,
+          quote.assembly,
+          quote.assemblyTax,
+          quote.assemblyAJ,
+          quote.assemblyDhlCost,
+          quote.assemblyTotalMXN,
+          quote.perAssemblyMXN);
+
+      print("Error numero: $code");
+      if (code == 200) {
+        int idQuote = await getIdQuote();
+        int codeP = await postProducts(productstoPost, idQuote);
+        if (codeP == 200) {
+          setState(() => isPressed = true);
+          GoodPopup(context, "Saved");
+          Future.delayed(Duration(seconds: 3), () {
+            Navigator.of(context).pop();
+          });
+        } else {
+          setState(() => isPressed = false);
+          wrongPopup(context, "Error to send quote");
+          Future.delayed(Duration(seconds: 3), () {
+            Navigator.of(context).pop();
+          });
+        }
+      } else {
+        setState(() => isPressed = false);
+        wrongPopup(context, "Error to send quote");
+        Future.delayed(Duration(seconds: 3), () {
+          Navigator.of(context).pop();
+        });
+      }
+    } catch (e) {
+      setState(() => isPressed = false);
+      print("error $e");
+      PopupError(context);
+      Future.delayed(Duration(seconds: 3), () {
+        Navigator.of(context).pop();
+      });
+      return 1005;
+    }
+  }
+
+  postProducts(
+      List<ProductCertificateDelivery> productstoPost, int id_quote) async {
+    int code = 0;
+    for (var i = 0; i < productstoPost.length; i++) {
+      productstoPost[i].id_quote = id_quote;
+    }
+    for (var i = 0; i < productstoPost.length; i++) {
+      try {
+        code = await DataAccessObject.postProductoOC(
+            productstoPost[i].id_entrega,
+            productstoPost[i].id_OC,
+            productstoPost[i].id_quote,
+            productstoPost[i].image,
+            productstoPost[i].cantidad,
+            productstoPost[i].descripcion,
+            productstoPost[i].precioUnitario,
+            productstoPost[i].importe);
+        if (code != 200) {
+          setState(() => isPressed = false);
+          wrongPopup(context, "Error to send products");
+          Future.delayed(Duration(seconds: 3), () {
+            Navigator.of(context).pop();
+          });
+        }
+      } catch (e) {
+        setState(() => isPressed = false);
+        wrongPopup(context, "Error to send products");
+        Future.delayed(Duration(seconds: 3), () {
+          Navigator.of(context).pop();
+        });
+      }
+    }
+    if (code == 200) {
+      return 200;
+    } else {
+      return 1005;
+    }
   }
 
 // ************************************************************************************* //
@@ -923,6 +1254,8 @@ class _ManofactureState extends State<Manofacture> {
                                   importe =
                                       precioUnitario * int.parse(cantidad.text);
                                   products.add(ProductCertificateDelivery(
+                                      id_entrega: 0,
+                                      id_OC: 0,
                                       image: imageName.text.isNotEmpty
                                           ? base64.encode(selectedImageInBytes!)
                                           : "",
@@ -1118,12 +1451,144 @@ class _ManofactureState extends State<Manofacture> {
                   foregroundColor: white,
                 ),
                 child: Text(
-                  "Save",
+                  buttonText!,
                   style: TextStyle(fontSize: 16),
                 ),
                 onPressed: () async {
                   if (_formKeyGeneralData.currentState!.validate()) {
-                    if (_formKeyInformative.currentState!.validate()) {}
+                    if (_formKeyInformative.currentState!.validate()) {
+                      if (widget.isEdit) {
+                        quote = QuoteClass(
+                          id_Quote: widget.quote!.id_Quote,
+                          id_Customer: widget.quote!.id_Customer,
+                          id_Percentages: 0,
+                          iva: double.parse(porcentajeIva.text),
+                          isr: double.parse(porcentajeIsr.text),
+                          quoteType: widget.quote!.quoteType,
+                          date: fecha,
+                          customerName: customerName,
+                          quoteNumber: quoteNumber.text,
+                          proyectName: proyectName.text,
+                          requestedByEmail: requestedByEmail.text,
+                          requestedByName: requestedByName.text,
+                          attentionTo: attentionTo.text,
+                          quantity: 0,
+                          dollarSell: double.parse(dollarSell.text),
+                          dollarBuy: double.parse(dollarBuy.text),
+                          deliverTimeInfo: days,
+                          excelName: "",
+                          componentsMPN: 0,
+                          componentsAvailables: 0,
+                          componentsDeliverTime: "",
+                          dhlCostComponent: 0.0,
+                          componentsAJPercentage: 0.0,
+                          digikeysAJPercentage: 0.0,
+                          componentsMouserCost: 0.0,
+                          componentsIVA: 0.0,
+                          componentsAJ: double.parse(porcentajeAj.text),
+                          conIva: conIva,
+                          currency: currency,
+                          totalComponentsUSD: 0.0,
+                          totalComponentsMXN: 0.0,
+                          perComponentMXN: 0.0,
+                          PCBName: "",
+                          PCBLayers: "",
+                          PCBSize: "",
+                          PCBImage: "",
+                          PCBColor: "",
+                          PCBDeliveryTime: "",
+                          PCBdhlCost: 0.0,
+                          PCBAJPercentage: 0.0,
+                          PCBReleasePercentage: 0.0,
+                          PCBPurchase: 0.0,
+                          PCBShipment: 0.0,
+                          PCBTax: 0.0,
+                          PCBRelease: 0.0,
+                          PCBAJ: 0.0,
+                          PCBTotalUSD: 0.0,
+                          PCBTotalMXN: 0.0,
+                          PCBPerMXN: 0.0,
+                          assemblyLayers: "",
+                          assemblyMPN: 0,
+                          assemblySMT: 0,
+                          assemblyTH: 0,
+                          assemblyDhlCost: 0.0,
+                          assemblyDeliveryTime: "",
+                          assemblyAJPercentage: 0.0,
+                          assembly: 0.0,
+                          assemblyTax: 0.0,
+                          assemblyAJ: 0.0,
+                          assemblyTotalMXN: 0.0,
+                          perAssemblyMXN: 0.0,
+                        );
+                        await updateQuote(quote!, products);
+                      } else {
+                        quote = QuoteClass(
+                          id_Customer:
+                              currentUser.customerNameQuotes!.id_customer,
+                          id_Percentages: 0,
+                          iva: double.parse(porcentajeIva.text),
+                          isr: double.parse(porcentajeIsr.text),
+                          quoteType: currentUser.quoteType,
+                          date: fecha,
+                          customerName: customerName,
+                          quoteNumber: quoteNumber.text,
+                          proyectName: proyectName.text,
+                          requestedByEmail: requestedByEmail.text,
+                          requestedByName: requestedByName.text,
+                          attentionTo: attentionTo.text,
+                          quantity: 0,
+                          dollarSell: double.parse(dollarSell.text),
+                          dollarBuy: double.parse(dollarBuy.text),
+                          deliverTimeInfo: days,
+                          excelName: "",
+                          componentsMPN: 0,
+                          componentsAvailables: 0,
+                          componentsDeliverTime: "",
+                          dhlCostComponent: 0.0,
+                          componentsAJPercentage: 0.0,
+                          digikeysAJPercentage: 0.0,
+                          componentsMouserCost: 0.0,
+                          componentsIVA: 0.0,
+                          componentsAJ: double.parse(porcentajeAj.text),
+                          conIva: conIva,
+                          currency: currency,
+                          totalComponentsUSD: 0.0,
+                          totalComponentsMXN: 0.0,
+                          perComponentMXN: 0.0,
+                          PCBName: "",
+                          PCBLayers: "",
+                          PCBSize: "",
+                          PCBImage: "",
+                          PCBColor: "",
+                          PCBDeliveryTime: "",
+                          PCBdhlCost: 0.0,
+                          PCBAJPercentage: 0.0,
+                          PCBReleasePercentage: 0.0,
+                          PCBPurchase: 0.0,
+                          PCBShipment: 0.0,
+                          PCBTax: 0.0,
+                          PCBRelease: 0.0,
+                          PCBAJ: 0.0,
+                          PCBTotalUSD: 0.0,
+                          PCBTotalMXN: 0.0,
+                          PCBPerMXN: 0.0,
+                          assemblyLayers: "",
+                          assemblyMPN: 0,
+                          assemblySMT: 0,
+                          assemblyTH: 0,
+                          assemblyDhlCost: 0.0,
+                          assemblyDeliveryTime: "",
+                          assemblyAJPercentage: 0.0,
+                          assembly: 0.0,
+                          assemblyTax: 0.0,
+                          assemblyAJ: 0.0,
+                          assemblyTotalMXN: 0.0,
+                          perAssemblyMXN: 0.0,
+                        );
+                        await postQuote(quote!, products);
+                      }
+                    }
                   }
                 })),
         Container(
@@ -1145,6 +1610,7 @@ class _ManofactureState extends State<Manofacture> {
                             currentUser.customerNameQuotes!.id_customer,
                         iva: double.parse(porcentajeIva.text),
                         isr: double.parse(porcentajeIsr.text),
+                        quoteType: currentUser.quoteType,
                         date: fecha,
                         customerName: customerName,
                         quoteNumber: quoteNumber.text,

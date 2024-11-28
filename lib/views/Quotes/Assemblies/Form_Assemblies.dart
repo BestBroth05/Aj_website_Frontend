@@ -743,6 +743,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
           double.parse(porcentajeIva.text),
           double.parse(porcentajeIsr.text),
           //General data
+          currentUser.quoteType,
           fecha,
           customerName,
           quoteNumber.text,
@@ -812,6 +813,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
           double.parse(porcentajeIva.text),
           double.parse(porcentajeIsr.text),
           //General data
+          currentUser.quoteType,
           fecha,
           customerName,
           quoteNumber.text,
@@ -881,6 +883,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
           double.parse(porcentajeIva.text),
           double.parse(porcentajeIsr.text),
           //General data
+          currentUser.quoteType,
           fecha,
           customerName,
           quoteNumber.text,
@@ -950,6 +953,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
           double.parse(porcentajeIva.text),
           double.parse(porcentajeIsr.text),
           //General data
+          currentUser.quoteType,
           fecha,
           customerName,
           quoteNumber.text,

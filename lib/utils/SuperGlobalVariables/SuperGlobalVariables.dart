@@ -1,6 +1,7 @@
 import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/CustomerClass.dart';
 
 class selectedVariable {
+  int? quoteType;
   double? height;
   double? width;
   double? ajPorsentajeComponets = 10;
