@@ -122,6 +122,8 @@ class _TileQuotesState extends State<TileQuotes> {
                                                         Manofacture(
                                                           isEdit: true,
                                                           quote: widget.quote,
+                                                          customer:
+                                                              widget.customer,
                                                         )));
                                           }
                                         },

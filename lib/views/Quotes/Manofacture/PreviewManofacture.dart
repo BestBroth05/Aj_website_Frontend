@@ -51,6 +51,7 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
   List<QuoteTableClass> preview = [];
   bool isUpdate = false;
   TextEditingController notes = TextEditingController();
+  List<QuoteTableClass> startRows = [];
 
   @override
   void initState() {
@@ -91,6 +92,9 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
         cantidad: "1",
         image: "",
         total: "0.0"));
+    setState(() {
+      startRows = rows;
+    });
   }
 
   postPreview() async {
@@ -498,7 +502,7 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
                 ),
                 dataRowMaxHeight: 120.0,
                 columns: getColumns(columns),
-                rows: getRows(rows)),
+                rows: getRows(startRows)),
           ),
           Container(
             width: (currentUser.width! - 500),

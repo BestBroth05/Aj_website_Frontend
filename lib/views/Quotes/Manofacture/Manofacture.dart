@@ -24,9 +24,10 @@ import '../../Delivery_Certificate/widgets/deliverFieldWidget.dart';
 import '../Clases/PorcentajesClass.dart';
 
 class Manofacture extends StatefulWidget {
+  CustomersClass? customer;
   QuoteClass? quote;
   bool isEdit;
-  Manofacture({super.key, required this.isEdit, this.quote});
+  Manofacture({super.key, required this.isEdit, this.quote, this.customer});
 
   @override
   State<Manofacture> createState() => _ManofactureState();
@@ -86,7 +87,10 @@ class _ManofactureState extends State<Manofacture> {
     locale: 'en_us',
     decimalDigits: 2,
   );
+  CustomersClass? customer;
   ValueChanged<String>? onChanged;
+  int? quoteType;
+  int? id_customer;
 
 // ************************************************************************************* //
 // ************************************* InitState ************************************* //
@@ -103,6 +107,9 @@ class _ManofactureState extends State<Manofacture> {
 // ************************************************************************************ //
   isEditing() async {
     if (widget.isEdit) {
+      quoteType = widget.quote!.quoteType;
+      id_customer = widget.quote!.id_Customer;
+      customer = widget.customer;
       buttonText = "Update";
       DateTime now = DateTime.parse(widget.quote!.date!);
       day = DateFormat.d().format(now);
@@ -129,6 +136,9 @@ class _ManofactureState extends State<Manofacture> {
       //Products delivered
       await getProductsPerQuote();
     } else {
+      quoteType = currentUser.quoteType;
+      id_customer = currentUser.customerNameQuotes!.id_customer;
+      customer = currentUser.customerNameQuotes;
       buttonText = "Save";
       // ***** Getting date ***** \\
       DateTime now = DateTime.now();
@@ -271,7 +281,7 @@ class _ManofactureState extends State<Manofacture> {
   getPercetages() async {
     List<PorcentajesClass> porcentajes1 =
         await DataAccessObject.selectPorcentajesByCustomer(
-            currentUser.customerNameQuotes!.id_customer);
+            customer!.id_customer);
     setState(() {
       if (porcentajes1.isNotEmpty) {
         porcentajeIva.text = porcentajes1[0].iva.toString();
@@ -303,8 +313,8 @@ class _ManofactureState extends State<Manofacture> {
   getAllQuotesPerCustomer() async {
     String number;
     int quoteNumberInt = 0;
-    List<QuoteClass> quotes = await DataAccessObject.getQuotesByCustomer(
-        currentUser.customerNameQuotes!.id_customer);
+    List<QuoteClass> quotes =
+        await DataAccessObject.getQuotesByCustomer(customer!.id_customer);
     setState(() {
       List split = customerName!.split(' ');
       if (quotes.isNotEmpty) {
@@ -1524,8 +1534,7 @@ class _ManofactureState extends State<Manofacture> {
                         await updateQuote(quote!, products);
                       } else {
                         quote = QuoteClass(
-                          id_Customer:
-                              currentUser.customerNameQuotes!.id_customer,
+                          id_Customer: customer!.id_customer,
                           id_Percentages: 0,
                           iva: double.parse(porcentajeIva.text),
                           isr: double.parse(porcentajeIsr.text),
@@ -1606,11 +1615,10 @@ class _ManofactureState extends State<Manofacture> {
                   if (_formKeyGeneralData.currentState!.validate()) {
                     if (_formKeyInformative.currentState!.validate()) {
                       quote = QuoteClass(
-                        id_Customer:
-                            currentUser.customerNameQuotes!.id_customer,
+                        id_Customer: id_customer,
                         iva: double.parse(porcentajeIva.text),
                         isr: double.parse(porcentajeIsr.text),
-                        quoteType: currentUser.quoteType,
+                        quoteType: quoteType,
                         date: fecha,
                         customerName: customerName,
                         quoteNumber: quoteNumber.text,
@@ -1673,7 +1681,7 @@ class _ManofactureState extends State<Manofacture> {
                                   products: products,
                                   isSavedQuote: isPressed,
                                   quote: quote!,
-                                  customer: currentUser.customerNameQuotes!)));
+                                  customer: customer!)));
                     }
                   }
                 }))
