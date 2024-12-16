@@ -1649,7 +1649,7 @@ class DataAccessObject {
   }
 
   //--------------------------- Delete Quotes Preview --------------------------
-  static Future<int> deletePreview(id_quote) async {
+  static Future<int> deletePreview(id_quotePreview) async {
     int code;
 
     var res = await http.post(
@@ -1658,7 +1658,7 @@ class DataAccessObject {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, dynamic>{
-        'id_quote': id_quote,
+        'id_quotePreview': id_quotePreview,
       }),
     );
 
