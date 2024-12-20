@@ -38,6 +38,20 @@ class printPDFEnglish {
 
   Future<void> createPDF(final PdfPageFormat format) async {
     await getEntregas();
+    Map<int, pw.TableColumnWidth> columnWidthsTable1 = Map();
+    columnWidthsTable1 = {
+      0: pw.FractionColumnWidth(.125),
+      1: pw.FractionColumnWidth(.525),
+      2: pw.FractionColumnWidth(.175),
+      3: pw.FractionColumnWidth(.175),
+    };
+    Map<int, pw.TableColumnWidth> columnWidthsTable2 = Map();
+    columnWidthsTable2 = {
+      0: pw.FractionColumnWidth(.825),
+      1: pw.FractionColumnWidth(.175)
+    };
+    List splitEntrega = entrega.Direccion!.split(',');
+    String nowTime = DateFormat('yyyy.M.d h:m:s').format(DateTime.now());
     List splitDate = entrega.Fecha!.split("-");
     String date1 = splitDate[1];
     String date2 = splitDate[2];
@@ -88,238 +102,261 @@ class printPDFEnglish {
             ])
         .toList();
     final logo = pw.MemoryImage(
-        (await rootBundle.load('assets/images/headerPDF.png'))
+        (await rootBundle.load('assets/images/HeaderAJ.png'))
             .buffer
             .asUint8List());
+    final footer = pw.MemoryImage(
+        (await rootBundle.load('assets/images/FooterAJ.png'))
+            .buffer
+            .asUint8List());
+    // ************ Get TextStyles ************ //
+
     var fonth1 = await PdfGoogleFonts.tinosBold();
     var body = await PdfGoogleFonts.openSansMedium();
     var bodyBold = await PdfGoogleFonts.openSansBold();
+    arial(size, fontWeight) {
+      if (fontWeight == "bold") {
+        return pw.TextStyle(font: bodyBold, fontSize: size);
+      } else {
+        return pw.TextStyle(font: body, fontSize: size);
+      }
+    }
+
     final pdf = pw.Document();
     final pageTheme = await _mypageTheme(format);
     pdf.addPage(pw.MultiPage(
         pageTheme: pageTheme,
 // ****************************************** Header ****************************************** \\
-        header: (final context) => pw.Image(logo,
-            alignment: pw.Alignment.topLeft,
-            fit: pw.BoxFit.contain,
-            width: 565,
-            height: 125),
+        header: (final context) => pw.Stack(children: [
+              pw.Container(
+                margin: pw.EdgeInsets.only(top: 10, left: 35),
+                child: pw.Image(logo,
+                    alignment: pw.Alignment.topLeft,
+                    fit: pw.BoxFit.contain,
+                    width: 565,
+                    height: 125),
+              ),
+            ]),
 // ****************************************** Footer ****************************************** \\
-        footer: (final context) => pw.Container(
-            margin: pw.EdgeInsets.only(bottom: 10),
-            alignment: pw.Alignment.center,
-            child: pw.Opacity(
-                opacity: 0.5,
-                child: pw.RichText(
-                    textAlign: pw.TextAlign.center,
-                    text: pw.TextSpan(children: [
-                      pw.TextSpan(
-                          text:
-                              "Enrique Díaz de León 157, Miguel de la Madrid, Zapopan Jalisco\n",
-                          style: pw.TextStyle(
-                              font: body, fontSize: 10, height: 1.5)),
-                      pw.TextSpan(
-                          text: "Tel: 33 27 33 09 62\n",
-                          style: pw.TextStyle(
-                              font: body, fontSize: 10, height: 1.5)),
-                      pw.TextSpan(
-                          text: "contact@aj-electronic-design.com    ",
-                          style: pw.TextStyle(
-                              font: body, fontSize: 10, height: 1.5)),
-                      pw.TextSpan(
-                          text: "aj-electronic-design.com",
-                          style: pw.TextStyle(
-                              font: body,
-                              fontSize: 10,
-                              height: 1.5,
-                              decoration: pw.TextDecoration.underline))
-                    ])))),
+        footer: (final context) => pw.Stack(children: [
+              pw.Container(
+                  margin: pw.EdgeInsets.only(top: 236, left: 25),
+                  alignment: pw.Alignment.bottomLeft,
+                  child: pw.Text("${context.pageNumber}/${context.pagesCount}",
+                      style: arial(10, "normal"))),
+              pw.Container(
+                margin: pw.EdgeInsets.only(left: 80, top: 100),
+                child: pw.Image(footer,
+                    alignment: pw.Alignment.bottomLeft,
+                    fit: pw.BoxFit.contain,
+                    width: 525,
+                    height: 300),
+              ),
+              pw.Container(
+                  margin: pw.EdgeInsets.only(left: 0, top: 100),
+                  width: 530,
+                  height: 50,
+                  decoration: pw.BoxDecoration(
+                      color: PdfColors.white, shape: pw.BoxShape.rectangle)),
+            ]),
 // ****************************************** Delivery info ****************************************** \\
         build: (pw.Context context) => [
-              pw.Column(children: [
-                pw.Container(
-                    alignment: pw.Alignment.topCenter,
-                    child: pw.Text('DELIVERY CERTIFICATE',
-                        style: pw.TextStyle(
-                            font: fonth1,
-                            fontSize: 16,
-                            fontWeight: pw.FontWeight.bold))),
-                pw.Container(
-                    margin: pw.EdgeInsets.only(top: 40),
-                    alignment: pw.Alignment.topLeft,
-                    child: pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                        children: [
-                          pw.RichText(
-                              text: pw.TextSpan(children: [
-                            pw.TextSpan(
-                                text: "Folio: ",
-                                style: pw.TextStyle(
-                                    font: body,
-                                    fontSize: 11,
-                                    fontWeight: pw.FontWeight.bold)),
-                            pw.TextSpan(
-                                text: entrega.certificadoEntrega,
-                                style: pw.TextStyle(
-                                    font: body,
-                                    fontSize: 11,
-                                    fontWeight: pw.FontWeight.bold))
-                          ])),
-                          pw.RichText(
-                              text: pw.TextSpan(children: [
-                            pw.TextSpan(
-                                text: "Purchase Order: ",
-                                style: pw.TextStyle(
-                                    font: body,
-                                    fontSize: 11,
-                                    fontWeight: pw.FontWeight.bold)),
-                            pw.TextSpan(
-                                text: ordenCompra,
-                                style: pw.TextStyle(
-                                    font: body,
-                                    fontSize: 11,
-                                    color: PdfColors.red,
-                                    fontWeight: pw.FontWeight.bold))
-                          ]))
-                        ])),
-                pw.Container(
-                    margin: pw.EdgeInsets.only(top: 0),
-                    alignment: pw.Alignment.topLeft,
-                    child: pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                        children: [
-                          pw.Text("Date: ${entrega.Fecha}",
-                              style: pw.TextStyle(font: body, fontSize: 11)),
-                          pw.Text("Deliver to: ${entrega.Direccion}",
-                              style: pw.TextStyle(font: body, fontSize: 11),
-                              textAlign: pw.TextAlign.right)
-                        ])),
-                pw.Container(
-                    margin: pw.EdgeInsets.only(top: 0),
-                    alignment: pw.Alignment.topLeft,
-                    child: pw.Text("Company name: $nombreEmpresa",
-                        style: pw.TextStyle(font: body, fontSize: 11))),
-                pw.Container(
-                    margin: pw.EdgeInsets.only(top: 0),
-                    alignment: pw.Alignment.topLeft,
-                    child: pw.Text("Applicant: ${entrega.Solicitante}",
-                        style: pw.TextStyle(font: body, fontSize: 11))),
-                pw.Container(
-                    margin: pw.EdgeInsets.only(top: 0),
-                    alignment: pw.Alignment.topCenter,
-                    child: pw.Text("Product delivered",
-                        style: pw.TextStyle(font: body, fontSize: 11))),
+              pw.Container(
+                  margin: pw.EdgeInsets.only(left: 25, right: 25),
+                  child: pw.Column(children: [
+                    pw.Container(
+                        alignment: pw.Alignment.topCenter,
+                        child: pw.Text('DELIVERY CERTIFICATE',
+                            style: pw.TextStyle(
+                                font: fonth1,
+                                fontSize: 16,
+                                fontWeight: pw.FontWeight.bold))),
+                    pw.Container(
+                        margin: pw.EdgeInsets.only(top: 40),
+                        alignment: pw.Alignment.topLeft,
+                        child: pw.Row(
+                            mainAxisAlignment:
+                                pw.MainAxisAlignment.spaceBetween,
+                            children: [
+                              pw.RichText(
+                                  text: pw.TextSpan(children: [
+                                pw.TextSpan(
+                                    text: "Folio: ",
+                                    style: pw.TextStyle(
+                                        font: body,
+                                        fontSize: 11,
+                                        fontWeight: pw.FontWeight.bold)),
+                                pw.TextSpan(
+                                    text: entrega.certificadoEntrega,
+                                    style: pw.TextStyle(
+                                        font: body,
+                                        fontSize: 11,
+                                        fontWeight: pw.FontWeight.bold))
+                              ])),
+                              pw.RichText(
+                                  text: pw.TextSpan(children: [
+                                pw.TextSpan(
+                                    text: "Purchase Order: ",
+                                    style: pw.TextStyle(
+                                        font: body,
+                                        fontSize: 11,
+                                        fontWeight: pw.FontWeight.bold)),
+                                pw.TextSpan(
+                                    text: ordenCompra,
+                                    style: pw.TextStyle(
+                                        font: body,
+                                        fontSize: 11,
+                                        color: PdfColors.red,
+                                        fontWeight: pw.FontWeight.bold))
+                              ]))
+                            ])),
+                    pw.Container(
+                        margin: pw.EdgeInsets.only(top: 0),
+                        alignment: pw.Alignment.topLeft,
+                        child: pw.Row(
+                            mainAxisAlignment:
+                                pw.MainAxisAlignment.spaceBetween,
+                            children: [
+                              pw.Text("Date: ${entrega.Fecha}",
+                                  style:
+                                      pw.TextStyle(font: body, fontSize: 11)),
+                              pw.Text(
+                                  "Entrega a: ${splitEntrega[0]}\n${splitEntrega[1]}",
+                                  style: pw.TextStyle(font: body, fontSize: 11),
+                                  textAlign: pw.TextAlign.right)
+                            ])),
+                    pw.Container(
+                        margin: pw.EdgeInsets.only(top: 0),
+                        alignment: pw.Alignment.topLeft,
+                        child: pw.Text("Company name: $nombreEmpresa",
+                            style: pw.TextStyle(font: body, fontSize: 11))),
+                    pw.Container(
+                        margin: pw.EdgeInsets.only(top: 0),
+                        alignment: pw.Alignment.topLeft,
+                        child: pw.Text("Applicant: ${entrega.Solicitante}",
+                            style: pw.TextStyle(font: body, fontSize: 11))),
+                    pw.Container(
+                        margin: pw.EdgeInsets.only(top: 0),
+                        alignment: pw.Alignment.topCenter,
+                        child: pw.Text("Product delivered",
+                            style: pw.TextStyle(font: body, fontSize: 11))),
 // ****************************************** Data Table ****************************************** \\
-                pw.Container(
-                    margin: pw.EdgeInsets.only(top: 10),
-                    child: pw.TableHelper.fromTextArray(
-                        oddCellStyle: pw.TextStyle(font: body, fontSize: 11),
-                        headerStyle: pw.TextStyle(font: body, fontSize: 11),
-                        cellStyle: pw.TextStyle(font: body, fontSize: 11),
-                        cellAlignment: pw.Alignment.center,
-                        tableWidth: pw.TableWidth.max,
-                        headers: headers,
-                        data: data)),
-                pw.Container(
-                    margin: pw.EdgeInsets.only(top: 0),
-                    child: pw.TableHelper.fromTextArray(
-                        oddCellStyle: pw.TextStyle(font: body, fontSize: 11),
-                        headerStyle: pw.TextStyle(font: body, fontSize: 11),
-                        cellStyle: pw.TextStyle(font: body, fontSize: 11),
-                        cellAlignment: pw.Alignment.centerRight,
-                        headerAlignment: pw.Alignment.centerRight,
-                        tableWidth: pw.TableWidth.max,
-                        headers: headersTotal,
-                        data: dataTotal)),
+                    pw.Container(
+                        margin: pw.EdgeInsets.only(top: 10),
+                        child: pw.TableHelper.fromTextArray(
+                            oddCellStyle:
+                                pw.TextStyle(font: body, fontSize: 11),
+                            headerStyle: pw.TextStyle(font: body, fontSize: 11),
+                            cellStyle: pw.TextStyle(font: body, fontSize: 11),
+                            cellAlignment: pw.Alignment.center,
+                            tableWidth: pw.TableWidth.max,
+                            columnWidths: columnWidthsTable1,
+                            headers: headers,
+                            data: data)),
+                    pw.Container(
+                        margin: pw.EdgeInsets.only(top: 0),
+                        child: pw.TableHelper.fromTextArray(
+                            oddCellStyle:
+                                pw.TextStyle(font: body, fontSize: 11),
+                            headerStyle: pw.TextStyle(font: body, fontSize: 11),
+                            cellStyle: pw.TextStyle(font: body, fontSize: 11),
+                            cellAlignment: pw.Alignment.centerRight,
+                            headerAlignment: pw.Alignment.centerRight,
+                            tableWidth: pw.TableWidth.max,
+                            columnWidths: columnWidthsTable2,
+                            headers: headersTotal,
+                            data: dataTotal)),
 // ****************************************** Down info ****************************************** \\
-                pw.Container(
-                    alignment: pw.Alignment.topLeft,
-                    child: pw.Text("Note:",
-                        style: pw.TextStyle(
-                            font: bodyBold,
-                            decoration: pw.TextDecoration.underline,
-                            fontSize: 11))),
-                pw.Container(
-                    alignment: pw.Alignment.topLeft,
-                    child: pw.Text("${entrega.Notes}",
-                        style: pw.TextStyle(
-                            font: bodyBold,
-                            decoration: pw.TextDecoration.underline,
-                            fontSize: 11))),
-                pw.Container(
-                    margin: pw.EdgeInsets.only(top: 20),
-                    alignment: pw.Alignment.topLeft,
-                    child: pw.Text(
-                        "Digitally signed by: ${entrega.Remitente}\nEmail: ${user!.email}",
-                        style: pw.TextStyle(font: body, fontSize: 11))),
-                pw.Container(
-                    margin: pw.EdgeInsets.only(top: 10),
-                    alignment: pw.Alignment.topLeft,
-                    child: pw.Text("Related deliveries",
-                        style: pw.TextStyle(font: bodyBold, fontSize: 11))),
-                // pw.Container(
-                //     margin: pw.EdgeInsets.only(top: 10),
-                //     alignment: pw.Alignment.topLeft,
-                //     child: pw.Text("OC Quantity ID’s",
-                //         style: pw.TextStyle(font: bodyBold, fontSize: 11))),
-                pw.Container(
-                    margin: pw.EdgeInsets.only(right: 75),
-                    child: pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                        children: [
-                          pw.ListView.builder(
-                            itemCount: entregas.length,
-                            itemBuilder: (context, i) => pw.Container(
-                                margin: pw.EdgeInsets.only(top: 10),
-                                alignment: pw.Alignment.topLeft,
-                                child: pw.Text(
-                                    "${entregas[i].certificadoEntrega}", //Aqui va orden de compra solo que puse cantidad por mientras
-                                    style:
-                                        pw.TextStyle(font: body, fontSize: 8))),
-                          ),
-                          pw.Container(
-                              child: pw.Column(children: [
-                            pw.Container(
-                                margin: pw.EdgeInsets.only(top: 10),
-                                alignment: pw.Alignment.topLeft,
-                                child: pw.Text(
-                                    "I received the product correctly",
-                                    style: pw.TextStyle(
-                                        font: body, fontSize: 11))),
-                            pw.Container(
-                                color: PdfColor.fromHex("#000000"),
-                                margin: pw.EdgeInsets.only(top: 40, bottom: 15),
-                                alignment: pw.Alignment.center,
-                                height: 1,
-                                width: 150),
-                            pw.Container(
-                                alignment: pw.Alignment.topLeft,
-                                child: pw.Text(
-                                    "Name and signature of conformity",
-                                    style: pw.TextStyle(
-                                        font: body, fontSize: 11))),
-                          ]))
-                        ])),
-                // pw.Expanded(
-                //   child: pw.Align(
-                //     alignment: pw.Alignment.bottomCenter,
+                    pw.Container(
+                        alignment: pw.Alignment.topLeft,
+                        child: pw.Text("Note:",
+                            style: pw.TextStyle(
+                                font: bodyBold,
+                                decoration: pw.TextDecoration.underline,
+                                fontSize: 11))),
+                    pw.Container(
+                        alignment: pw.Alignment.topLeft,
+                        child: pw.Text("${entrega.Notes}",
+                            style: pw.TextStyle(
+                                font: bodyBold,
+                                decoration: pw.TextDecoration.underline,
+                                fontSize: 11))),
+                    pw.Container(
+                        margin: const pw.EdgeInsets.only(top: 10),
+                        alignment: pw.Alignment.bottomCenter,
+                        child: pw.Text(
+                            "Digitally signed by: ${entrega.Remitente}\nEmail: ${user!.email}\nDate: $nowTime",
+                            style: arial(10, "bold"))),
+                    pw.Container(
+                        margin: pw.EdgeInsets.only(top: 10),
+                        alignment: pw.Alignment.topLeft,
+                        child: pw.Text("Related deliveries",
+                            style: pw.TextStyle(font: bodyBold, fontSize: 11))),
+                    // pw.Container(
+                    //     margin: pw.EdgeInsets.only(top: 10),
+                    //     alignment: pw.Alignment.topLeft,
+                    //     child: pw.Text("OC Quantity ID’s",
+                    //         style: pw.TextStyle(font: bodyBold, fontSize: 11))),
+                    pw.Container(
+                        margin: pw.EdgeInsets.only(right: 75),
+                        child: pw.Row(
+                            mainAxisAlignment:
+                                pw.MainAxisAlignment.spaceBetween,
+                            children: [
+                              pw.ListView.builder(
+                                itemCount: entregas.length,
+                                itemBuilder: (context, i) => pw.Container(
+                                    margin: pw.EdgeInsets.only(top: 10),
+                                    alignment: pw.Alignment.topLeft,
+                                    child: pw.Text(
+                                        "${entregas[i].certificadoEntrega}", //Aqui va orden de compra solo que puse cantidad por mientras
+                                        style: pw.TextStyle(
+                                            font: body, fontSize: 8))),
+                              ),
+                              pw.Container(
+                                  child: pw.Column(children: [
+                                pw.Container(
+                                    margin: pw.EdgeInsets.only(top: 10),
+                                    alignment: pw.Alignment.topLeft,
+                                    child: pw.Text(
+                                        "I received the product correctly",
+                                        style: pw.TextStyle(
+                                            font: body, fontSize: 11))),
+                                pw.Container(
+                                    color: PdfColor.fromHex("#000000"),
+                                    margin:
+                                        pw.EdgeInsets.only(top: 40, bottom: 15),
+                                    alignment: pw.Alignment.center,
+                                    height: 1,
+                                    width: 150),
+                                pw.Container(
+                                    alignment: pw.Alignment.topLeft,
+                                    child: pw.Text(
+                                        "Name and signature of conformity",
+                                        style: pw.TextStyle(
+                                            font: body, fontSize: 11))),
+                              ]))
+                            ])),
+                    // pw.Expanded(
+                    //   child: pw.Align(
+                    //     alignment: pw.Alignment.bottomCenter,
 
-                //   )
-                // ),
-                pw.Container(
-                    alignment: pw.Alignment.bottomLeft,
-                    margin: pw.EdgeInsets.only(top: 30),
-                    child: pw.RichText(
-                        text: pw.TextSpan(children: [
-                      pw.TextSpan(
-                          text:
-                              "For any questions or clarifications, please contact the office number: ",
-                          style: pw.TextStyle(font: body, fontSize: 11)),
-                      pw.TextSpan(
-                          text: "+52 33 27 33 09 62",
-                          style: pw.TextStyle(font: bodyBold, fontSize: 11))
-                    ])))
-              ])
+                    //   )
+                    // ),
+                    pw.Container(
+                        alignment: pw.Alignment.bottomLeft,
+                        margin: pw.EdgeInsets.only(top: 30),
+                        child: pw.RichText(
+                            text: pw.TextSpan(children: [
+                          pw.TextSpan(
+                              text:
+                                  "For any questions or clarifications, please contact the office number: ",
+                              style: pw.TextStyle(font: body, fontSize: 11)),
+                          pw.TextSpan(
+                              text: "+52 33 27 33 09 62",
+                              style: pw.TextStyle(font: bodyBold, fontSize: 11))
+                        ])))
+                  ]))
             ]));
     // Page
     //************************** Saving and Open **************************\\
@@ -338,8 +375,7 @@ class printPDFEnglish {
 
 Future<pw.PageTheme> _mypageTheme(PdfPageFormat format) async {
   return pw.PageTheme(
-      margin: const pw.EdgeInsets.symmetric(
-          horizontal: 1 * PdfPageFormat.cm, vertical: 0.5 * PdfPageFormat.cm),
+      margin: const pw.EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
       textDirection: pw.TextDirection.ltr,
       orientation: pw.PageOrientation.portrait,
       buildBackground: (final context) => pw.FullPage(
