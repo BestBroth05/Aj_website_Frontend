@@ -12,12 +12,8 @@ import 'package:guadalajarav2/inventory/enums/enumOhm.dart';
 import 'package:guadalajarav2/inventory/enums/enumStatus.dart';
 import 'package:guadalajarav2/inventory/enums/enumTemperature.dart';
 import 'package:guadalajarav2/inventory/enums/enumVoltage.dart';
-import 'package:guadalajarav2/inventory/searchMenu.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:guadalajarav2/utils/inventory/inventory_handler.dart';
 import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/views/dialogs/inventory_part/inventory_part_dialog.dart';
-import 'package:guadalajarav2/views/inventory_view/inventory_body.dart';
 import 'package:guadalajarav2/views/inventory_view/inventory_table.dart';
 
 class InventoryPartTile extends StatefulWidget {

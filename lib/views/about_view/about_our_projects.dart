@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:guadalajarav2/main.dart';
 import 'package:guadalajarav2/utils/about_us/about_us_handler.dart';
-import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/views/about_view/about_project_tile.dart';
 
@@ -67,11 +66,17 @@ class _AboutOurProjectsState extends State<AboutOurProjects> {
 
       values = Map.fromEntries(v);
 
-      for (MapEntry<String, int> entry in v) {
-        images.add(AssetImage('assets/images/projects/' + entry.key));
+      // for (MapEntry<String, int> entry in v) {
+      //   images.add(AssetImage('assets/images/projects/' + entry.key));
+      // }
+      for (var i = 1; i < 21; i++) {
+        images
+            .add(AssetImage("assets/images/projects/" + i.toString() + ".jpg"));
       }
 
-      setState(() {});
+      setState(() {
+        //images.removeRange(20, 40);
+      });
     });
   }
 

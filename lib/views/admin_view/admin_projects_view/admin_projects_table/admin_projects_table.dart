@@ -1,11 +1,7 @@
-import 'dart:async';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/extensions/str_extension.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/views/admin_view/admin_projects_view/admin_project_dialog/admin_project_dialog.dart';
 import 'package:guadalajarav2/views/admin_view/admin_projects_view/admin_projects_table/admin_project_tile.dart';
 
 class AdminProjectsTable extends StatefulWidget {

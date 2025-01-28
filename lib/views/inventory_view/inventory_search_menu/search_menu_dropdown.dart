@@ -1,9 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/inventory/enums/enumCategory.dart';
-import 'package:guadalajarav2/inventory/enums/enumFarads.dart';
-import 'package:guadalajarav2/inventory/enums/enumHenry.dart';
-import 'package:guadalajarav2/inventory/enums/enumOhm.dart';
 import 'package:guadalajarav2/inventory/enums/enumStatus.dart';
 import 'package:guadalajarav2/inventory/enums/enumVoltage.dart';
 import 'package:guadalajarav2/utils/styles.dart';

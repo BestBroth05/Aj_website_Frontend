@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:guadalajarav2/alert.dart';
 import 'package:guadalajarav2/enums/subCategories.dart';
 import 'package:guadalajarav2/inventory/classes/product.dart';
-import 'package:guadalajarav2/inventory/searchMenu.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/database.dart';
 import 'package:guadalajarav2/inventory/enums/enumCategory.dart';

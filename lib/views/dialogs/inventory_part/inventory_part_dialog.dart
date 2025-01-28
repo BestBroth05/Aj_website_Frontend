@@ -392,7 +392,7 @@ class InventoryPartDialogState extends State<InventoryPartDialog> {
     List<T> values,
     int index,
   ) {
-    if (information == 'null' || information!.isEmpty || information == null) {
+    if (information == 'null' || information!.isEmpty) {
       information = 'N/A';
     } else {
       information = toTitle(information);

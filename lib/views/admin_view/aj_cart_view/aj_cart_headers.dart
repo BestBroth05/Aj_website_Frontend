@@ -1,10 +1,6 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/extensions/str_extension.dart';
 import 'package:guadalajarav2/views/admin_view/aj_cart_view/aj_cart_header.dart';
-import 'package:guadalajarav2/views/admin_view/aj_cart_view/aj_cart_view.dart';
 
 class AJCartHeaders extends StatefulWidget {
   final Map<String, int> headers;

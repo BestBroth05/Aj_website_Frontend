@@ -221,7 +221,7 @@ class printPDFEnglish {
                                   style:
                                       pw.TextStyle(font: body, fontSize: 11)),
                               pw.Text(
-                                  "Entrega a: ${splitEntrega[0]}\n${splitEntrega[1]}",
+                                  "Delivery to: ${splitEntrega[0]}\n${splitEntrega[1]}",
                                   style: pw.TextStyle(font: body, fontSize: 11),
                                   textAlign: pw.TextAlign.right)
                             ])),

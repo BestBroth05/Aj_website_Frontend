@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/views/services_view/services_belt.dart';
-import 'package:guadalajarav2/views/services_view/services_box_section.dart';
 import 'package:guadalajarav2/views/services_view/services_section_title.dart';
 import 'package:guadalajarav2/views/services_view/services_sub_section.dart';
 

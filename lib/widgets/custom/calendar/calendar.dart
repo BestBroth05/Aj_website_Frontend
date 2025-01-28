@@ -1,6 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:guadalajarav2/extensions/date_time_ext.dart';
 import 'package:guadalajarav2/widgets/custom/calendar/calendar_box_date.dart';
 import 'package:guadalajarav2/widgets/custom/calendar/calendar_side_panel.dart';
 import 'package:guadalajarav2/widgets/custom/calendar/calendar_utils/enum_date.dart';

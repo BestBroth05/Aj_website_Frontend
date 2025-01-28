@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/inventory/classes/product.dart';
-import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/views/inventory_view/inventory_part_tile.dart';
 
 class InventoryBody extends StatefulWidget {

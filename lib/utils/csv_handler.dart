@@ -1,7 +1,6 @@
-import 'dart:convert';
-import 'dart:typed_data';
+// ignore_for_file: body_might_complete_normally_nullable
 
-import 'package:csv/csv.dart';
+import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 

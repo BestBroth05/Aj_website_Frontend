@@ -1,7 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/extensions/str_extension.dart';
-import 'package:guadalajarav2/inventory/enums/enumVoltage.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/widgets/custom/custom_drop_down.dart';
 

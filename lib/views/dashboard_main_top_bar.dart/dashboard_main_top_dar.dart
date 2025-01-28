@@ -6,12 +6,9 @@ import 'package:guadalajarav2/database.dart';
 import 'package:guadalajarav2/enums/route.dart';
 import 'package:guadalajarav2/main.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:guadalajarav2/utils/inventory/digikey_api_handler.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/utils/url_handlers.dart';
 import 'package:guadalajarav2/views/dashboard_main_top_bar.dart/dashboard_top_bar_button.dart';
-import 'package:guadalajarav2/views/dialogs/timed_dialog.dart';
-import 'package:guadalajarav2/views/login/loginController.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

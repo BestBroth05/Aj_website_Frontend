@@ -6,12 +6,10 @@ import 'package:guadalajarav2/inventory/enums/enumFarads.dart';
 import 'package:guadalajarav2/inventory/enums/enumHenry.dart';
 import 'package:guadalajarav2/inventory/enums/enumOhm.dart';
 import 'package:guadalajarav2/inventory/enums/enumTemperature.dart';
-import 'package:guadalajarav2/inventory/enums/enumValueUnit.dart';
 import 'package:guadalajarav2/inventory/enums/enumVoltage.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/views/inventory_view/inventory_dropdown.dart';
-import 'package:guadalajarav2/widgets/custom/custom_drop_down.dart';
 
 class BomHeader extends StatefulWidget {
   final Map<String, int> headerMap;

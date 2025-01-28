@@ -4,16 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:guadalajarav2/administration/user/userType.dart';
 import 'package:guadalajarav2/classes/user.dart';
 import 'package:guadalajarav2/database.dart';
-import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/views/admin_view/admin_users/admin_new_user.dart';
 import 'package:guadalajarav2/views/admin_view/admin_users/admin_user_card.dart';
 import 'package:guadalajarav2/views/admin_view/admin_users/admin_users_bar.dart';
 import 'package:guadalajarav2/views/admin_view/admin_users/admin_users_headers.dart';
 import 'package:guadalajarav2/views/admin_view/admin_users/admin_users_tile.dart';
 import 'package:guadalajarav2/views/dashboard_main_top_bar.dart/dashboard_main_top_dar.dart';
 import 'package:guadalajarav2/views/dialogs/basic_text_dialog.dart';
-import 'package:guadalajarav2/views/dialogs/loading_dialog.dart';
 import 'package:guadalajarav2/views/dialogs/timed_dialog.dart';
 
 class AdminUsersView extends StatefulWidget {

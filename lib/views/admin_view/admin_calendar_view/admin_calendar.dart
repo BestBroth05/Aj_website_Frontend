@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/widgets/custom/calendar/calendar.dart';
 
 class AdminCalendar extends StatefulWidget {

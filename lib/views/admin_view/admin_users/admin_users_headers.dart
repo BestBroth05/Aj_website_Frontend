@@ -2,7 +2,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/extensions/str_extension.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:http/http.dart';
 
 class AdminUsersHeaders extends StatelessWidget {
   final Map<String, int> headers;

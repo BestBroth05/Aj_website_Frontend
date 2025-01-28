@@ -4,11 +4,8 @@ import 'dart:typed_data';
 import 'package:csv/csv.dart';
 import 'package:excel/excel.dart' as excel;
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:guadalajarav2/classes/bom_part.dart';
 import 'package:guadalajarav2/extensions/date_time_ext.dart';
 import 'package:guadalajarav2/main.dart';
-import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'dart:html' as html;
 

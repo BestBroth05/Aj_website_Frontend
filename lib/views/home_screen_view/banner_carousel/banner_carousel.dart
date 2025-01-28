@@ -42,7 +42,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
                 ),
               ),
               BannerItem(
-                image: Image.network(
+                image: Image.asset(
                   'assets/images/carousel2.jpeg',
                   fit: BoxFit.cover,
                 ),
@@ -50,7 +50,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
               BannerItem(
                 // description:
                 // 'We handle hardware, firmware, software, Industrial design and manufacture',
-                image: Image.network(
+                image: Image.asset(
                   'assets/images/carousel3.jpeg',
                   fit: BoxFit.cover,
                 ),

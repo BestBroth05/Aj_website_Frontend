@@ -4,8 +4,6 @@ import 'package:guadalajarav2/alert.dart';
 import 'package:guadalajarav2/inventory/classes/product.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/database.dart';
-import 'package:guadalajarav2/inventory/inventoryListView.dart';
-import 'package:guadalajarav2/inventory/searchMenu.dart';
 import 'package:guadalajarav2/utils/styles.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/views/inventory_view/inventory_body.dart';

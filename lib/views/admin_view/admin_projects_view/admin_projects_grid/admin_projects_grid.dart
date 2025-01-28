@@ -1,9 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/views/admin_view/admin_projects_view/admin_project_dialog/admin_project_dialog.dart';
 import 'package:guadalajarav2/views/admin_view/admin_projects_view/admin_projects_grid/admin_project_card.dart';
 
 class AdminProjectsGrid extends StatefulWidget {

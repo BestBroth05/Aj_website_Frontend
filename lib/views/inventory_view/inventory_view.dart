@@ -1,24 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:guadalajarav2/alert.dart';
 import 'package:guadalajarav2/database.dart';
 import 'package:guadalajarav2/inventory/addNewComponent.dart';
 import 'package:guadalajarav2/inventory/classes/product.dart';
-import 'package:guadalajarav2/inventory/editQuantity.dart';
 import 'package:guadalajarav2/inventory/enums/enumCategory.dart';
 import 'package:guadalajarav2/inventory/enums/enumVoltage.dart';
 import 'package:guadalajarav2/inventory/searchMenu.dart';
-import 'package:guadalajarav2/utils/bom_handler.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:guadalajarav2/utils/inventory/mouser_api_handler.dart';
 import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/views/bom_view/bom_header.dart';
 import 'package:guadalajarav2/views/dashboard_main_top_bar.dart/dashboard_main_top_dar.dart';
 import 'package:guadalajarav2/views/dialogs/basic_text_dialog.dart';
 import 'package:guadalajarav2/views/dialogs/inventory_part/inventory_part_dialog.dart';
 import 'package:guadalajarav2/views/dialogs/timed_dialog.dart';
-import 'package:guadalajarav2/views/inventory_view/inventory_action_button.dart';
 import 'package:guadalajarav2/views/inventory_view/inventory_body.dart';
 import 'package:guadalajarav2/views/inventory_view/inventory_bottom_bar/inventory_bottom_bar.dart';
 import 'package:guadalajarav2/views/inventory_view/inventory_search_menu.dart';

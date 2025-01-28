@@ -1,4 +1,5 @@
-import 'package:excel/excel.dart';
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/extensions/str_extension.dart';
 import 'package:guadalajarav2/utils/colors.dart';

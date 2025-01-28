@@ -7,7 +7,6 @@ import 'package:guadalajarav2/classes/user.dart';
 import 'package:guadalajarav2/administration/user/userType.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/database.dart';
-import 'package:guadalajarav2/inventory/deleteNotification.dart';
 import 'package:guadalajarav2/utils/styles.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:guadalajarav2/administration/adminView.dart';
 import 'package:guadalajarav2/administration/user/userType.dart';
 import 'package:guadalajarav2/enums/route.dart';
-import 'package:guadalajarav2/inventory/inventoryView.dart';
 import 'package:guadalajarav2/views/login/loginScreen.dart';
 import 'package:guadalajarav2/main.dart';
-import 'package:guadalajarav2/mainScreen.dart';
 
 class RoutesName {
   static const String PROJECTS = '/Projects';

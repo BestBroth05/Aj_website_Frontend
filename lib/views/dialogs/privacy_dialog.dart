@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/utils/url_handlers.dart';
-import 'dart:ui' as ui;
-import 'dart:html';
-
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
 
 class PrivacyDialog extends StatefulWidget {

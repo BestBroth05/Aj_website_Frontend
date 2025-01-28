@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/classes/user.dart';
-import 'package:guadalajarav2/database.dart';
 import 'package:guadalajarav2/extensions/date_time_ext.dart';
 import 'package:guadalajarav2/main.dart';
 import 'package:guadalajarav2/utils/colors.dart';

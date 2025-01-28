@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../utils/SuperGlobalVariables/ObjVar.dart';
 import '../../../utils/colors.dart';
 import '../../Delivery_Certificate/widgets/Texts.dart';
+import '../QuoteType.dart';
 import 'Form_Assemblies.dart';
 
 class Assemblies extends StatefulWidget {
@@ -22,7 +23,11 @@ class _AssembliesState extends State<Assemblies> {
           foregroundColor: Colors.white,
           leading: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => QuoteType(
+                            customer: currentUser.customerNameQuotes!)),
+                    (route) => false);
               },
               icon: Icon(Icons.arrow_back)),
           title: Text(

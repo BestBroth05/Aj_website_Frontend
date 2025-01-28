@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:guadalajarav2/classes/user.dart';
 import 'package:guadalajarav2/enums/projects/project_permissions.dart';
 import 'package:guadalajarav2/enums/working_areas.dart';
-import 'package:guadalajarav2/extensions/date_time_ext.dart';
-import 'package:guadalajarav2/utils/admin_projects_handler.dart';
 import 'package:guadalajarav2/utils/dates_utils.dart';
 import 'package:guadalajarav2/views/admin_view/admin_projects_view/new_project/add_tasks_container.dart';
 import 'package:guadalajarav2/views/admin_view/admin_projects_view/new_project/members_container.dart';
@@ -12,9 +10,6 @@ import 'package:guadalajarav2/extensions/str_extension.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
-import 'package:guadalajarav2/widgets/custom/custom_drop_down.dart';
-import 'package:guadalajarav2/widgets/name_circle.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class AddNewProjectDialog extends StatefulWidget {
   final Map<String, dynamic>? project;

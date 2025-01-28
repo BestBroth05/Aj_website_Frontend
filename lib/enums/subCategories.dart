@@ -1,4 +1,3 @@
-import 'package:guadalajarav2/extensions/str_extension.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 
 enum SubCategory {

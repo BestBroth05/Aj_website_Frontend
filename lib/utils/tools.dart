@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable, body_might_complete_normally_nullable
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';

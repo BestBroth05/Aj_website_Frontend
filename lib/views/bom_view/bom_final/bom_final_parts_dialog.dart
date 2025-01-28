@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/alert.dart';
-import 'package:guadalajarav2/classes/bom_part.dart';
 import 'package:guadalajarav2/database.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/views/bom_view/bom_final/bom_final_tile.dart';
-import 'package:guadalajarav2/views/bom_view/bom_header.dart';
 import 'package:guadalajarav2/views/bom_view/bom_table_header.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
 

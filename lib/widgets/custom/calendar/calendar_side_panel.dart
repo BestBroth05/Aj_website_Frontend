@@ -1,7 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/extensions/str_extension.dart';
-import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/widgets/custom/calendar/calendar_utils/enum_date.dart';
 
 class CalendarSidePanel extends StatelessWidget {

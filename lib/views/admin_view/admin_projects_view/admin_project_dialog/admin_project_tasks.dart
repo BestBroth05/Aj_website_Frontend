@@ -5,8 +5,6 @@ import 'package:guadalajarav2/enums/projects/projects_status.dart';
 import 'package:guadalajarav2/enums/working_areas.dart';
 import 'package:guadalajarav2/extensions/str_extension.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/views/admin_view/admin_projects_view/new_project/add_tasks_container.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
 
 class AdminProjectTasks extends StatefulWidget {

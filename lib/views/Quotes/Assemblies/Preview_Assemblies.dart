@@ -13,6 +13,7 @@ import '../../Delivery_Certificate/widgets/Popups.dart';
 import '../../Delivery_Certificate/widgets/Texts.dart';
 import '../../admin_view/Tools.dart';
 import '../Clases/QuoteTableClass.dart';
+import '../DesplegableQuotes.dart';
 
 class Preview_Assemblies extends StatefulWidget {
   bool? isSavedQuote;
@@ -44,11 +45,12 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
   TextEditingController notes = TextEditingController();
   int startValues = 0;
   List<QuoteTableClass> deleteList = [];
+  int timesToSavePreview = 0;
 
   @override
   void initState() {
     if (widget.isSavedQuote!) {
-      getPreview();
+      getPreview(0);
     }
     if (widget.quote!.id_Quote == null) {
       getIdQuote();
@@ -65,6 +67,26 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
     date =
         DateFormat('MMMM d, yyyy').format(DateTime.parse(widget.quote!.date!));
     super.initState();
+  }
+
+  getPreview(times) async {
+    List<QuoteTableClass> preview1 =
+        await DataAccessObject.selectPreviewByQuote(widget.quote!.id_Quote);
+    setState(() {
+      preview = preview1;
+      if (times > 1) {
+        //Nothing to do
+      } else {
+        startValues = preview1.length;
+        if (preview1.isNotEmpty) {
+          notes.text = preview1[0].notas!;
+          rows = preview1;
+          isUpdate = true;
+        } else {
+          colorsSpanish();
+        }
+      }
+    });
   }
 
   getIdQuote() async {
@@ -227,22 +249,6 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
     }
   }
 
-  getPreview() async {
-    List<QuoteTableClass> preview1 =
-        await DataAccessObject.selectPreviewByQuote(widget.quote!.id_Quote);
-    setState(() {
-      preview = preview1;
-      startValues = preview1.length;
-      if (preview1.isNotEmpty) {
-        notes.text = preview1[0].notas!;
-        rows = preview1;
-        isUpdate = true;
-      } else {
-        colorsSpanish();
-      }
-    });
-  }
-
   updatePreview(List<QuoteTableClass> updateList) async {
     try {
       int code = 0;
@@ -325,7 +331,10 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
 
       print("Code: $code");
       if (code == 200) {
-        await postPreview(sendList);
+        GoodPopup(context, "Saved");
+        Future.delayed(Duration(seconds: 3), () {
+          Navigator.of(context).pop();
+        });
       } else {
         wrongPopup(context, "Error to delete quote preview");
         Future.delayed(Duration(seconds: 3), () {
@@ -343,6 +352,13 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
   }
 
   choseOptionToExecute() async {
+    timesToSavePreview += 1;
+    if (timesToSavePreview > 1) {
+      isUpdate = true;
+      await getPreview(timesToSavePreview);
+    } else {
+      //Nothing to do
+    }
     if (widget.isSavedQuote!) {
       List<QuoteTableClass> sendList = [];
       List<QuoteTableClass> sendList2 = [];
@@ -371,6 +387,7 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
         }
       } else {
         print("Entre a post");
+        sendList = rows;
         await postPreview(sendList);
       }
     } else {
@@ -389,7 +406,11 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
           foregroundColor: Colors.white,
           leading: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            DesplegableQuotes(customer: widget.customer!)));
               },
               icon: Icon(Icons.arrow_back)),
           title: Text(
@@ -402,9 +423,9 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
           ElevatedButton(
               onPressed: () {
                 setState(() {
-                  for (var i = 0; i < rows.length; i++) {
-                    deleteList.add(rows[i]);
-                  }
+                  //for (var i = 0; i < rows.length; i++) {
+                  deleteList.add(rows[rows.length - 1]);
+                  //}
                   rows.removeAt(rows.length - 1);
                 });
               },
@@ -761,8 +782,9 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
   }
 
   Future editUnitario(QuoteTableClass editQuote) async {
+    String unitarioString = editQuote.unitario!.replaceAll(",", "");
     final unitario = await showTextDialog(context,
-        title: "Costo unitario", value: editQuote.unitario!);
+        title: "Costo unitario", value: unitarioString);
     setState(() => rows = rows.map((quote) {
           final isEditedUnitario = quote == editQuote;
           return isEditedUnitario ? quote.copy(unitario: unitario) : quote;

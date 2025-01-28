@@ -11,7 +11,6 @@ import 'package:guadalajarav2/inventory/editQuantity.dart';
 import 'package:guadalajarav2/inventory/enums/enumCategory.dart';
 import 'package:guadalajarav2/inventory/enums/enumColors.dart';
 import 'package:guadalajarav2/inventory/enums/enumCurrent.dart';
-import 'package:guadalajarav2/inventory/enums/enumDielectricType.dart';
 import 'package:guadalajarav2/inventory/enums/enumFarads.dart';
 import 'package:guadalajarav2/inventory/enums/enumHenry.dart';
 import 'package:guadalajarav2/inventory/enums/enumMounting.dart';
@@ -487,7 +486,6 @@ class _InventoryListState extends State<InventoryList> {
 
         // print(value);
         // print(items);
-
       } else if (title == 'voltage breakdown' ||
           title == 'voltage reverse' ||
           title == 'voltage clamping') {

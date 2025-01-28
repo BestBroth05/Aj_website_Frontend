@@ -5,7 +5,6 @@ import 'package:guadalajarav2/classes/team_member.dart';
 import 'package:guadalajarav2/enums/social_media.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/widgets/social_media/social_media_button.dart';
 
 class TeamMemberTile extends StatefulWidget {
   final TeamMember member;

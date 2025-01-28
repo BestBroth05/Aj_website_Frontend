@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:guadalajarav2/classes/user.dart';
 import 'package:guadalajarav2/enums/working_areas.dart';
 import 'package:guadalajarav2/extensions/str_extension.dart';
-import 'package:guadalajarav2/main.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/csv_handler.dart';
 import 'package:guadalajarav2/utils/tools.dart';

@@ -3,22 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:guadalajarav2/classes/bom_part.dart';
 import 'package:guadalajarav2/classes/mpn.dart';
 import 'package:guadalajarav2/database.dart';
-import 'package:guadalajarav2/enums/digikey_filters.dart';
 import 'package:guadalajarav2/enums/subCategories.dart';
 import 'package:guadalajarav2/extensions/excel_extension.dart';
 import 'package:guadalajarav2/inventory/classes/product.dart';
 import 'package:guadalajarav2/inventory/enums/enumCategory.dart';
 import 'package:guadalajarav2/utils/excel_handler.dart';
-import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/views/bom_view/bom_selection_dialog.dart';
 import 'package:guadalajarav2/views/dialogs/loading_dialog.dart';
-import 'package:guadalajarav2/views/dialogs/timed_dialog.dart';
 
 Future<List<BomPart>?> uploadBomFile(BuildContext context) async {
   Excel? excel;
   try {
     excel = await pickExcelFile();
-  } on Exception catch (e) {
+  } on Exception {
     return null;
   }
   if (excel != null) {

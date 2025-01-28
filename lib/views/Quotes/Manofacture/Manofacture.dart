@@ -83,6 +83,7 @@ class _ManofactureState extends State<Manofacture> {
   String? year;
   String usdOrMxn = "MXN";
   bool isPressed = false;
+  bool isPressedSave = false;
   NumberFormat formatter = NumberFormat.decimalPatternDigits(
     locale: 'en_us',
     decimalDigits: 2,
@@ -107,6 +108,7 @@ class _ManofactureState extends State<Manofacture> {
 // ************************************************************************************ //
   isEditing() async {
     if (widget.isEdit) {
+      setState(() => isPressedSave = true);
       quoteType = widget.quote!.quoteType;
       id_customer = widget.quote!.id_Customer;
       customer = widget.customer;
@@ -241,6 +243,7 @@ class _ManofactureState extends State<Manofacture> {
         int codeP = await postProducts(productstoPost, idQuote);
         if (codeP == 200) {
           setState(() => isPressed = true);
+          setState(() => isPressedSave = true);
           GoodPopup(context, "Saved");
           Future.delayed(Duration(seconds: 3), () {
             Navigator.of(context).pop();
@@ -457,6 +460,7 @@ class _ManofactureState extends State<Manofacture> {
         int codeP = await postProducts(productstoPost, idQuote);
         if (codeP == 200) {
           setState(() => isPressed = true);
+          setState(() => isPressedSave = true);
           GoodPopup(context, "Saved");
           Future.delayed(Duration(seconds: 3), () {
             Navigator.of(context).pop();
@@ -1604,7 +1608,7 @@ class _ManofactureState extends State<Manofacture> {
             margin: EdgeInsets.all(0),
             child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
+                  backgroundColor: isPressedSave ? Colors.teal : Colors.grey,
                   foregroundColor: white,
                 ),
                 child: Text(
@@ -1612,77 +1616,84 @@ class _ManofactureState extends State<Manofacture> {
                   style: TextStyle(fontSize: 16),
                 ),
                 onPressed: () async {
-                  if (_formKeyGeneralData.currentState!.validate()) {
-                    if (_formKeyInformative.currentState!.validate()) {
-                      quote = QuoteClass(
-                        id_Customer: id_customer,
-                        iva: double.parse(porcentajeIva.text),
-                        isr: double.parse(porcentajeIsr.text),
-                        quoteType: quoteType,
-                        date: fecha,
-                        customerName: customerName,
-                        quoteNumber: quoteNumber.text,
-                        proyectName: proyectName.text,
-                        requestedByEmail: requestedByEmail.text,
-                        requestedByName: requestedByName.text,
-                        attentionTo: attentionTo.text,
-                        quantity: 0,
-                        dollarSell: double.parse(dollarSell.text),
-                        dollarBuy: double.parse(dollarBuy.text),
-                        deliverTimeInfo: days,
-                        excelName: "",
-                        componentsMPN: 0,
-                        componentsAvailables: 0,
-                        componentsDeliverTime: "",
-                        dhlCostComponent: 0.0,
-                        componentsAJPercentage: 0.0,
-                        digikeysAJPercentage: 0.0,
-                        componentsMouserCost: 0.0,
-                        componentsIVA: 0.0,
-                        componentsAJ: double.parse(porcentajeAj.text),
-                        conIva: conIva,
-                        currency: currency,
-                        totalComponentsUSD: 0.0,
-                        totalComponentsMXN: 0.0,
-                        perComponentMXN: 0.0,
-                        PCBName: "",
-                        PCBLayers: "",
-                        PCBSize: "",
-                        PCBImage: "",
-                        PCBColor: "",
-                        PCBDeliveryTime: "",
-                        PCBdhlCost: 0.0,
-                        PCBAJPercentage: 0.0,
-                        PCBReleasePercentage: 0.0,
-                        PCBPurchase: 0.0,
-                        PCBShipment: 0.0,
-                        PCBTax: 0.0,
-                        PCBRelease: 0.0,
-                        PCBAJ: 0.0,
-                        PCBTotalUSD: 0.0,
-                        PCBTotalMXN: 0.0,
-                        PCBPerMXN: 0.0,
-                        assemblyLayers: "",
-                        assemblyMPN: 0,
-                        assemblySMT: 0,
-                        assemblyTH: 0,
-                        assemblyDeliveryTime: "",
-                        assemblyAJPercentage: 0.0,
-                        assembly: 0.0,
-                        assemblyTax: 0.0,
-                        assemblyAJ: 0.0,
-                        assemblyTotalMXN: 0.0,
-                        perAssemblyMXN: 0.0,
-                      );
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => PreviewManofacture(
-                                  products: products,
-                                  isSavedQuote: isPressed,
-                                  quote: quote!,
-                                  customer: customer!)));
+                  if (isPressedSave) {
+                    if (_formKeyGeneralData.currentState!.validate()) {
+                      if (_formKeyInformative.currentState!.validate()) {
+                        quote = QuoteClass(
+                          id_Customer: id_customer,
+                          iva: double.parse(porcentajeIva.text),
+                          isr: double.parse(porcentajeIsr.text),
+                          quoteType: quoteType,
+                          date: fecha,
+                          customerName: customerName,
+                          quoteNumber: quoteNumber.text,
+                          proyectName: proyectName.text,
+                          requestedByEmail: requestedByEmail.text,
+                          requestedByName: requestedByName.text,
+                          attentionTo: attentionTo.text,
+                          quantity: 0,
+                          dollarSell: double.parse(dollarSell.text),
+                          dollarBuy: double.parse(dollarBuy.text),
+                          deliverTimeInfo: days,
+                          excelName: "",
+                          componentsMPN: 0,
+                          componentsAvailables: 0,
+                          componentsDeliverTime: "",
+                          dhlCostComponent: 0.0,
+                          componentsAJPercentage: 0.0,
+                          digikeysAJPercentage: 0.0,
+                          componentsMouserCost: 0.0,
+                          componentsIVA: 0.0,
+                          componentsAJ: double.parse(porcentajeAj.text),
+                          conIva: conIva,
+                          currency: currency,
+                          totalComponentsUSD: 0.0,
+                          totalComponentsMXN: 0.0,
+                          perComponentMXN: 0.0,
+                          PCBName: "",
+                          PCBLayers: "",
+                          PCBSize: "",
+                          PCBImage: "",
+                          PCBColor: "",
+                          PCBDeliveryTime: "",
+                          PCBdhlCost: 0.0,
+                          PCBAJPercentage: 0.0,
+                          PCBReleasePercentage: 0.0,
+                          PCBPurchase: 0.0,
+                          PCBShipment: 0.0,
+                          PCBTax: 0.0,
+                          PCBRelease: 0.0,
+                          PCBAJ: 0.0,
+                          PCBTotalUSD: 0.0,
+                          PCBTotalMXN: 0.0,
+                          PCBPerMXN: 0.0,
+                          assemblyLayers: "",
+                          assemblyMPN: 0,
+                          assemblySMT: 0,
+                          assemblyTH: 0,
+                          assemblyDeliveryTime: "",
+                          assemblyAJPercentage: 0.0,
+                          assembly: 0.0,
+                          assemblyTax: 0.0,
+                          assemblyAJ: 0.0,
+                          assemblyTotalMXN: 0.0,
+                          perAssemblyMXN: 0.0,
+                        );
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PreviewManofacture(
+                                    products: products,
+                                    isSavedQuote: isPressed,
+                                    quote: quote!,
+                                    customer: customer!)));
+                      }
                     }
+                  } else {
+                    wrongPopup(context, "Save the quote first");
+                    Future.delayed(Duration(seconds: 3), () {
+                      Navigator.of(context).pop();
+                    });
                   }
                 }))
       ],

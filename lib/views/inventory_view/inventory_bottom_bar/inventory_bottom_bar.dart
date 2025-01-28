@@ -5,9 +5,7 @@ import 'package:guadalajarav2/inventory/addNewComponent.dart';
 import 'package:guadalajarav2/inventory/enums/enumCategory.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/views/dashboard_main_top_bar.dart/dashboard_top_bar_button.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
-import 'package:guadalajarav2/widgets/custom/custom_drop_down.dart';
 import 'package:guadalajarav2/widgets/custom/custom_text_field.dart';
 
 class InventoryBottomBar extends StatefulWidget {

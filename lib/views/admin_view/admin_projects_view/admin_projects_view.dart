@@ -1,15 +1,9 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/classes/user.dart';
 import 'package:guadalajarav2/database.dart';
-import 'package:guadalajarav2/extensions/date_time_ext.dart';
-import 'package:guadalajarav2/extensions/str_extension.dart';
 import 'package:guadalajarav2/main.dart';
 import 'package:guadalajarav2/utils/admin/projects/projects_database_handler.dart';
-import 'package:guadalajarav2/utils/admin_projects_handler.dart';
-import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/views/admin_view/admin_projects_view/admin_project_dialog/admin_project_dialog.dart';
 import 'package:guadalajarav2/views/admin_view/admin_projects_view/new_project/add_new_project.dart';
@@ -18,7 +12,6 @@ import 'package:guadalajarav2/views/admin_view/admin_projects_view/admin_project
 import 'package:guadalajarav2/views/admin_view/admin_projects_view/projects_top_bar.dart';
 import 'package:guadalajarav2/views/dashboard_main_top_bar.dart/dashboard_main_top_dar.dart';
 import 'package:guadalajarav2/views/dialogs/basic_text_dialog.dart';
-import 'package:guadalajarav2/views/dialogs/loading_dialog.dart';
 import 'package:guadalajarav2/views/dialogs/timed_dialog.dart';
 
 class AdminProjectsView extends StatefulWidget {
@@ -59,7 +52,6 @@ class _AdminProjectsViewState extends State<AdminProjectsView> {
       element['deadline'] = DateTime.parse(element['deadline']);
       element['initial_date'] = DateTime.parse(element['initial_date']);
       Map<int, List<int>> members = {};
-      Map<int, int> membersPermissions = {};
       element['members'].forEach((member) {
         members[member[0]] = (member.sublist(1) as List).cast<int>();
         // membersPermissions[member[0]] = member[1];

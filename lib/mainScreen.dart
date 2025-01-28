@@ -2,10 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/utils/GeneratePageRoute.dart';
-import 'package:guadalajarav2/classes/user.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:guadalajarav2/database.dart';
-import 'package:guadalajarav2/inventory/searchMenu.dart';
 import 'package:guadalajarav2/main.dart';
 import 'package:guadalajarav2/sideMenu.dart';
 import 'package:guadalajarav2/utils/tools.dart';

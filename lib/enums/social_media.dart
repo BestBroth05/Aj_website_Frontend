@@ -21,7 +21,6 @@ extension SocialMExtencion on SocialMedia {
         return 'assets/icons/fb.png';
       case SocialMedia.instagram:
         return 'assets/icons/instagram.png';
-        break;
       case SocialMedia.linkedin:
         return 'assets/icons/linkedin.png';
     }

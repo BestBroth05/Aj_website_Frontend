@@ -1,18 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:guadalajarav2/database.dart';
-import 'package:guadalajarav2/enums/route.dart';
-import 'package:guadalajarav2/utils/bom_handler.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:guadalajarav2/utils/excel_handler.dart';
 import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/utils/url_handlers.dart';
-import 'package:guadalajarav2/views/bom_view/bom_view.dart';
-import 'package:guadalajarav2/views/dialogs/basic_text_dialog.dart';
-import 'package:guadalajarav2/views/dialogs/loading_dialog.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
 
 class BomSelectionDialog extends StatefulWidget {

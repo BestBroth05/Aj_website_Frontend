@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/enums/social_media.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:guadalajarav2/utils/tools.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SocialMediaButton extends StatefulWidget {

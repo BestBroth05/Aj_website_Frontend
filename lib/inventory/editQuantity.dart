@@ -1,11 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:guadalajarav2/alert.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:guadalajarav2/database.dart';
 import 'package:guadalajarav2/inventory/classes/product.dart';
-import 'package:guadalajarav2/inventory/inventoryListView.dart';
 import 'package:guadalajarav2/utils/styles.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 

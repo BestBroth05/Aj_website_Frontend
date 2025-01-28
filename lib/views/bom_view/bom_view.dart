@@ -1,27 +1,19 @@
-import 'dart:async';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/classes/bom_part.dart';
-import 'package:guadalajarav2/classes/mpn.dart';
-import 'package:guadalajarav2/inventory/searchMenu.dart';
 import 'package:guadalajarav2/utils/bom_handler.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/excel_handler.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/views/bom_view/bom_component_tile.dart';
 import 'package:guadalajarav2/views/bom_view/bom_final/bom_final_parts_dialog.dart';
-import 'package:guadalajarav2/views/bom_view/bom_header.dart';
-import 'package:guadalajarav2/views/bom_view/bom_part_tile.dart';
 import 'package:guadalajarav2/views/bom_view/bom_selection_dialog.dart';
 import 'package:guadalajarav2/views/bom_view/bom_table_header.dart';
 import 'package:guadalajarav2/views/bom_view/bom_top_bar.dart';
 import 'package:guadalajarav2/views/dialogs/basic_text_dialog.dart';
 import 'package:guadalajarav2/views/dialogs/loading_dialog.dart';
 import 'package:guadalajarav2/views/dialogs/timed_dialog.dart';
-import 'package:guadalajarav2/views/main_top_bar.dart/main_top_bar.dart';
-import 'package:http/http.dart';
 
 class BomView extends StatefulWidget {
   static List<BomPart> parts = [];

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/widgets/custom/custom_button.dart';
 
 class CustomTextFieldInt extends StatefulWidget {
   final String text;

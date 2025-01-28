@@ -1,5 +1,3 @@
-import 'package:guadalajarav2/inventory/editQuantity.dart';
-
 class Mpn {
   final String mpn;
   int? _quantity;

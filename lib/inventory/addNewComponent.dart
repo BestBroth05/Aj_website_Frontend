@@ -2,7 +2,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:guadalajarav2/administration/ManageUsers/manageUsers.dart';
 import 'package:guadalajarav2/alert.dart';
 import 'package:guadalajarav2/enums/subCategories.dart';
 import 'package:guadalajarav2/extensions/date_time_ext.dart';
@@ -41,7 +40,6 @@ import 'package:guadalajarav2/inventory/enums/enumOhm.dart';
 import 'package:guadalajarav2/inventory/enums/enumStatus.dart';
 import 'package:guadalajarav2/inventory/enums/enumTemperature.dart';
 import 'package:guadalajarav2/inventory/enums/enumVoltage.dart';
-import 'package:guadalajarav2/inventory/inventoryListView.dart';
 import 'package:guadalajarav2/inventory/searchMenu.dart';
 import 'package:guadalajarav2/utils/inventory/digikey_api_handler.dart';
 import 'package:guadalajarav2/utils/inventory/mouser_api_handler.dart';
@@ -50,7 +48,6 @@ import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/utils/url_handlers.dart';
 import 'package:guadalajarav2/views/dialogs/basic_text_dialog.dart';
 import 'package:guadalajarav2/views/dialogs/timed_dialog.dart';
-import 'package:guadalajarav2/views/inventory_view/inventory_body.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
 
 class NewComponentScreen extends StatefulWidget {

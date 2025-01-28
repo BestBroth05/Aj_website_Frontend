@@ -1,22 +1,15 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/classes/user.dart';
 import 'package:guadalajarav2/database.dart';
-import 'package:guadalajarav2/enums/working_areas.dart';
-import 'package:guadalajarav2/extensions/date_time_ext.dart';
-import 'package:guadalajarav2/extensions/str_extension.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/views/admin_view/admin_projects_view/admin_project_dialog/admin_project_comments.dart';
 import 'package:guadalajarav2/views/admin_view/admin_projects_view/admin_project_dialog/admin_project_task_details.dart';
 import 'package:guadalajarav2/views/admin_view/admin_projects_view/admin_project_dialog/admin_project_tasks.dart';
 import 'package:guadalajarav2/views/admin_view/admin_projects_view/new_project/add_new_project.dart';
 import 'package:guadalajarav2/views/dialogs/basic_text_dialog.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
-import 'package:guadalajarav2/widgets/name_circle.dart';
 
 class AdminProjectDialog extends StatefulWidget {
   final Map<String, dynamic> project;

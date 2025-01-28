@@ -1,9 +1,6 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
-import 'package:guadalajarav2/enums/route.dart';
-import 'package:guadalajarav2/main.dart';
-import 'package:guadalajarav2/utils/GeneratePageRoute.dart';
 import 'package:guadalajarav2/views/about_view/about_view.dart';
 
 // String get main_url => 'http://www.aj-electronic-design.com';
@@ -26,9 +23,9 @@ void openLink(
     html.window.open(url, '_blank');
   } else {
     if (isRoute) {
-      if (url == RoutesName.current) {
-        return;
-      }
+      // if (url == RoutesName.current) {//No estoy seguro jaja error 1005
+      //   return;
+      // }
       Navigator.pushNamed(context, url);
     } else {
       html.window.open(

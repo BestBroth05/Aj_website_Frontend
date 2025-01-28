@@ -1,11 +1,8 @@
-import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/email_handler.dart';
 import 'package:guadalajarav2/utils/tools.dart';
-import 'package:guadalajarav2/utils/url_handlers.dart';
 import 'package:guadalajarav2/views/contact_view/contact_email/contact_text_field.dart';
-import 'package:guadalajarav2/views/contact_view/contact_container.dart';
 import 'package:guadalajarav2/views/dialogs/sending_email.dart';
 import 'package:guadalajarav2/views/dialogs/timed_dialog.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';

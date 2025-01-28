@@ -13,7 +13,6 @@ import 'package:guadalajarav2/utils/url_handlers.dart';
 import 'package:guadalajarav2/views/admin_view/admin_history_view/admin_history_search_menu.dart';
 import 'package:guadalajarav2/views/dashboard_main_top_bar.dart/dashboard_main_top_dar.dart';
 import 'package:guadalajarav2/views/dialogs/basic_text_dialog.dart';
-import 'package:guadalajarav2/views/dialogs/loading_dialog.dart';
 
 class AdminHistoryView extends StatefulWidget {
   AdminHistoryView({Key? key}) : super(key: key);

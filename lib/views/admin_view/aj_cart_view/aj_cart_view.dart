@@ -1,10 +1,7 @@
-import 'dart:async';
+// ignore_for_file: unused_catch_clause
 
 import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
-import 'package:guadalajarav2/classes/bom_part.dart';
-import 'package:guadalajarav2/database.dart';
-import 'package:guadalajarav2/inventory/classes/product.dart';
 import 'package:guadalajarav2/utils/bom_handler.dart';
 import 'package:guadalajarav2/utils/inventory/digikey_api_handler.dart';
 import 'package:guadalajarav2/utils/inventory/mouser_api_handler.dart';
@@ -13,7 +10,6 @@ import 'package:guadalajarav2/views/admin_view/aj_cart_view/aj_cart_dialog.dart'
 import 'package:guadalajarav2/views/admin_view/aj_cart_view/aj_cart_headers.dart';
 import 'package:guadalajarav2/views/admin_view/aj_cart_view/aj_cart_table.dart';
 import 'package:guadalajarav2/views/admin_view/aj_cart_view/aj_cart_top_bar.dart';
-import 'package:guadalajarav2/views/bom_view/bom_header.dart';
 import 'package:guadalajarav2/views/bom_view/bom_selection_dialog.dart';
 import 'package:guadalajarav2/views/dialogs/basic_text_dialog.dart';
 import 'package:guadalajarav2/views/dialogs/loading_dialog.dart';

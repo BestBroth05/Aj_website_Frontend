@@ -125,6 +125,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
   String? month;
   String? year;
   bool isPressed = false;
+  bool isPressedSave = false;
   NumberFormat formatter = NumberFormat.decimalPatternDigits(
     locale: 'en_us',
     decimalDigits: 2,
@@ -1023,6 +1024,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
             await postDigikeys();
           } else {
             setState(() => isPressed = true);
+            setState(() => isPressedSave = true);
             GoodPopup(context, "Saved");
             Future.delayed(Duration(seconds: 3), () {
               Navigator.of(context).pop();
@@ -1030,6 +1032,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
           }
         } else {
           setState(() => isPressed = true);
+          setState(() => isPressedSave = true);
           GoodPopup(context, "Saved");
           Future.delayed(Duration(seconds: 3), () {
             Navigator.of(context).pop();
@@ -1067,12 +1070,14 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
 
       if (code != 200) {
         setState(() => isPressed = false);
+        setState(() => isPressedSave = false);
         wrongPopup(context, "Error to send Digikeys");
         Future.delayed(Duration(seconds: 3), () {
           Navigator.of(context).pop();
         });
       } else {
         setState(() => isPressed = true);
+        setState(() => isPressedSave = true);
         GoodPopup(context, "Saved");
         Future.delayed(Duration(seconds: 3), () {
           Navigator.of(context).pop();
@@ -1080,6 +1085,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
       }
     } catch (e) {
       setState(() => isPressed = false);
+      setState(() => isPressedSave = false);
       wrongPopup(context, "Error to send Digikeys");
       Future.delayed(Duration(seconds: 3), () {
         Navigator.of(context).pop();
@@ -1163,6 +1169,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
                             if (_formKeyAssemblies.currentState!.validate()) {
                               if (!isPressed) {
                                 setState(() => isPressed = true);
+
                                 await postQuoteDB();
                               }
                             }
@@ -1182,6 +1189,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
                           if (_formKeyAssemblies.currentState!.validate()) {
                             if (!isPressed) {
                               setState(() => isPressed = true);
+
                               await postQuoteDB();
                             }
                           }
@@ -1194,7 +1202,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
             margin: EdgeInsets.all(0),
             child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
+                  backgroundColor: isPressedSave ? Colors.teal : Colors.grey,
                   foregroundColor: white,
                 ),
                 child: Text(
@@ -1202,10 +1210,220 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
                   style: TextStyle(fontSize: 16),
                 ),
                 onPressed: () async {
-                  if (_formKeyGeneralData.currentState!.validate()) {
-                    if (_formKeyInformative.currentState!.validate()) {
-                      if (addComponents) {
-                        if (_formKeyComponents.currentState!.validate()) {
+                  if (isPressedSave) {
+                    if (_formKeyGeneralData.currentState!.validate()) {
+                      if (_formKeyInformative.currentState!.validate()) {
+                        if (addComponents) {
+                          if (_formKeyComponents.currentState!.validate()) {
+                            if (addPCB) {
+                              if (_formKeyPCB.currentState!.validate()) {
+                                if (_formKeyImage.currentState!.validate()) {
+                                  if (_formKeyAssemblies.currentState!
+                                      .validate()) {
+                                    quote = QuoteClass(
+                                      id_Customer: widget.customer.id_customer,
+                                      iva: double.parse(porcentajeIva.text),
+                                      isr: double.parse(porcentajeIsr.text),
+                                      date: fecha,
+                                      customerName: customerName,
+                                      quoteNumber: quoteNumber.text,
+                                      proyectName: proyectName.text,
+                                      requestedByEmail: requestedByEmail.text,
+                                      requestedByName: requestedByName.text,
+                                      attentionTo: attentionTo.text,
+                                      quantity: int.parse(quantity.text),
+                                      dollarSell: double.parse(dollarSell.text),
+                                      dollarBuy: double.parse(dollarBuy.text),
+                                      deliverTimeInfo: days,
+                                      excelName: excelName.text,
+                                      componentsMPN:
+                                          int.parse(componentsNumber.text),
+                                      componentsAvailables:
+                                          int.parse(componentsAvailable.text),
+                                      componentsDeliverTime:
+                                          deliverComponent.text,
+                                      dhlCostComponent:
+                                          double.parse(dhlCostComponent.text),
+                                      componentsAJPercentage: double.parse(
+                                          porcentajeAjComponents.text),
+                                      digikeysAJPercentage: double.parse(
+                                          porcentajeAjDigikey.text),
+                                      componentsMouserCost:
+                                          double.parse(mouser.text),
+                                      componentsIVA:
+                                          double.parse(ivaComponents.text),
+                                      componentsAJ:
+                                          double.parse(ajComponents.text),
+                                      conIva: conIva,
+                                      currency: currency,
+                                      totalComponentsUSD: double.parse(
+                                          totalComponentsDlls.text
+                                              .replaceAll(",", "")),
+                                      totalComponentsMXN: double.parse(
+                                          totalComponentsPesos.text
+                                              .replaceAll(",", "")),
+                                      perComponentMXN: double.parse(
+                                          perComponentsPesos.text
+                                              .replaceAll(",", "")),
+                                      PCBName: pcbName.text,
+                                      PCBLayers: layers,
+                                      PCBSize: pcbSize.text,
+                                      PCBImage:
+                                          base64.encode(selectedImageInBytes!),
+                                      PCBColor: color,
+                                      PCBDeliveryTime: pcbTime.text,
+                                      PCBdhlCost: double.parse(dhlCostPCB.text),
+                                      PCBAJPercentage:
+                                          double.parse(porcentajeAjPCB.text),
+                                      PCBReleasePercentage: double.parse(
+                                          porcentajeLiberacion.text),
+                                      PCBPurchase: double.parse(pcbCompra.text),
+                                      PCBShipment: double.parse(pcbEnvio.text),
+                                      PCBTax: double.parse(pcbImpuesto.text),
+                                      PCBRelease:
+                                          double.parse(pcbLiberacion.text),
+                                      PCBAJ: double.parse(pcbAJ.text),
+                                      PCBTotalUSD: double.parse(pcbTotal.text),
+                                      PCBTotalMXN: double.parse(pcbTotalPesos
+                                          .text
+                                          .replaceAll(",", "")),
+                                      PCBPerMXN: double.parse(
+                                          pcbPerPesos.text.replaceAll(",", "")),
+                                      assemblyLayers: faces,
+                                      assemblyMPN: int.parse(MPN.text),
+                                      assemblySMT: int.parse(SMT.text),
+                                      assemblyTH: int.parse(TH.text),
+                                      assemblyDeliveryTime: ensambleTime.text,
+                                      assemblyAJPercentage: double.parse(
+                                          porcentajeAjEnsamble.text),
+                                      assembly: double.parse(ensamble.text),
+                                      assemblyTax:
+                                          double.parse(ensambleImpuesto.text),
+                                      assemblyAJ: double.parse(ensambleAJ.text),
+                                      assemblyTotalMXN: double.parse(
+                                          ensambleTotalPesos.text
+                                              .replaceAll(",", "")),
+                                      perAssemblyMXN: double.parse(
+                                          ensamblePerPesos.text
+                                              .replaceAll(",", "")),
+                                    );
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                Preview_Assemblies(
+                                                    isSavedQuote: isPressed,
+                                                    quote: quote!,
+                                                    customer:
+                                                        widget.customer)));
+                                  }
+                                }
+                              }
+                            } else {
+                              if (_formKeyAssemblies.currentState!.validate()) {
+                                quote = QuoteClass(
+                                  id_Customer: widget.customer.id_customer,
+                                  iva: double.parse(porcentajeIva.text),
+                                  isr: double.parse(porcentajeIsr.text),
+                                  date: fecha,
+                                  customerName: customerName,
+                                  quoteNumber: quoteNumber.text,
+                                  proyectName: proyectName.text,
+                                  requestedByEmail: requestedByEmail.text,
+                                  requestedByName: requestedByName.text,
+                                  attentionTo: attentionTo.text,
+                                  quantity: int.parse(quantity.text),
+                                  dollarSell: double.parse(dollarSell.text),
+                                  dollarBuy: double.parse(dollarBuy.text),
+                                  deliverTimeInfo: days,
+                                  excelName: excelName.text,
+                                  componentsMPN:
+                                      int.parse(componentsNumber.text),
+                                  componentsAvailables:
+                                      int.parse(componentsAvailable.text),
+                                  componentsDeliverTime: deliverComponent.text,
+                                  dhlCostComponent:
+                                      double.parse(dhlCostComponent.text),
+                                  componentsAJPercentage:
+                                      double.parse(porcentajeAjComponents.text),
+                                  digikeysAJPercentage:
+                                      double.parse(porcentajeAjDigikey.text),
+                                  componentsMouserCost:
+                                      double.parse(mouser.text),
+                                  componentsIVA:
+                                      double.parse(ivaComponents.text),
+                                  componentsAJ: double.parse(ajComponents.text),
+                                  conIva: conIva,
+                                  currency: currency,
+                                  totalComponentsUSD: double.parse(
+                                      totalComponentsDlls.text
+                                          .replaceAll(",", "")),
+                                  totalComponentsMXN: double.parse(
+                                      totalComponentsPesos.text
+                                          .replaceAll(",", "")),
+                                  perComponentMXN: double.parse(
+                                      perComponentsPesos.text
+                                          .replaceAll(",", "")),
+                                  PCBName: " ",
+                                  PCBLayers: " ",
+                                  PCBSize: " ",
+                                  PCBImage: " ",
+                                  PCBColor: " ",
+                                  PCBDeliveryTime: " ",
+                                  PCBdhlCost: double.parse("0.0"),
+                                  PCBAJPercentage: double.parse("0.0"),
+                                  PCBReleasePercentage: double.parse("0.0"),
+                                  PCBPurchase: double.parse("0.0"),
+                                  PCBShipment: double.parse("0.0"),
+                                  PCBTax: double.parse("0.0"),
+                                  PCBRelease: double.parse("0.0"),
+                                  PCBAJ: double.parse("0.0"),
+                                  PCBTotalUSD: double.parse("0.0"),
+                                  PCBTotalMXN: double.parse("0.0"),
+                                  PCBPerMXN: double.parse("0.0"),
+                                  assemblyLayers: faces,
+                                  assemblyMPN: int.parse(MPN.text),
+                                  assemblySMT: int.parse(SMT.text),
+                                  assemblyTH: int.parse(TH.text),
+                                  assemblyDeliveryTime: ensambleTime.text,
+                                  assemblyAJPercentage:
+                                      double.parse(porcentajeAjEnsamble.text),
+                                  assembly: double.parse(ensamble.text),
+                                  assemblyTax:
+                                      double.parse(ensambleImpuesto.text),
+                                  assemblyAJ: double.parse(ensambleAJ.text),
+                                  assemblyTotalMXN: double.parse(
+                                      ensambleTotalPesos.text
+                                          .replaceAll(",", "")),
+                                  perAssemblyMXN: double.parse(ensamblePerPesos
+                                      .text
+                                      .replaceAll(",", "")),
+                                );
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            Preview_Assemblies(
+                                                isSavedQuote: isPressed,
+                                                quote: quote!,
+                                                customer: widget.customer)));
+                              }
+                            }
+                          }
+                        } else {
+                          excelName.text = " ";
+                          componentsNumber.text = "0";
+                          componentsAvailable.text = "0";
+                          deliverComponent.text = " ";
+                          porcentajeAjComponents.text = "0.0";
+                          porcentajeAjDigikey.text = "0.0";
+                          dhlCostComponent.text = "0.0";
+                          mouser.text = "0.0";
+                          ivaComponents.text = "0.0";
+                          ajComponents.text = "0.0";
+                          totalComponentsDlls.text = "0.0";
+                          totalComponentsPesos.text = "0.0";
+                          perComponentsPesos.text = "0.0";
                           if (addPCB) {
                             if (_formKeyPCB.currentState!.validate()) {
                               if (_formKeyImage.currentState!.validate()) {
@@ -1394,201 +1612,13 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
                             }
                           }
                         }
-                      } else {
-                        excelName.text = " ";
-                        componentsNumber.text = "0";
-                        componentsAvailable.text = "0";
-                        deliverComponent.text = " ";
-                        porcentajeAjComponents.text = "0.0";
-                        porcentajeAjDigikey.text = "0.0";
-                        dhlCostComponent.text = "0.0";
-                        mouser.text = "0.0";
-                        ivaComponents.text = "0.0";
-                        ajComponents.text = "0.0";
-                        totalComponentsDlls.text = "0.0";
-                        totalComponentsPesos.text = "0.0";
-                        perComponentsPesos.text = "0.0";
-                        if (addPCB) {
-                          if (_formKeyPCB.currentState!.validate()) {
-                            if (_formKeyImage.currentState!.validate()) {
-                              if (_formKeyAssemblies.currentState!.validate()) {
-                                quote = QuoteClass(
-                                  id_Customer: widget.customer.id_customer,
-                                  iva: double.parse(porcentajeIva.text),
-                                  isr: double.parse(porcentajeIsr.text),
-                                  date: fecha,
-                                  customerName: customerName,
-                                  quoteNumber: quoteNumber.text,
-                                  proyectName: proyectName.text,
-                                  requestedByEmail: requestedByEmail.text,
-                                  requestedByName: requestedByName.text,
-                                  attentionTo: attentionTo.text,
-                                  quantity: int.parse(quantity.text),
-                                  dollarSell: double.parse(dollarSell.text),
-                                  dollarBuy: double.parse(dollarBuy.text),
-                                  deliverTimeInfo: days,
-                                  excelName: excelName.text,
-                                  componentsMPN:
-                                      int.parse(componentsNumber.text),
-                                  componentsAvailables:
-                                      int.parse(componentsAvailable.text),
-                                  componentsDeliverTime: deliverComponent.text,
-                                  dhlCostComponent:
-                                      double.parse(dhlCostComponent.text),
-                                  componentsAJPercentage:
-                                      double.parse(porcentajeAjComponents.text),
-                                  digikeysAJPercentage:
-                                      double.parse(porcentajeAjDigikey.text),
-                                  componentsMouserCost:
-                                      double.parse(mouser.text),
-                                  componentsIVA:
-                                      double.parse(ivaComponents.text),
-                                  componentsAJ: double.parse(ajComponents.text),
-                                  conIva: conIva,
-                                  currency: currency,
-                                  totalComponentsUSD: double.parse(
-                                      totalComponentsDlls.text
-                                          .replaceAll(",", "")),
-                                  totalComponentsMXN: double.parse(
-                                      totalComponentsPesos.text
-                                          .replaceAll(",", "")),
-                                  perComponentMXN: double.parse(
-                                      perComponentsPesos.text
-                                          .replaceAll(",", "")),
-                                  PCBName: pcbName.text,
-                                  PCBLayers: layers,
-                                  PCBSize: pcbSize.text,
-                                  PCBImage:
-                                      base64.encode(selectedImageInBytes!),
-                                  PCBColor: color,
-                                  PCBDeliveryTime: pcbTime.text,
-                                  PCBdhlCost: double.parse(dhlCostPCB.text),
-                                  PCBAJPercentage:
-                                      double.parse(porcentajeAjPCB.text),
-                                  PCBReleasePercentage:
-                                      double.parse(porcentajeLiberacion.text),
-                                  PCBPurchase: double.parse(pcbCompra.text),
-                                  PCBShipment: double.parse(pcbEnvio.text),
-                                  PCBTax: double.parse(pcbImpuesto.text),
-                                  PCBRelease: double.parse(pcbLiberacion.text),
-                                  PCBAJ: double.parse(pcbAJ.text),
-                                  PCBTotalUSD: double.parse(pcbTotal.text),
-                                  PCBTotalMXN: double.parse(
-                                      pcbTotalPesos.text.replaceAll(",", "")),
-                                  PCBPerMXN: double.parse(
-                                      pcbPerPesos.text.replaceAll(",", "")),
-                                  assemblyLayers: faces,
-                                  assemblyMPN: int.parse(MPN.text),
-                                  assemblySMT: int.parse(SMT.text),
-                                  assemblyTH: int.parse(TH.text),
-                                  assemblyDeliveryTime: ensambleTime.text,
-                                  assemblyAJPercentage:
-                                      double.parse(porcentajeAjEnsamble.text),
-                                  assembly: double.parse(ensamble.text),
-                                  assemblyTax:
-                                      double.parse(ensambleImpuesto.text),
-                                  assemblyAJ: double.parse(ensambleAJ.text),
-                                  assemblyTotalMXN: double.parse(
-                                      ensambleTotalPesos.text
-                                          .replaceAll(",", "")),
-                                  perAssemblyMXN: double.parse(ensamblePerPesos
-                                      .text
-                                      .replaceAll(",", "")),
-                                );
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            Preview_Assemblies(
-                                                isSavedQuote: isPressed,
-                                                quote: quote!,
-                                                customer: widget.customer)));
-                              }
-                            }
-                          }
-                        } else {
-                          if (_formKeyAssemblies.currentState!.validate()) {
-                            quote = QuoteClass(
-                              id_Customer: widget.customer.id_customer,
-                              iva: double.parse(porcentajeIva.text),
-                              isr: double.parse(porcentajeIsr.text),
-                              date: fecha,
-                              customerName: customerName,
-                              quoteNumber: quoteNumber.text,
-                              proyectName: proyectName.text,
-                              requestedByEmail: requestedByEmail.text,
-                              requestedByName: requestedByName.text,
-                              attentionTo: attentionTo.text,
-                              quantity: int.parse(quantity.text),
-                              dollarSell: double.parse(dollarSell.text),
-                              dollarBuy: double.parse(dollarBuy.text),
-                              deliverTimeInfo: days,
-                              excelName: excelName.text,
-                              componentsMPN: int.parse(componentsNumber.text),
-                              componentsAvailables:
-                                  int.parse(componentsAvailable.text),
-                              componentsDeliverTime: deliverComponent.text,
-                              dhlCostComponent:
-                                  double.parse(dhlCostComponent.text),
-                              componentsAJPercentage:
-                                  double.parse(porcentajeAjComponents.text),
-                              digikeysAJPercentage:
-                                  double.parse(porcentajeAjDigikey.text),
-                              componentsMouserCost: double.parse(mouser.text),
-                              componentsIVA: double.parse(ivaComponents.text),
-                              componentsAJ: double.parse(ajComponents.text),
-                              conIva: conIva,
-                              currency: currency,
-                              totalComponentsUSD: double.parse(
-                                  totalComponentsDlls.text.replaceAll(",", "")),
-                              totalComponentsMXN: double.parse(
-                                  totalComponentsPesos.text
-                                      .replaceAll(",", "")),
-                              perComponentMXN: double.parse(
-                                  perComponentsPesos.text.replaceAll(",", "")),
-                              PCBName: " ",
-                              PCBLayers: " ",
-                              PCBSize: " ",
-                              PCBImage: " ",
-                              PCBColor: " ",
-                              PCBDeliveryTime: " ",
-                              PCBdhlCost: double.parse("0.0"),
-                              PCBAJPercentage: double.parse("0.0"),
-                              PCBReleasePercentage: double.parse("0.0"),
-                              PCBPurchase: double.parse("0.0"),
-                              PCBShipment: double.parse("0.0"),
-                              PCBTax: double.parse("0.0"),
-                              PCBRelease: double.parse("0.0"),
-                              PCBAJ: double.parse("0.0"),
-                              PCBTotalUSD: double.parse("0.0"),
-                              PCBTotalMXN: double.parse("0.0"),
-                              PCBPerMXN: double.parse("0.0"),
-                              assemblyLayers: faces,
-                              assemblyMPN: int.parse(MPN.text),
-                              assemblySMT: int.parse(SMT.text),
-                              assemblyTH: int.parse(TH.text),
-                              assemblyDeliveryTime: ensambleTime.text,
-                              assemblyAJPercentage:
-                                  double.parse(porcentajeAjEnsamble.text),
-                              assembly: double.parse(ensamble.text),
-                              assemblyTax: double.parse(ensambleImpuesto.text),
-                              assemblyAJ: double.parse(ensambleAJ.text),
-                              assemblyTotalMXN: double.parse(
-                                  ensambleTotalPesos.text.replaceAll(",", "")),
-                              perAssemblyMXN: double.parse(
-                                  ensamblePerPesos.text.replaceAll(",", "")),
-                            );
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Preview_Assemblies(
-                                        isSavedQuote: isPressed,
-                                        quote: quote!,
-                                        customer: widget.customer)));
-                          }
-                        }
                       }
                     }
+                  } else {
+                    wrongPopup(context, "Save the quote first");
+                    Future.delayed(Duration(seconds: 3), () {
+                      Navigator.of(context).pop();
+                    });
                   }
                 }))
       ],

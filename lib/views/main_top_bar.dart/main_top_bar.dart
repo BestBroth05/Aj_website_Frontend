@@ -3,9 +3,7 @@ import 'package:guadalajarav2/enums/route.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/utils/url_handlers.dart';
-import 'package:guadalajarav2/views/dialogs/basic_text_dialog.dart';
 import 'package:guadalajarav2/views/main_top_bar.dart/main_top_bar_button.dart';
-import 'package:guadalajarav2/widgets/custom/custom_button.dart';
 
 class MainTopBar extends StatefulWidget {
   MainTopBar({Key? key}) : super(key: key);

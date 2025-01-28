@@ -16,6 +16,7 @@ import '../../Delivery_Certificate/widgets/Popups.dart';
 import '../../Delivery_Certificate/widgets/Texts.dart';
 import '../../admin_view/Tools.dart';
 import '../Clases/QuoteTableClass.dart';
+import '../DesplegableQuotes.dart';
 
 class PreviewManofacture extends StatefulWidget {
   bool? isSavedQuote;
@@ -54,13 +55,12 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
   List<QuoteTableClass> startRows = [];
   List<QuoteTableClass> deleteList = [];
   int startValues = 0;
+  int timesToSavePreview = 0;
 
   @override
   void initState() {
-    fillColumns();
-    if (widget.quote!.id_Quote == null) {
-      getIdQuote();
-    }
+    getPreview(0);
+
     date =
         DateFormat('MMMM d, yyyy').format(DateTime.parse(widget.quote!.date!));
     super.initState();
@@ -74,30 +74,29 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
   }
 
   fillColumns() async {
-    if (widget.isSavedQuote!) {
-      await getPreview();
-    } else {
-      notes.text =
-          "-Los costos son calculados de acuerdo con el volumen solicitado, en caso de necesitar diferente volumen favor de solicitar cotización\n-Componentes sujetos a disponibilidad y precio de mercado\n-Para poder manufacturar su pedido es necesario que genere una orden de compra firmada por el responsable de su empresa\n-Vigencia de cotización: 8 dìas hábiles\n-El cliente se hace responsable de los archivos entregados para la fabricación de su producto, en dado caso de tener algún error se debe hacer cargo de los gastos generados al 100%\n-Una vez iniciada el proceso de compra/fabricación, no se aceptan cambios en el diseño a menos de que se paguen los cambios a realizar.";
-      for (var i = 0; i < widget.products!.length; i++) {
-        rows.add(QuoteTableClass(
-          description: widget.products![i].descripcion,
-          cantidad: widget.products![i].cantidad.toString(),
-          unitario: widget.products![i].precioUnitario.toString(),
-          image: widget.products![i].image,
-          total: widget.products![i].importe.toString(),
-        ));
-      }
+    notes.text =
+        "-Los costos son calculados de acuerdo con el volumen solicitado, en caso de necesitar diferente volumen favor de solicitar cotización\n-Componentes sujetos a disponibilidad y precio de mercado\n-Para poder manufacturar su pedido es necesario que genere una orden de compra firmada por el responsable de su empresa\n-Vigencia de cotización: 8 dìas hábiles\n-El cliente se hace responsable de los archivos entregados para la fabricación de su producto, en dado caso de tener algún error se debe hacer cargo de los gastos generados al 100%\n-Una vez iniciada el proceso de compra/fabricación, no se aceptan cambios en el diseño a menos de que se paguen los cambios a realizar.";
+    for (var i = 0; i < widget.products!.length; i++) {
       rows.add(QuoteTableClass(
-          description: "Envío GDL – \nPAQUETE ASEGURADO",
-          unitario: "0.0",
-          cantidad: "1",
-          image: "",
-          total: "0.0"));
-      setState(() {
-        startValues = rows.length;
-        startRows = rows;
-      });
+        description: widget.products![i].descripcion,
+        cantidad: widget.products![i].cantidad.toString(),
+        unitario: widget.products![i].precioUnitario.toString(),
+        image: widget.products![i].image,
+        total: widget.products![i].importe.toString(),
+      ));
+    }
+    rows.add(QuoteTableClass(
+        description: "Envío GDL – \nPAQUETE ASEGURADO",
+        unitario: "0.0",
+        cantidad: "1",
+        image: "",
+        total: "0.0"));
+    setState(() {
+      startValues = rows.length;
+      startRows = rows;
+    });
+    if (widget.quote!.id_Quote == null) {
+      await getIdQuote();
     }
   }
 
@@ -137,17 +136,23 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
     }
   }
 
-  getPreview() async {
+  getPreview(times) async {
     List<QuoteTableClass> preview1 =
         await DataAccessObject.selectPreviewByQuote(widget.quote!.id_Quote);
     setState(() {
       preview = preview1;
-      startValues = preview1.length;
-      if (preview1.isNotEmpty) {
-        notes.text = preview1[0].notas!;
-        rows = preview1;
-        startRows = preview1;
-        isUpdate = true;
+      if (times > 1) {
+        //Nothing to do
+      } else {
+        startValues = preview1.length;
+        if (preview1.isNotEmpty) {
+          notes.text = preview1[0].notas!;
+          rows = preview1;
+          startRows = preview1;
+          isUpdate = true;
+        } else {
+          fillColumns();
+        }
       }
     });
   }
@@ -234,7 +239,10 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
 
       print("Code: $code");
       if (code == 200) {
-        await postPreview(sendList);
+        GoodPopup(context, "Saved");
+        Future.delayed(Duration(seconds: 3), () {
+          Navigator.of(context).pop();
+        });
       } else {
         wrongPopup(context, "Error to delete quote preview");
         Future.delayed(Duration(seconds: 3), () {
@@ -252,42 +260,50 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
   }
 
   choseOptionToExecute() async {
-    if (widget.isSavedQuote!) {
-      List<QuoteTableClass> sendList = [];
-      List<QuoteTableClass> sendList2 = [];
-      if (isUpdate) {
-        //Update all
-        if (startRows.length == startValues) {
-          sendList = startRows;
-          print("Entre a update");
-          await updatePreview(sendList);
+    timesToSavePreview += 1;
+    if (timesToSavePreview > 1) {
+      isUpdate = true;
+      await getPreview(timesToSavePreview);
+    } else {
+      //Nothing to do
+    }
+    //if (widget.isSavedQuote!) {
+    List<QuoteTableClass> sendList = [];
+    List<QuoteTableClass> sendList2 = [];
+    if (isUpdate) {
+      //Update all
+      if (startRows.length == startValues) {
+        sendList = startRows;
+        print("Entre a update");
+        await updatePreview(sendList);
+      }
+      //Add Row and update
+      else if (startRows.length > startValues) {
+        print("Entre a update y add");
+        for (var i = 0; i < startValues; i++) {
+          sendList.add(startRows[i]);
         }
-        //Add Row and update
-        else if (startRows.length > startValues) {
-          print("Entre a update y add");
-          for (var i = 0; i < startValues; i++) {
-            sendList.add(startRows[i]);
-          }
-          for (var i = startValues; i < startRows.length; i++) {
-            sendList2.add(startRows[i]);
-          }
-          await addAndUpdate(sendList, sendList2);
+        for (var i = startValues; i < startRows.length; i++) {
+          sendList2.add(startRows[i]);
         }
-        //Delete row
-        else if (startRows.length < startValues) {
-          print("Entre a delete");
-          await deleteRow(deleteList, startRows);
-        }
-      } else {
-        print("Entre a post");
-        await postPreview(sendList);
+        await addAndUpdate(sendList, sendList2);
+      }
+      //Delete row
+      else if (startRows.length < startValues) {
+        print("Entre a delete");
+        await deleteRow(deleteList, startRows);
       }
     } else {
-      wrongPopup(context, "Save the quote first");
-      Future.delayed(Duration(seconds: 3), () {
-        Navigator.of(context).pop();
-      });
+      print("Entre a post");
+      sendList = rows;
+      await postPreview(sendList);
     }
+    // } else {
+    //   wrongPopup(context, "Save the quote first");
+    //   Future.delayed(Duration(seconds: 3), () {
+    //     Navigator.of(context).pop();
+    //   });
+    // }
   }
 
   @override
@@ -298,7 +314,11 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
           foregroundColor: Colors.white,
           leading: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            DesplegableQuotes(customer: widget.customer!)));
               },
               icon: Icon(Icons.arrow_back)),
           title: Text(
@@ -311,9 +331,9 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
           ElevatedButton(
               onPressed: () {
                 setState(() {
-                  for (var i = 0; i < startRows.length; i++) {
-                    deleteList.add(startRows[i]);
-                  }
+                  //for (var i = 0; i < rows.length; i++) {
+                  deleteList.add(rows[rows.length - 1]);
+                  //}
                   startRows.removeAt(startRows.length - 1);
                 });
               },
@@ -701,8 +721,9 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
   }
 
   Future editUnitario(QuoteTableClass editQuote) async {
+    String unitarioString = editQuote.unitario!.replaceAll(",", "");
     final unitario = await showTextDialog(context,
-        title: "Costo unitario", value: editQuote.unitario!);
+        title: "Costo unitario", value: unitarioString);
     setState(() => startRows = startRows.map((quote) {
           final isEditedUnitario = quote == editQuote;
           return isEditedUnitario ? quote.copy(unitario: unitario) : quote;

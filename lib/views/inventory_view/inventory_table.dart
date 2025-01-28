@@ -8,7 +8,6 @@ import 'package:guadalajarav2/inventory/enums/enumCategory.dart';
 import 'package:guadalajarav2/inventory/enums/enumCurrent.dart';
 import 'package:guadalajarav2/inventory/enums/enumFarads.dart';
 import 'package:guadalajarav2/inventory/enums/enumHenry.dart';
-import 'package:guadalajarav2/inventory/enums/enumMounting.dart';
 import 'package:guadalajarav2/inventory/enums/enumOhm.dart';
 import 'package:guadalajarav2/inventory/enums/enumTemperature.dart';
 import 'package:guadalajarav2/inventory/enums/enumValueUnit.dart';

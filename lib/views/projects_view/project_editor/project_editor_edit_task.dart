@@ -7,7 +7,6 @@ import 'package:guadalajarav2/enums/working_areas.dart';
 import 'package:guadalajarav2/extensions/str_extension.dart';
 import 'package:guadalajarav2/main.dart';
 import 'package:guadalajarav2/utils/colors.dart';
-import 'package:guadalajarav2/utils/csv_handler.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
 
