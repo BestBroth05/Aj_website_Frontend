@@ -50,7 +50,7 @@ class ExportToPDFManofacture {
     String firmado;
     String fecha;
     int numberOfTables;
-    int numberOfSplits = 4;
+    int numberOfSplits = 6;
     int splitsPerRow = 0;
     int splitsNotes = 0;
     date = DateFormat('MMMM d, yyyy').format(DateTime.parse(quote!.date!));
@@ -203,11 +203,16 @@ class ExportToPDFManofacture {
       numberOfSplits -= 1;
     }
 
-    numberOfTables = (dataTable!.length / numberOfSplits).ceil();
+    numberOfTables = (((dataTable!.length - 3) / numberOfSplits).ceil()) + 1;
     List<List<QuoteTableClass>> dataTableTridimencional = [];
     List<QuoteTableClass> dataTableBidemencional = [];
     int count = 0;
     for (var i = 0; i < numberOfTables; i++) {
+      if (i == 0) {
+        numberOfSplits = 4;
+      } else {
+        numberOfSplits = 6;
+      }
       if (count == 0) {
         dataTableBidemencional.addAll(dataTable!.take(numberOfSplits));
       } else {

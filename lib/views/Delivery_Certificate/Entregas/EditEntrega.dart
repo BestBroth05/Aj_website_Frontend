@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/Controllers/DAO.dart';
-import 'package:guadalajarav2/views/Delivery_Certificate/widgets/Popups.dart';
+import 'package:guadalajarav2/Popups.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/widgets/deliverFieldWidget.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/productClass.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/admin_OC/OCList.dart';
@@ -45,6 +45,7 @@ class _EditEntregaState extends State<EditEntrega> {
   TextEditingController descripcion = TextEditingController();
   TextEditingController emisor = TextEditingController();
   TextEditingController notes = TextEditingController();
+  TextEditingController relatedDeliveries = TextEditingController();
   List<ProductCertificateDelivery> products = [];
   List<CustomersClass> Customers = [];
   List<OrdenCompraClass> OC = [];
@@ -70,28 +71,35 @@ class _EditEntregaState extends State<EditEntrega> {
   ClassCertificadoEntrega? certificadoEntrega;
   int totalProducts = 0;
   bool isNotesCountable = false;
+  bool isLoading = true;
   @override
   void initState() {
-    // emisor.text = "${user!.name} ${user!.lastName}";
-    // folio.text = widget.id_entrega;
-    folioCertificate = widget.id_entrega;
     super.initState();
-    getCustomer();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    folioCertificate = widget.id_entrega;
+    await getCustomer();
+    setState(() {
+      isLoading = false;
+    });
   }
 
 // *********************************** GETs *********************************** \\
   getCustomer() async {
     List<CustomersClass> Customers1 =
         await DataAccessObject.selectCustomer(widget.id_customer);
+    await getOC();
     setState(() {
       Customers = Customers1;
       companyName = Customers1[0].name!;
-      getOC();
     });
   }
 
   getOC() async {
     List<OrdenCompraClass> OC1 = await DataAccessObject.selectOC(widget.id_OC);
+    await getEntrega();
     setState(() {
       OC = OC1;
       OrdenCompra.text = OC1[0].OC!;
@@ -100,7 +108,6 @@ class _EditEntregaState extends State<EditEntrega> {
       //     "${OC1[0].street} ${OC1[0].cp} ${OC1[0].ciudad} ${OC1[0].estado} ${OC1[0].pais}";
       moneda = OC1[0].moneda;
       descripcion.text = OC1[0].descripcion!;
-      getEntrega();
     });
   }
 
@@ -125,13 +132,14 @@ class _EditEntregaState extends State<EditEntrega> {
       folio.text = certificadoEntrega!.certificadoEntrega!;
       fecha = certificadoEntrega!.Fecha!;
       notes.text = certificadoEntrega!.Notes!;
+      relatedDeliveries.text = certificadoEntrega!.entregasRelacionadas ?? "";
       if (notes.text.contains("/")) {
         List separateNotes = notes.text.split("/");
         totalProducts = int.parse(separateNotes[0]);
         isNotesCountable = true;
       }
-      getProducts();
     });
+    await getProducts();
   }
 
   getProducts() async {
@@ -172,12 +180,14 @@ class _EditEntregaState extends State<EditEntrega> {
       int result = await DataAccessObject.updateEntrega(
           widget.id_OC,
           certificadoEntrega!.id_Entrega,
+          widget.id_customer,
           folio.text,
           fecha,
           direccion.text,
           solicitante.text,
           emisor.text,
-          notes.text);
+          notes.text,
+          relatedDeliveries.text);
       if (result == 200) {
         if (products.isEmpty) {
           //nothing to do
@@ -308,7 +318,7 @@ class _EditEntregaState extends State<EditEntrega> {
 
   @override
   Widget build(BuildContext context) {
-    return !isAllCustomersLoaded
+    return isLoading
         ? LoadingData()
         : SingleChildScrollView(
             child: Form(
@@ -441,13 +451,18 @@ class _EditEntregaState extends State<EditEntrega> {
               ),
               Container(
                 margin: EdgeInsets.only(top: 25, left: 100, right: 100),
-                child: Flex(
-                  direction: Axis.horizontal,
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    //Enviado y validado por
-                    textArea(notes, "", TextInputType.name,
+                    //Notes
+                    textArea(notes, "Notes", TextInputType.multiline,
+                        FilteringTextInputFormatter.singleLineFormatter),
+                    //Related Deliveries
+                    textArea(
+                        relatedDeliveries,
+                        "Related Deliveries",
+                        TextInputType.multiline,
                         FilteringTextInputFormatter.singleLineFormatter),
                   ],
                 ),
@@ -476,10 +491,10 @@ class _EditEntregaState extends State<EditEntrega> {
                       fieldDeliver(cantidad, "Quantity", TextInputType.number,
                           FilteringTextInputFormatter.digitsOnly),
                       //Descripcion
-                      fieldDeliver(
+                      textArea(
                           descripcion,
                           "Description",
-                          TextInputType.text,
+                          TextInputType.multiline,
                           FilteringTextInputFormatter.singleLineFormatter),
                       //Unitario
                       fieldDeliver(
@@ -521,7 +536,12 @@ class _EditEntregaState extends State<EditEntrega> {
                                   }
                                   cantidad = TextEditingController();
                                   descripcion.text = OC[0].descripcion!;
-                                  unitario = TextEditingController();
+                                  if (OC[0].precioUnitario == null) {
+                                    unitario.text = "0.00";
+                                  } else {
+                                    unitario.text =
+                                        OC[0].precioUnitario.toString();
+                                  }
                                 }
                               });
                             }),

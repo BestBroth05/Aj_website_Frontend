@@ -11,9 +11,10 @@ import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/OrdenCompra
 import 'package:guadalajarav2/views/admin_view/AdminWidgets/Title.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/Controllers/DAO.dart';
 import '../../../utils/colors.dart';
+import '../../admin_view/admin_DeliverCertificate/LoadingData.dart';
 import '../adminClases/Places.dart';
 import '../adminClases/Suggestion.dart';
-import '../widgets/Popups.dart';
+import '../../../Popups.dart';
 import '../widgets/Texts.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -46,6 +47,7 @@ class _EditOCState extends State<EditOC> {
   TextEditingController cp = TextEditingController();
   TextEditingController description = TextEditingController();
   TextEditingController cantidad = TextEditingController();
+  TextEditingController precioUnitarioProducto = TextEditingController();
   String? prioridad;
   String? moneda;
   bool isPressed = false;
@@ -60,11 +62,16 @@ class _EditOCState extends State<EditOC> {
   List<MySuggestion> suggestions = [];
   String PLACES_API_KEY = "AIzaSyCH7w3W_3lumfjO4FtZAU_FOTSWBXVZnMw";
   MyPlace? myPlace;
+  bool isLoading = true;
   //PostalCode? _postalCode;
 
   @override
   void initState() {
     super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
     ordenCompra.text = widget.OrdenCompra.OC!;
     prefijo.text = widget.OrdenCompra.prefijo!;
     description.text = widget.OrdenCompra.descripcion!;
@@ -87,6 +94,9 @@ class _EditOCState extends State<EditOC> {
     street.text = separateStreet[0];
     vicinity.text = separateStreet[1];
     cp.text = widget.OrdenCompra.cp.toString();
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -104,379 +114,433 @@ class _EditOCState extends State<EditOC> {
                 color: Colors.white,
               )),
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            margin: EdgeInsets.only(left: 100, right: 100, top: 20),
-            child: Form(
-                key: _formKeyOC,
-                child: Column(
-                  children: [
-                    fieldCustomer(
-                      ordenCompra,
-                      "Purchase order",
-                      TextInputType.text,
-                      FilteringTextInputFormatter.singleLineFormatter,
-                      300,
-                    ),
-                    fieldCustomer(
-                      prefijo,
-                      "Prefijo",
-                      TextInputType.text,
-                      FilteringTextInputFormatter.singleLineFormatter,
-                      MediaQuery.of(context).size.width,
-                    ),
-                    fieldCustomer(
-                      description,
-                      "Description",
-                      TextInputType.text,
-                      FilteringTextInputFormatter.singleLineFormatter,
-                      MediaQuery.of(context).size.width,
-                    ),
-                    fieldCustomer(
-                      cantidad,
-                      "Quantity",
-                      TextInputType.number,
-                      FilteringTextInputFormatter.digitsOnly,
-                      MediaQuery.of(context).size.width,
-                    ),
-                    Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        body: isLoading
+            ? LoadingData()
+            : SingleChildScrollView(
+                child: Container(
+                  margin: EdgeInsets.only(left: 100, right: 100, top: 20),
+                  child: Form(
+                      key: _formKeyOC,
+                      child: Column(
                         children: [
+                          fieldCustomer(
+                            ordenCompra,
+                            "Purchase order",
+                            TextInputType.text,
+                            FilteringTextInputFormatter.singleLineFormatter,
+                            300,
+                          ),
+                          fieldCustomer(
+                            prefijo,
+                            "Prefijo",
+                            TextInputType.text,
+                            FilteringTextInputFormatter.singleLineFormatter,
+                            MediaQuery.of(context).size.width,
+                          ),
+                          fieldCustomer(
+                            description,
+                            "Description",
+                            TextInputType.text,
+                            FilteringTextInputFormatter.singleLineFormatter,
+                            MediaQuery.of(context).size.width,
+                          ),
+                          fieldCustomer(
+                            cantidad,
+                            "Quantity",
+                            TextInputType.number,
+                            FilteringTextInputFormatter.digitsOnly,
+                            MediaQuery.of(context).size.width,
+                          ),
+                          fieldCustomer(
+                            precioUnitarioProducto,
+                            "Unit price product",
+                            TextInputType.numberWithOptions(decimal: true),
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^(\d+)?\.?\d{0,2}')),
+                            MediaQuery.of(context).size.width,
+                          ),
                           Container(
-                            child: Column(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Container(
-                                  margin: EdgeInsets.only(bottom: 10),
-                                  child: Text('* Start date', style: fieldText),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        margin: EdgeInsets.only(bottom: 10),
+                                        child: Text('* Start date',
+                                            style: fieldText),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(
+                                            left: 10, bottom: 5),
+                                        width: 360,
+                                        child: DropdownDatePicker(
+                                          boxDecoration: const BoxDecoration(
+                                              color: Colors.white),
+                                          textStyle: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14),
+                                          dayFlex: 2,
+                                          inputDecoration: InputDecoration(
+                                              fillColor: Colors.white,
+                                              enabledBorder:
+                                                  const OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1.0),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10))), // optional
+                                          isDropdownHideUnderline:
+                                              true, // optional
+                                          isFormValidator: false, // optional
+                                          startYear: 2000, // optional
+                                          endYear: int.parse(
+                                              year_inicio!), // optional
+                                          width: 10, // optional
+
+                                          selectedDay: int.parse(
+                                              day_inicio!), // optional
+                                          selectedMonth: int.parse(
+                                              month_inicio!), // optional
+                                          selectedYear: int.parse(
+                                              year_inicio!), // optional
+                                          onChangedDay: (valueDay) {
+                                            day_inicio = valueDay!;
+                                            print('onChangedDay: $valueDay');
+                                          },
+
+                                          onChangedMonth: (valueMonth) {
+                                            month_inicio = valueMonth!;
+                                            print(
+                                                'onChangedMonth: $valueMonth');
+                                          },
+
+                                          onChangedYear: (valueYear) {
+                                            year_inicio = valueYear!;
+                                            print('onChangedYear: $valueYear');
+                                          },
+                                          hintDay: 'Day', // optional
+                                          hintMonth: 'Month', // optional
+                                          hintYear: 'Year', // optional
+                                          hintTextStyle: const TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14), // optional
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 Container(
-                                  margin: EdgeInsets.only(left: 10, bottom: 5),
-                                  width: 360,
-                                  child: DropdownDatePicker(
-                                    boxDecoration: const BoxDecoration(
-                                        color: Colors.white),
-                                    textStyle: const TextStyle(
-                                        color: Colors.black, fontSize: 14),
-                                    dayFlex: 2,
-                                    inputDecoration: InputDecoration(
-                                        fillColor: Colors.white,
-                                        enabledBorder: const OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.black, width: 1.0),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        margin: EdgeInsets.only(bottom: 10),
+                                        child: Text('* End date',
+                                            style: fieldText),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(
+                                            left: 10, bottom: 5),
+                                        width: 360,
+                                        child: DropdownDatePicker(
+                                          boxDecoration: const BoxDecoration(
+                                              color: Colors.white),
+                                          textStyle: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14),
+                                          dayFlex: 2,
+                                          inputDecoration: InputDecoration(
+                                              fillColor: Colors.white,
+                                              enabledBorder:
+                                                  const OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1.0),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10))), // optional
+                                          isDropdownHideUnderline:
+                                              true, // optional
+                                          isFormValidator: false, // optional
+                                          startYear: 2000, // optional
+                                          endYear: 2030, // optional
+                                          width: 10, // optional
+
+                                          selectedDay:
+                                              int.parse(day_fin!), // optional
+                                          selectedMonth:
+                                              int.parse(month_fin!), // optional
+                                          selectedYear:
+                                              int.parse(year_fin!), // optional
+                                          onChangedDay: (valueDay) {
+                                            day_fin = valueDay!;
+                                            print('onChangedDay: $valueDay');
+                                          },
+
+                                          onChangedMonth: (valueMonth) {
+                                            month_fin = valueMonth!;
+                                            print(
+                                                'onChangedMonth: $valueMonth');
+                                          },
+
+                                          onChangedYear: (valueYear) {
+                                            year_fin = valueYear!;
+                                            print('onChangedYear: $valueYear');
+                                          },
+                                          hintDay: 'Day', // optional
+                                          hintMonth: 'Month', // optional
+                                          hintYear: 'Year', // optional
+                                          hintTextStyle: const TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14), // optional
                                         ),
-                                        border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                                10))), // optional
-                                    isDropdownHideUnderline: true, // optional
-                                    isFormValidator: false, // optional
-                                    startYear: 2000, // optional
-                                    endYear:
-                                        int.parse(year_inicio!), // optional
-                                    width: 10, // optional
-
-                                    selectedDay:
-                                        int.parse(day_inicio!), // optional
-                                    selectedMonth:
-                                        int.parse(month_inicio!), // optional
-                                    selectedYear:
-                                        int.parse(year_inicio!), // optional
-                                    onChangedDay: (valueDay) {
-                                      day_inicio = valueDay!;
-                                      print('onChangedDay: $valueDay');
-                                    },
-
-                                    onChangedMonth: (valueMonth) {
-                                      month_inicio = valueMonth!;
-                                      print('onChangedMonth: $valueMonth');
-                                    },
-
-                                    onChangedYear: (valueYear) {
-                                      year_inicio = valueYear!;
-                                      print('onChangedYear: $valueYear');
-                                    },
-                                    hintDay: 'Day', // optional
-                                    hintMonth: 'Month', // optional
-                                    hintYear: 'Year', // optional
-                                    hintTextStyle: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14), // optional
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          Container(
-                            child: Column(
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(bottom: 10),
-                                  child: Text('* End date', style: fieldText),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(left: 10, bottom: 5),
-                                  width: 360,
-                                  child: DropdownDatePicker(
-                                    boxDecoration: const BoxDecoration(
-                                        color: Colors.white),
-                                    textStyle: const TextStyle(
-                                        color: Colors.black, fontSize: 14),
-                                    dayFlex: 2,
-                                    inputDecoration: InputDecoration(
-                                        fillColor: Colors.white,
-                                        enabledBorder: const OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.black, width: 1.0),
-                                        ),
-                                        border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                                10))), // optional
-                                    isDropdownHideUnderline: true, // optional
-                                    isFormValidator: false, // optional
-                                    startYear: 2000, // optional
-                                    endYear: 2030, // optional
-                                    width: 10, // optional
-
-                                    selectedDay:
-                                        int.parse(day_fin!), // optional
-                                    selectedMonth:
-                                        int.parse(month_fin!), // optional
-                                    selectedYear:
-                                        int.parse(year_fin!), // optional
-                                    onChangedDay: (valueDay) {
-                                      day_fin = valueDay!;
-                                      print('onChangedDay: $valueDay');
-                                    },
-
-                                    onChangedMonth: (valueMonth) {
-                                      month_fin = valueMonth!;
-                                      print('onChangedMonth: $valueMonth');
-                                    },
-
-                                    onChangedYear: (valueYear) {
-                                      year_fin = valueYear!;
-                                      print('onChangedYear: $valueYear');
-                                    },
-                                    hintDay: 'Day', // optional
-                                    hintMonth: 'Month', // optional
-                                    hintYear: 'Year', // optional
-                                    hintTextStyle: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14), // optional
-                                  ),
-                                ),
-                              ],
-                            ),
+                          fieldCustomer(
+                            solicitante,
+                            "Applicant",
+                            TextInputType.text,
+                            FilteringTextInputFormatter.singleLineFormatter,
+                            MediaQuery.of(context).size.width,
                           ),
-                        ],
-                      ),
-                    ),
-                    fieldCustomer(
-                      solicitante,
-                      "Applicant",
-                      TextInputType.text,
-                      FilteringTextInputFormatter.singleLineFormatter,
-                      MediaQuery.of(context).size.width,
-                    ),
-                    Container(
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Container(
-                              child: Column(
+                          Container(
+                            child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "* Currency:",
-                                      style: TextStyle(
-                                          color: Colors.teal,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: SizedBox(
-                                      width: 300,
-                                      child: DropdownButtonFormField(
-                                          validator: (value) {
-                                            if (value == null) {
-                                              return 'Currency is required';
-                                            }
-                                            return null;
-                                          },
-                                          style: fieldStyle,
-                                          decoration: InputDecoration(
-                                              hintStyle: hintStyle,
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                borderSide: BorderSide(
-                                                    color:
-                                                        Colors.grey.shade300),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.green),
-                                              ),
-                                              errorBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.redAccent),
-                                              ),
-                                              focusedErrorBorder:
-                                                  OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.redAccent),
-                                              )),
-                                          isExpanded: true,
-                                          hint: Text(
-                                            "--Select Option--",
-                                            style: fieldStyle,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            "* Currency:",
+                                            style: TextStyle(
+                                                color: Colors.teal,
+                                                fontWeight: FontWeight.bold),
                                           ),
-                                          items: [
-                                            DropdownMenuItem<String>(
-                                                child: Text('USD',
+                                        ),
+                                        Container(
+                                          alignment: Alignment.centerLeft,
+                                          child: SizedBox(
+                                            width: 300,
+                                            child: DropdownButtonFormField(
+                                                validator: (value) {
+                                                  if (value == null) {
+                                                    return 'Currency is required';
+                                                  }
+                                                  return null;
+                                                },
+                                                style: fieldStyle,
+                                                decoration: InputDecoration(
+                                                    hintStyle: hintStyle,
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide: BorderSide(
+                                                          color: Colors
+                                                              .grey.shade300),
+                                                    ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color:
+                                                                  Colors.green),
+                                                    ),
+                                                    errorBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Colors
+                                                                  .redAccent),
+                                                    ),
+                                                    focusedErrorBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Colors
+                                                                  .redAccent),
+                                                    )),
+                                                isExpanded: true,
+                                                hint: Text(
+                                                  "--Select Option--",
+                                                  style: fieldStyle,
+                                                ),
+                                                items: [
+                                                  DropdownMenuItem<String>(
+                                                      child: Text('USD',
+                                                          style: fieldStyle),
+                                                      value: 'USD'),
+                                                  DropdownMenuItem<String>(
+                                                      child: Text(
+                                                        'MXN',
+                                                        style: fieldStyle,
+                                                      ),
+                                                      value: 'MXN')
+                                                ],
+                                                value: moneda,
+                                                onChanged: (value) {
+                                                  moneda = value;
+                                                }),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            "* Priority:",
+                                            style: TextStyle(
+                                                color: Colors.teal,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                        Container(
+                                          alignment: Alignment.centerLeft,
+                                          child: SizedBox(
+                                            width: 300,
+                                            child: DropdownButtonFormField(
+                                                validator: (value) {
+                                                  if (value == null) {
+                                                    return 'Priority is required';
+                                                  }
+                                                  return null;
+                                                },
+                                                style: fieldStyle,
+                                                decoration: InputDecoration(
+                                                    hintStyle: hintStyle,
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide: BorderSide(
+                                                          color: Colors
+                                                              .grey.shade300),
+                                                    ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color:
+                                                                  Colors.green),
+                                                    ),
+                                                    errorBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Colors
+                                                                  .redAccent),
+                                                    ),
+                                                    focusedErrorBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Colors
+                                                                  .redAccent),
+                                                    )),
+                                                isExpanded: true,
+                                                hint: Text("--Select Option--",
                                                     style: fieldStyle),
-                                                value: 'USD'),
-                                            DropdownMenuItem<String>(
-                                                child: Text(
-                                                  'MXN',
-                                                  style: fieldStyle,
-                                                ),
-                                                value: 'MXN')
-                                          ],
-                                          value: moneda,
-                                          onChanged: (value) {
-                                            moneda = value;
-                                          }),
+                                                items: [
+                                                  DropdownMenuItem<String>(
+                                                      child: Text(
+                                                        'High',
+                                                        style: fieldStyle,
+                                                      ),
+                                                      value: 'High'),
+                                                  DropdownMenuItem<String>(
+                                                      child: Text(
+                                                        'Medium',
+                                                        style: fieldStyle,
+                                                      ),
+                                                      value: 'Medium'),
+                                                  DropdownMenuItem<String>(
+                                                      child: Text(
+                                                        'Low',
+                                                        style: fieldStyle,
+                                                      ),
+                                                      value: 'Low')
+                                                ],
+                                                value: prioridad,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    prioridad = value;
+                                                  });
+                                                }),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                ]),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(bottom: 10),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "* Delivery address:",
+                              style: TextStyle(
+                                  color: Colors.teal,
+                                  fontWeight: FontWeight.bold),
                             ),
-                            Container(
-                              child: Column(
-                                children: [
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "* Priority:",
-                                      style: TextStyle(
-                                          color: Colors.teal,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: SizedBox(
-                                      width: 300,
-                                      child: DropdownButtonFormField(
-                                          validator: (value) {
-                                            if (value == null) {
-                                              return 'Priority is required';
-                                            }
-                                            return null;
-                                          },
-                                          style: fieldStyle,
-                                          decoration: InputDecoration(
-                                              hintStyle: hintStyle,
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                borderSide: BorderSide(
-                                                    color:
-                                                        Colors.grey.shade300),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.green),
-                                              ),
-                                              errorBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.redAccent),
-                                              ),
-                                              focusedErrorBorder:
-                                                  OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.redAccent),
-                                              )),
-                                          isExpanded: true,
-                                          hint: Text("--Select Option--",
-                                              style: fieldStyle),
-                                          items: [
-                                            DropdownMenuItem<String>(
-                                                child: Text(
-                                                  'High',
-                                                  style: fieldStyle,
-                                                ),
-                                                value: 'High'),
-                                            DropdownMenuItem<String>(
-                                                child: Text(
-                                                  'Medium',
-                                                  style: fieldStyle,
-                                                ),
-                                                value: 'Medium'),
-                                            DropdownMenuItem<String>(
-                                                child: Text(
-                                                  'Low',
-                                                  style: fieldStyle,
-                                                ),
-                                                value: 'Low')
-                                          ],
-                                          value: prioridad,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              prioridad = value;
-                                            });
-                                          }),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ]),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(bottom: 10),
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "* Delivery address:",
-                        style: TextStyle(
-                            color: Colors.teal, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    fieldSearchPlace(),
-                    SizedBox(height: 10),
-                    fieldAdress(pais, "Country", TextInputType.text,
-                        FilteringTextInputFormatter.singleLineFormatter),
-                    fieldAdress(estado, "State", TextInputType.text,
-                        FilteringTextInputFormatter.singleLineFormatter),
-                    fieldAdress(ciudad, "City", TextInputType.text,
-                        FilteringTextInputFormatter.singleLineFormatter),
-                    fieldAdress(street, "Street", TextInputType.text,
-                        FilteringTextInputFormatter.singleLineFormatter),
-                    fieldAdress(cp, "Postal Code", TextInputType.text,
-                        FilteringTextInputFormatter.singleLineFormatter),
-                    fieldAdress(vicinity, "Vicinity", TextInputType.text,
-                        FilteringTextInputFormatter.singleLineFormatter),
-                    buttonEditOC(),
-                    SizedBox(height: 25),
-                  ],
-                )),
-          ),
-        ));
+                          ),
+                          fieldSearchPlace(),
+                          SizedBox(height: 10),
+                          fieldAdress(pais, "Country", TextInputType.text,
+                              FilteringTextInputFormatter.singleLineFormatter),
+                          fieldAdress(estado, "State", TextInputType.text,
+                              FilteringTextInputFormatter.singleLineFormatter),
+                          fieldAdress(ciudad, "City", TextInputType.text,
+                              FilteringTextInputFormatter.singleLineFormatter),
+                          fieldAdress(street, "Street", TextInputType.text,
+                              FilteringTextInputFormatter.singleLineFormatter),
+                          fieldAdress(cp, "Postal Code", TextInputType.text,
+                              FilteringTextInputFormatter.singleLineFormatter),
+                          fieldAdress(vicinity, "Vicinity", TextInputType.text,
+                              FilteringTextInputFormatter.singleLineFormatter),
+                          buttonEditOC(),
+                          SizedBox(height: 25),
+                        ],
+                      )),
+                ),
+              ));
   }
 
   late FocusNode addressFocusNode;
@@ -682,7 +746,8 @@ class _EditOCState extends State<EditOC> {
           moneda,
           description.text,
           int.parse(cantidad.text),
-          prefijo.text);
+          prefijo.text,
+          precioUnitarioProducto.text);
 
       if (result == 200) {
         succesfullyPopUp(context, "Succesfully edited");

@@ -7,15 +7,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/Controllers/DAO.dart';
-import 'package:guadalajarav2/views/Delivery_Certificate/widgets/Popups.dart';
+import 'package:guadalajarav2/Popups.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/widgets/deliverFieldWidget.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/productClass.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/admin_OC/OCList.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttericon/entypo_icons.dart';
 import 'package:guadalajarav2/views/dashboard_main_top_bar.dart/dashboard_main_top_dar.dart';
-
 import '../../../main.dart';
+import '../../admin_view/admin_DeliverCertificate/LoadingData.dart';
 import '../adminClases/CertificadoEntregaClass.dart';
 import '../adminClases/CustomerClass.dart';
 import '../adminClases/OrdenCompraClass.dart';
@@ -41,6 +41,7 @@ class _AddEntregaState extends State<AddEntrega> {
   TextEditingController descripcion = TextEditingController();
   TextEditingController emisor = TextEditingController();
   TextEditingController notes = TextEditingController();
+  TextEditingController relatedDeliveries = TextEditingController();
   List<ProductCertificateDelivery> products = [];
   List<CustomersClass> Customers = [];
   List<OrdenCompraClass> OC = [];
@@ -62,20 +63,29 @@ class _AddEntregaState extends State<AddEntrega> {
   List<ClassCertificadoEntrega> Entregas = [];
   List<ProductCertificateDelivery> allProducts = [];
   int totalProducts = 0;
+  bool isLoading = true;
+
   @override
   void initState() {
-    emisor.text = "${user!.name} ${user!.lastName}";
-
     super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    emisor.text = "${user!.name} ${user!.lastName}";
     // ***** Getting date ***** \\
     DateTime now = DateTime.now();
     day = DateFormat.d().format(now);
     month = DateFormat.M().format(now);
     year = DateFormat.y().format(now);
     fecha = DateFormat.yMd().format(now);
-    getCustomer();
-    getOC();
-    getEntregas();
+    await getCustomer();
+    await getOC();
+    await getEntregasPerCustomer();
+    await fillingRelatedDeliveries();
+    setState(() {
+      isLoading = false;
+    });
   }
 
   getCustomer() async {
@@ -87,35 +97,63 @@ class _AddEntregaState extends State<AddEntrega> {
     });
   }
 
-  getEntregas() async {
+  getEntregasPerCustomer() async {
     List<ClassCertificadoEntrega> Entrega1 =
-        await DataAccessObject.getEntrega();
+        await DataAccessObject.selectEntregaByCustomer(widget.id_customer);
+    return Entrega1;
+  }
+
+  getEntregasPerOC() async {
+    List<ClassCertificadoEntrega> Entrega1 =
+        await DataAccessObject.selectEntrega(widget.id_OC);
     return Entrega1;
   }
 
   postEntrega() async {
-    Entregas = await getEntregas();
-    bool isAlreadyStored = false;
-    fecha = "$year-$month-$day";
-    for (var i = 0; i < Entregas.length; i++) {
-      if (folio.text == Entregas[i].certificadoEntrega) {
-        isAlreadyStored = true;
+    try {
+      Entregas = await getEntregasPerCustomer();
+      bool isAlreadyStored = false;
+      fecha = "$year-$month-$day";
+      if (Entregas.isNotEmpty) {
+        for (var i = 0; i < Entregas.length; i++) {
+          if (folio.text == Entregas[i].certificadoEntrega) {
+            isAlreadyStored = true;
+          }
+        }
       }
-    }
-    if (!isAlreadyStored) {
-      int result = await DataAccessObject.postEntrega(widget.id_OC, folio.text,
-          fecha, direccion.text, solicitante.text, emisor.text, notes.text);
-      if (result == 200) {
-        await postProducts();
+
+      if (!isAlreadyStored) {
+        int result = await DataAccessObject.postEntrega(
+            widget.id_OC,
+            widget.id_customer,
+            folio.text,
+            fecha,
+            direccion.text,
+            solicitante.text,
+            emisor.text,
+            notes.text,
+            relatedDeliveries.text);
+        if (result == 200) {
+          await postProducts();
+        } else {
+          setState(() => isPressed = false);
+          wrongPopup(context, "Something went wrong");
+          Future.delayed(const Duration(seconds: 3), () {
+            setState(() => isPressed = false);
+            Navigator.pop(context);
+          });
+        }
       } else {
-        wrongPopup(context, "Something went wrong");
+        setState(() => isPressed = false);
+        wrongPopup(context, "The Certificate already exists");
         Future.delayed(const Duration(seconds: 3), () {
           setState(() => isPressed = false);
           Navigator.pop(context);
         });
       }
-    } else {
-      wrongPopup(context, "The Certificate already exists");
+    } catch (e) {
+      setState(() => isPressed = false);
+      wrongPopup(context, "Something went wrong");
       Future.delayed(const Duration(seconds: 3), () {
         setState(() => isPressed = false);
         Navigator.pop(context);
@@ -181,8 +219,13 @@ class _AddEntregaState extends State<AddEntrega> {
 
   getOC() async {
     List<OrdenCompraClass> OC1 = await DataAccessObject.selectOC(widget.id_OC);
-    List<ClassCertificadoEntrega> Entrega1 =
-        await DataAccessObject.selectEntrega(widget.id_OC);
+    List<ClassCertificadoEntrega> Entrega1 = await getEntregasPerCustomer();
+    if (OC1[0].precioUnitario == null) {
+      unitario.text = "0.00";
+    } else {
+      unitario.text = OC1[0].precioUnitario.toString();
+    }
+
     await getProducts();
 
     setState(() {
@@ -209,7 +252,7 @@ class _AddEntregaState extends State<AddEntrega> {
         }
         print("subString = $newString");
       } else {
-        folio.text = OC1[0].prefijo!;
+        folio.text = "${OC1[0].prefijo!}00001";
       }
 
       OrdenCompra.text = OC1[0].OC!;
@@ -227,316 +270,353 @@ class _AddEntregaState extends State<AddEntrega> {
     });
   }
 
+  fillingRelatedDeliveries() async {
+    List<ClassCertificadoEntrega> allEntregas = await getEntregasPerOC();
+    relatedDeliveries.text =
+        allEntregas.map((p) => "- ${p.certificadoEntrega}").join("\n");
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        child: Form(
-      key: _formKeyCertificate,
-      child: Column(children: [
-        DashboardTopBar(selected: 4),
-        //Title
-        Container(
-          alignment: Alignment.center,
-          color: Colors.teal,
-          height: 40,
-          width: MediaQuery.of(context).size.width,
-          margin: EdgeInsets.only(top: 10),
-          child: Text("DELIVERY CERTIFICATE $companyName",
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.white)),
-        ),
-        //Data
-        Container(
-          margin: EdgeInsets.only(top: 25, left: 100, right: 100),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              //Fecha
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      "* Date:",
-                      style: TextStyle(
-                          color: Colors.teal, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 10, bottom: 5),
-                    width: 360,
-                    child: DropdownDatePicker(
-                      boxDecoration: const BoxDecoration(color: Colors.white),
-                      textStyle:
-                          const TextStyle(color: Colors.black, fontSize: 14),
-                      dayFlex: 2,
-                      inputDecoration: InputDecoration(
-                          fillColor: Colors.white,
-                          enabledBorder: const OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.black, width: 1.0),
-                          ),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(10))), // optional
-                      isDropdownHideUnderline: true, // optional
-                      isFormValidator: false, // optional
-                      startYear: 2000, // optional
-                      endYear: int.parse(year!), // optional
-                      width: 10, // optional
-
-                      selectedDay: int.parse(day!), // optional
-                      selectedMonth: int.parse(month!), // optional
-                      selectedYear: int.parse(year!), // optional
-                      onChangedDay: (valueDay) {
-                        day = valueDay!;
-                        print('onChangedDay: $valueDay');
-                      },
-
-                      onChangedMonth: (valueMonth) {
-                        month = valueMonth!;
-                        print('onChangedMonth: $valueMonth');
-                      },
-
-                      onChangedYear: (valueYear) {
-                        year = valueYear!;
-                        print('onChangedYear: $valueYear');
-                      },
-
-                      //boxDecoration: BoxDecoration(
-                      // border: Border.all(color: Colors.grey, width: 1.0)), // optional
-                      // showDay: false,// optional
-                      // dayFlex: 2,// optional
-                      // locale: "zh_CN",// optional
-                      hintDay: 'Day', // optional
-                      hintMonth: 'Month', // optional
-                      hintYear: 'Year', // optional
-                      hintTextStyle: const TextStyle(
-                          color: Colors.grey, fontSize: 14), // optional
-                    ),
-                  ),
-                ],
+    return isLoading
+        ? LoadingData()
+        : SingleChildScrollView(
+            child: Form(
+            key: _formKeyCertificate,
+            child: Column(children: [
+              DashboardTopBar(selected: 4),
+              //Title
+              Container(
+                alignment: Alignment.center,
+                color: Colors.teal,
+                height: 40,
+                width: MediaQuery.of(context).size.width,
+                margin: EdgeInsets.only(top: 10),
+                child: Text("DELIVERY CERTIFICATE $companyName",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white)),
               ),
-
-              //Folio
-              fieldDeliver(folio, "Folio", TextInputType.text,
-                  FilteringTextInputFormatter.singleLineFormatter),
-              //Entrega a
-              fieldDeliver(direccion, "Delivery address", TextInputType.name,
-                  FilteringTextInputFormatter.singleLineFormatter),
-            ],
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.only(top: 25, left: 100, right: 100),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              //Orden de compra
-              fieldDeliver(
-                  OrdenCompra,
-                  "Purchase order $companyName",
-                  TextInputType.text,
-                  FilteringTextInputFormatter.singleLineFormatter),
-              //Ordenar por
-              fieldDeliver(solicitante, "Applicant", TextInputType.text,
-                  FilteringTextInputFormatter.singleLineFormatter),
-              //Enviado y validado por
-              fieldDeliver(emisor, "Send and validate by", TextInputType.name,
-                  FilteringTextInputFormatter.singleLineFormatter),
-            ],
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.only(top: 25, left: 100, right: 100),
-          child: Flex(
-            direction: Axis.horizontal,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              //Enviado y validado por
-              textArea(notes, "", TextInputType.name,
-                  FilteringTextInputFormatter.singleLineFormatter),
-            ],
-          ),
-        ),
-        //Title 2
-        Container(
-          alignment: Alignment.center,
-          height: 40,
-          width: MediaQuery.of(context).size.width,
-          color: Colors.teal,
-          margin: EdgeInsets.only(top: 50),
-          child: Text("Product delivered",
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: Colors.white)),
-        ),
-        Form(
-          key: _formKeyProduct,
-          child: Container(
-            margin: EdgeInsets.only(top: 25),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                //Cantidad
-                fieldDeliver(cantidad, "Quantity", TextInputType.number,
-                    FilteringTextInputFormatter.digitsOnly),
-                //Descripcion
-                fieldDeliver(descripcion, "Description", TextInputType.text,
-                    FilteringTextInputFormatter.singleLineFormatter),
-                //Unitario
-                fieldDeliver(
-                    unitario,
-                    "Unit price",
-                    TextInputType.numberWithOptions(decimal: true),
-                    FilteringTextInputFormatter.allow(
-                        RegExp(r'^(\d+)?\.?\d{0,2}'))),
-                // -------------- Button more -------------- //
-                Container(
-                  margin: const EdgeInsets.only(
-                    left: 15,
-                  ),
-                  alignment: Alignment.topRight,
-                  height: 35,
-                  child: FloatingActionButton(
-                      backgroundColor: Colors.teal,
-                      child: const Icon(
-                        Entypo.plus,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          importe = double.parse(unitario.text) *
-                              int.parse(cantidad.text);
-                          if (_formKeyProduct.currentState!.validate()) {
-                            products.add(ProductCertificateDelivery(
-                                descripcion: descripcion.text,
-                                cantidad: int.parse(cantidad.text),
-                                precioUnitario: double.parse(unitario.text),
-                                importe: importe));
-                            totalProducts += int.parse(cantidad.text);
-                            notes.text = "$totalProducts/${OC[0].cantidad}";
-                            cantidad = TextEditingController();
-                            descripcion.text = OC[0].descripcion!;
-                            unitario = TextEditingController();
-                          }
-                        });
-                      }),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SelectionArea(
-          child: Container(
-            margin: EdgeInsets.only(top: 25),
-            child: DataTable(
-                sortColumnIndex: 0,
-                sortAscending: true,
-                columns: <DataColumn>[
-                  DataColumn(label: Text('Quantity')),
-                  DataColumn(label: Text('Description')),
-                  DataColumn(label: Text('Unit price\n($moneda)')),
-                  DataColumn(label: Text('Amount\n($moneda)')),
-                  DataColumn(label: Text('Delete/Edit'))
-                ],
-                rows:
-                    products.map<DataRow>((ProductCertificateDelivery product) {
-                  return DataRow(cells: <DataCell>[
-                    DataCell(Text(product.cantidad!.toString())),
-                    DataCell(Text(product.descripcion!)),
-                    DataCell(
-                        Text("\$ ${formatter.format(product.precioUnitario)}")),
-                    DataCell(Text("\$ ${formatter.format(product.importe!)}")),
-                    DataCell(SizedBox(
-                        //width: 15,
-                        child: Row(
+              //Data
+              Container(
+                margin: EdgeInsets.only(top: 25, left: 100, right: 100),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    //Fecha
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        IconButton(
-                          //splashRadius: 15,
-                          onPressed: () {
-                            setState(() {
-                              totalProducts -= product.cantidad!;
-                              notes.text = "$totalProducts/${OC[0].cantidad}";
-                              products.remove(product);
-                            });
-                          },
-                          icon: Icon(
-                            Entypo.cancel_circled,
-                            //size: 15,
-                            color: Colors.grey,
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            "* Date:",
+                            style: TextStyle(
+                                color: Colors.teal,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
-                        IconButton(
-                          //splashRadius: 15,
-                          onPressed: () {
-                            setState(() {
-                              cantidad.text = product.cantidad.toString();
-                              descripcion.text = product.descripcion!;
-                              unitario.text = product.precioUnitario.toString();
-                              products.remove(product);
-                            });
-                          },
-                          icon: Icon(
-                            Icons.edit,
-                            //size: 15,
-                            color: Colors.grey,
+                        Container(
+                          margin: EdgeInsets.only(left: 10, bottom: 5),
+                          width: 360,
+                          child: DropdownDatePicker(
+                            boxDecoration:
+                                const BoxDecoration(color: Colors.white),
+                            textStyle: const TextStyle(
+                                color: Colors.black, fontSize: 14),
+                            dayFlex: 2,
+                            inputDecoration: InputDecoration(
+                                fillColor: Colors.white,
+                                enabledBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.black, width: 1.0),
+                                ),
+                                border: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(10))), // optional
+                            isDropdownHideUnderline: true, // optional
+                            isFormValidator: false, // optional
+                            startYear: 2000, // optional
+                            endYear: int.parse(year!), // optional
+                            width: 10, // optional
+
+                            selectedDay: int.parse(day!), // optional
+                            selectedMonth: int.parse(month!), // optional
+                            selectedYear: int.parse(year!), // optional
+                            onChangedDay: (valueDay) {
+                              day = valueDay!;
+                              print('onChangedDay: $valueDay');
+                            },
+
+                            onChangedMonth: (valueMonth) {
+                              month = valueMonth!;
+                              print('onChangedMonth: $valueMonth');
+                            },
+
+                            onChangedYear: (valueYear) {
+                              year = valueYear!;
+                              print('onChangedYear: $valueYear');
+                            },
+
+                            //boxDecoration: BoxDecoration(
+                            // border: Border.all(color: Colors.grey, width: 1.0)), // optional
+                            // showDay: false,// optional
+                            // dayFlex: 2,// optional
+                            // locale: "zh_CN",// optional
+                            hintDay: 'Day', // optional
+                            hintMonth: 'Month', // optional
+                            hintYear: 'Year', // optional
+                            hintTextStyle: const TextStyle(
+                                color: Colors.grey, fontSize: 14), // optional
                           ),
                         ),
                       ],
-                    )))
-                  ]);
-                }).toList()),
-          ),
-        ),
+                    ),
 
-        Flex(
-          direction: Axis.horizontal,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-                margin: EdgeInsets.all(50),
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: !isPressed ? Colors.teal : Colors.grey,
-                      foregroundColor: white,
-                    ),
-                    child: Text(
-                      "Save",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    onPressed: () async {
-                      if (!isPressed) {
-                        setState(() => isPressed = true);
-                        if (_formKeyCertificate.currentState!.validate()) {
-                          if (notes.text.isEmpty) {
-                            notes.text = " ";
-                          }
-                          await postEntrega();
-                          // PDFLanguage(
-                          //     context,
-                          //     fecha,
-                          //     folio.text,
-                          //     OrdenCompra.text,
-                          //     direccion.text,
-                          //     emisor.text,
-                          //     companyName,
-                          //     solicitante.text,
-                          //     products,
-                          //     notes.text,
-                          //     moneda);
-                        }
-                      }
-                    }))
-          ],
-        ),
-      ]),
-    ));
+                    //Folio
+                    fieldDeliver(folio, "Folio", TextInputType.text,
+                        FilteringTextInputFormatter.singleLineFormatter),
+                    //Entrega a
+                    fieldDeliver(
+                        direccion,
+                        "Delivery address",
+                        TextInputType.name,
+                        FilteringTextInputFormatter.singleLineFormatter),
+                  ],
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 25, left: 100, right: 100),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    //Orden de compra
+                    fieldDeliver(
+                        OrdenCompra,
+                        "Purchase order $companyName",
+                        TextInputType.text,
+                        FilteringTextInputFormatter.singleLineFormatter),
+                    //Ordenar por
+                    fieldDeliver(solicitante, "Applicant", TextInputType.text,
+                        FilteringTextInputFormatter.singleLineFormatter),
+                    //Enviado y validado por
+                    fieldDeliver(
+                        emisor,
+                        "Send and validate by",
+                        TextInputType.name,
+                        FilteringTextInputFormatter.singleLineFormatter),
+                  ],
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 25, left: 100, right: 100),
+                child: Row(
+                  //direction: Axis.horizontal,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    //Notes
+                    textArea(notes, "Notes", TextInputType.name,
+                        FilteringTextInputFormatter.singleLineFormatter),
+                    //Entregas relacionadas
+                    textArea(
+                        relatedDeliveries,
+                        "Related deliveries",
+                        TextInputType.name,
+                        FilteringTextInputFormatter.singleLineFormatter),
+                  ],
+                ),
+              ),
+              //Title 2
+              Container(
+                alignment: Alignment.center,
+                height: 40,
+                width: MediaQuery.of(context).size.width,
+                color: Colors.teal,
+                margin: EdgeInsets.only(top: 50),
+                child: Text("Product delivered",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Colors.white)),
+              ),
+              Form(
+                key: _formKeyProduct,
+                child: Container(
+                  margin: EdgeInsets.only(top: 25),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      //Cantidad
+                      fieldDeliver(cantidad, "Quantity", TextInputType.number,
+                          FilteringTextInputFormatter.digitsOnly),
+                      //Descripcion
+                      textArea(
+                          descripcion,
+                          "Description",
+                          TextInputType.multiline,
+                          FilteringTextInputFormatter.singleLineFormatter),
+                      //Unitario
+                      fieldDeliver(
+                          unitario,
+                          "Unit price",
+                          TextInputType.numberWithOptions(decimal: true),
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^(\d+)?\.?\d{0,2}'))),
+                      // -------------- Button more -------------- //
+                      Container(
+                        margin: const EdgeInsets.only(
+                          left: 15,
+                        ),
+                        alignment: Alignment.topRight,
+                        height: 35,
+                        child: FloatingActionButton(
+                            backgroundColor: Colors.teal,
+                            child: const Icon(
+                              Entypo.plus,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                importe = double.parse(unitario.text) *
+                                    int.parse(cantidad.text);
+                                if (_formKeyProduct.currentState!.validate()) {
+                                  products.add(ProductCertificateDelivery(
+                                      descripcion: descripcion.text,
+                                      cantidad: int.parse(cantidad.text),
+                                      precioUnitario:
+                                          double.parse(unitario.text),
+                                      importe: importe));
+                                  totalProducts += int.parse(cantidad.text);
+                                  notes.text =
+                                      "$totalProducts/${OC[0].cantidad}";
+                                  cantidad = TextEditingController();
+                                  descripcion.text = OC[0].descripcion!;
+                                  if (OC[0].precioUnitario == null) {
+                                    unitario.text = "0.00";
+                                  } else {
+                                    unitario.text =
+                                        OC[0].precioUnitario.toString();
+                                  }
+                                }
+                              });
+                            }),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SelectionArea(
+                child: Container(
+                  margin: EdgeInsets.only(top: 25),
+                  child: DataTable(
+                      sortColumnIndex: 0,
+                      sortAscending: true,
+                      columns: <DataColumn>[
+                        DataColumn(label: Text('Quantity')),
+                        DataColumn(label: Text('Description')),
+                        DataColumn(label: Text('Unit price\n($moneda)')),
+                        DataColumn(label: Text('Amount\n($moneda)')),
+                        DataColumn(label: Text('Delete/Edit'))
+                      ],
+                      rows: products
+                          .map<DataRow>((ProductCertificateDelivery product) {
+                        return DataRow(cells: <DataCell>[
+                          DataCell(Text(product.cantidad!.toString())),
+                          DataCell(Text(product.descripcion!)),
+                          DataCell(Text(
+                              "\$ ${formatter.format(product.precioUnitario)}")),
+                          DataCell(
+                              Text("\$ ${formatter.format(product.importe!)}")),
+                          DataCell(SizedBox(
+                              //width: 15,
+                              child: Row(
+                            children: [
+                              IconButton(
+                                //splashRadius: 15,
+                                onPressed: () {
+                                  setState(() {
+                                    totalProducts -= product.cantidad!;
+                                    notes.text =
+                                        "$totalProducts/${OC[0].cantidad}";
+                                    products.remove(product);
+                                  });
+                                },
+                                icon: Icon(
+                                  Entypo.cancel_circled,
+                                  //size: 15,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              IconButton(
+                                //splashRadius: 15,
+                                onPressed: () {
+                                  setState(() {
+                                    cantidad.text = product.cantidad.toString();
+                                    descripcion.text = product.descripcion!;
+                                    unitario.text =
+                                        product.precioUnitario.toString();
+                                    products.remove(product);
+                                  });
+                                },
+                                icon: Icon(
+                                  Icons.edit,
+                                  //size: 15,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          )))
+                        ]);
+                      }).toList()),
+                ),
+              ),
+
+              Flex(
+                direction: Axis.horizontal,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                      margin: EdgeInsets.all(50),
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                !isPressed ? Colors.teal : Colors.grey,
+                            foregroundColor: white,
+                          ),
+                          child: Text(
+                            "Save",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          onPressed: () async {
+                            if (!isPressed) {
+                              setState(() => isPressed = true);
+                              if (_formKeyCertificate.currentState!
+                                  .validate()) {
+                                if (notes.text.isEmpty) {
+                                  notes.text = " ";
+                                }
+                                await postEntrega();
+                                // PDFLanguage(
+                                //     context,
+                                //     fecha,
+                                //     folio.text,
+                                //     OrdenCompra.text,
+                                //     direccion.text,
+                                //     emisor.text,
+                                //     companyName,
+                                //     solicitante.text,
+                                //     products,
+                                //     notes.text,
+                                //     moneda);
+                              }
+                            }
+                          }))
+                ],
+              ),
+            ]),
+          ));
   }
 }

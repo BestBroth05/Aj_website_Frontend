@@ -9,10 +9,11 @@ import 'package:guadalajarav2/views/Delivery_Certificate/PDF/PDFEnglish.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/PDF/PDFSpanish.dart';
 import 'package:guadalajarav2/views/Quotes/Manofacture/PDFManofacture.dart';
 import 'package:pdf/pdf.dart';
-import '../../../utils/tools.dart';
-import '../../Quotes/Assemblies/ExportToPDF.dart';
-import '../Controllers/DAO.dart';
-import '../admin_OC/ChooseCompany.dart';
+import 'utils/colors.dart';
+import 'utils/tools.dart';
+import 'views/Quotes/Assemblies/ExportToPDF.dart';
+import 'views/Delivery_Certificate/Controllers/DAO.dart';
+import 'views/Delivery_Certificate/admin_OC/ChooseCompany.dart';
 
 void PDFLanguage(context, id_OC, entrega, ordenCompra, nombreEmpresa,
     List<ProductCertificateDelivery> productos, moneda) async {
@@ -294,6 +295,23 @@ void confirmationDeleteCustomer(context, id, name, where) async {
                         break;
                       case "entrega":
                         result = await DataAccessObject.deleteEntrega(id);
+                        List<ProductCertificateDelivery>
+                            allProductsPerDelivery = [];
+                        List<ProductCertificateDelivery> productsPerDelivery =
+                            await DataAccessObject.getProductosOC();
+
+                        for (var i = 0; i < productsPerDelivery.length; i++) {
+                          if (productsPerDelivery[i].id_entrega == id) {
+                            allProductsPerDelivery.add(productsPerDelivery[i]);
+                          }
+                        }
+                        for (var i = 0;
+                            i < allProductsPerDelivery.length;
+                            i++) {
+                          await DataAccessObject.deleteProductOC(
+                              allProductsPerDelivery[i].id_producto);
+                        }
+
                         break;
                       case "quote":
                         result = await DataAccessObject.deleteQuote(id);
@@ -321,6 +339,29 @@ void confirmationDeleteCustomer(context, id, name, where) async {
                   },
                 )
               ],
+            ));
+      });
+}
+
+GeneralLinearProgressIndicator(context) async {
+  //DeviceAV device;
+  return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Theme(
+            data: ThemeData(primaryColor: Colors.white24),
+            child: CupertinoAlertDialog(
+              title: Text(
+                'Copying',
+                style: titlePopUp,
+              ),
+              content: LinearProgressIndicator(
+                backgroundColor: Colors.white54,
+                color: teal,
+                minHeight: 10,
+                borderRadius: BorderRadius.circular(10),
+              ),
             ));
       });
 }

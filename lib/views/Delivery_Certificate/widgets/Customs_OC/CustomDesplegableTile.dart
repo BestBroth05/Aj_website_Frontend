@@ -2,13 +2,15 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttericon/font_awesome_icons.dart';
+import 'package:fluttericon/fontelico_icons.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/OrdenCompraClass.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/admin_OC/EditOC.dart';
 import '../../../../utils/colors.dart';
 import '../../Controllers/DAO.dart';
 import '../../adminClases/CertificadoEntregaClass.dart';
 import '../../adminClases/productClass.dart';
-import '../Popups.dart';
+import '../../../../Popups.dart';
 import '../Texts.dart';
 import '../../Entregas/AddEntrega.dart';
 import '../../Entregas/EditEntrega.dart';
@@ -34,6 +36,32 @@ class _CustomDesplegableTileState extends State<CustomDesplegableTile> {
   Color get color => widget.isOdd ? backgroundColor : white;
   List<ProductCertificateDelivery> products = [];
   String? date_start;
+  List<Icon> statusList = [
+    Icon(
+      FontAwesome.attention,
+      color: Colors.red,
+    ),
+    Icon(FontAwesome.ok, color: Colors.green),
+    Icon(Fontelico.spin3, color: Colors.orange)
+  ];
+  Icon currentStatusIcon = Icon(Fontelico.spin3, color: Colors.orange);
+  String currentStatusProducts = "0/0";
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    List separated = widget.OC.fecha_inicio!.split("T");
+    date_start = separated[0];
+    await getStatus();
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   getProducts(id_entrega) async {
     List<ProductCertificateDelivery> products1 =
@@ -43,11 +71,30 @@ class _CustomDesplegableTileState extends State<CustomDesplegableTile> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    List separated = widget.OC.fecha_inicio!.split("T");
-    date_start = separated[0];
+  getStatus() async {
+    int totalProducts = 0;
+    List<ProductCertificateDelivery> products1 =
+        await DataAccessObject.selectProductPerOC(widget.OC.id_OC);
+    if (products1.isNotEmpty) {
+      for (var i = 0; i < products1.length; i++) {
+        totalProducts = totalProducts + products1[i].cantidad!;
+      }
+    }
+    setState(() {
+      currentStatusProducts = "${totalProducts}/${widget.OC.cantidad}";
+      //Por surtir
+      if (totalProducts == 0) {
+        currentStatusIcon = statusList[0];
+      }
+      // Entregado
+      else if (totalProducts == widget.OC.cantidad!) {
+        currentStatusIcon = statusList[1];
+      }
+      //En progreso de entrega
+      else {
+        currentStatusIcon = statusList[2];
+      }
+    });
   }
 
   @override
@@ -134,10 +181,24 @@ class _CustomDesplegableTileState extends State<CustomDesplegableTile> {
                                 date_start!,
                                 textAlign: TextAlign.center,
                               )
-                            : AutoSizeText(
-                                widget.OC.OC.toString(),
-                                textAlign: TextAlign.center,
-                              )),
+                            : key == "purchase order"
+                                ? AutoSizeText(
+                                    widget.OC.OC.toString(),
+                                    textAlign: TextAlign.center,
+                                  )
+                                : key == "status"
+                                    ? Container(
+                                        alignment: Alignment.center,
+                                        child: Column(
+                                          children: [
+                                            Text(currentStatusProducts),
+                                            IconButton(
+                                                onPressed: () {},
+                                                icon: currentStatusIcon),
+                                          ],
+                                        ),
+                                      )
+                                    : Text("")),
               );
             },
           ).toList(),

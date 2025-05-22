@@ -8,7 +8,7 @@ import 'package:guadalajarav2/views/Delivery_Certificate/Controllers/DAO.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/CustomerClass.dart';
 import 'package:guadalajarav2/views/Quotes/Clases/PorcentajesClass.dart';
 import '../../utils/colors.dart';
-import '../Delivery_Certificate/widgets/Popups.dart';
+import '../../Popups.dart';
 import '../Delivery_Certificate/widgets/Texts.dart';
 import '../Delivery_Certificate/widgets/deliverFieldWidget.dart';
 import 'Quotes.dart';

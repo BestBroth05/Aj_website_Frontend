@@ -32,7 +32,7 @@ import '../adminClases/CustomerClass.dart';
 import '../adminClases/OrdenCompraClass.dart';
 import '../adminClases/productClass.dart';
 //http://ec2-3-129-169-30.us-east-2.compute.amazonaws.com:8000/
-//http://192.168.0.111:8080/
+//http://192.168.0.112:8080/
 
 class DataAccessObject {
 //------------------------------API--------------------------------
@@ -214,7 +214,8 @@ class DataAccessObject {
       moneda,
       descripcion,
       cantidad,
-      prefijo) async {
+      prefijo,
+      precioUnitario) async {
     int code;
 
     var res = await http.post(
@@ -237,7 +238,8 @@ class DataAccessObject {
         'moneda': moneda,
         'descripcion': descripcion,
         'cantidad': cantidad,
-        'prefijo': prefijo
+        'prefijo': prefijo,
+        'precioUnitario': precioUnitario
       }),
     );
 
@@ -274,7 +276,8 @@ class DataAccessObject {
               street: jsonData[i]['street'],
               descripcion: jsonData[i]['descripcion'],
               cantidad: jsonData[i]['cantidad'],
-              prefijo: jsonData[i]['prefijo']));
+              prefijo: jsonData[i]['prefijo'],
+              precioUnitario: jsonData[i]['precioUnitario']));
     } else {
       throw res.statusCode;
     }
@@ -334,7 +337,8 @@ class DataAccessObject {
               moneda: jsonData[i]['moneda'],
               descripcion: jsonData[i]['descripcion'],
               cantidad: jsonData[i]['cantidad'],
-              prefijo: jsonData[i]['prefijo']));
+              prefijo: jsonData[i]['prefijo'],
+              precioUnitario: jsonData[i]['precioUnitario']));
     } else {
       throw res.statusCode;
     }
@@ -372,7 +376,8 @@ class DataAccessObject {
               moneda: jsonData[i]['moneda'],
               descripcion: jsonData[i]['descripcion'],
               cantidad: jsonData[i]['cantidad'],
-              prefijo: jsonData[i]['prefijo']));
+              prefijo: jsonData[i]['prefijo'],
+              precioUnitario: jsonData[i]['precioUnitario']));
     }
     //Not found
     else if (res.statusCode == 404) {
@@ -400,7 +405,8 @@ class DataAccessObject {
       moneda,
       descripcion,
       cantidad,
-      prefijo) async {
+      prefijo,
+      precioUnitario) async {
     int code;
 
     var res = await http.post(
@@ -424,7 +430,8 @@ class DataAccessObject {
         'moneda': moneda,
         'descripcion': descripcion,
         'cantidad': cantidad,
-        'prefijo': prefijo
+        'prefijo': prefijo,
+        'precioUnitario': precioUnitario
       }),
     );
 
@@ -438,8 +445,8 @@ class DataAccessObject {
 
 // ********************************************* Certificado de Entrega ***************************************************** //
 //--------------------------- Post Entrega --------------------------
-  static Future<int> postEntrega(id_OC, certificado_entrega, fecha, direccion,
-      solicitante, remitente, notes) async {
+  static Future<int> postEntrega(id_OC, id_Customer, certificado_entrega, fecha,
+      direccion, solicitante, remitente, notes, entregasRelacionadas) async {
     int code;
 
     var res = await http.post(
@@ -449,12 +456,14 @@ class DataAccessObject {
       },
       body: jsonEncode(<String, dynamic>{
         'id_OC': id_OC,
+        'id_Customer': id_Customer,
         'certificado_entrega': certificado_entrega,
         'fecha': fecha,
         'notes': notes,
         'direccion': direccion,
         'solicitante': solicitante,
         'remitente': remitente,
+        'entregasRelacionadas': entregasRelacionadas,
       }),
     );
 
@@ -478,12 +487,14 @@ class DataAccessObject {
           (i) => ClassCertificadoEntrega(
               id_Entrega: jsonData[i]['id_Entrega'],
               id_OC: jsonData[i]['id_OC'],
+              id_Customer: jsonData[i]['id_Customer'],
               certificadoEntrega: jsonData[i]['CertificadoEntrega'],
               Fecha: jsonData[i]['Fecha'],
               Direccion: jsonData[i]['Direccion'],
               Solicitante: jsonData[i]['Solicitante'],
               Remitente: jsonData[i]['Remitente'],
-              Notes: jsonData[i]['Notes']));
+              Notes: jsonData[i]['Notes'],
+              entregasRelacionadas: jsonData[i]['EntregasRelacionadas']));
     } else if (res.statusCode == 404) {
       List<ClassCertificadoEntrega> list = [];
       print("Error 404 not found");
@@ -535,12 +546,51 @@ class DataAccessObject {
           (i) => ClassCertificadoEntrega(
               id_Entrega: jsonData[i]['id_Entrega'],
               id_OC: jsonData[i]['id_OC'],
+              id_Customer: jsonData[i]['id_Customer'],
               certificadoEntrega: jsonData[i]['CertificadoEntrega'],
               Fecha: jsonData[i]['Fecha'],
               Direccion: jsonData[i]['Direccion'],
               Solicitante: jsonData[i]['Solicitante'],
               Remitente: jsonData[i]['Remitente'],
-              Notes: jsonData[i]['Notes']));
+              Notes: jsonData[i]['Notes'],
+              entregasRelacionadas: jsonData[i]['EntregasRelacionadas']));
+    } else if (res.statusCode == 404) {
+      List<ClassCertificadoEntrega> notFound = [];
+      return notFound;
+    } else {
+      throw res.statusCode;
+    }
+  }
+
+  //--------------------------- Select Entrega Per Customer --------------------------
+  static Future<List<ClassCertificadoEntrega>> selectEntregaByCustomer(
+      id_Customer) async {
+    var res = await http.post(
+      Uri.parse("${url}Entregas/select/customer"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'id_Customer': id_Customer,
+      }),
+    );
+
+    if (res.statusCode == 200) {
+      var jsonData = jsonDecode(res.body);
+      print("Data = $jsonData");
+      return List.generate(
+          jsonData.length,
+          (i) => ClassCertificadoEntrega(
+              id_Entrega: jsonData[i]['id_Entrega'],
+              id_OC: jsonData[i]['id_OC'],
+              id_Customer: jsonData[i]['id_Customer'],
+              certificadoEntrega: jsonData[i]['CertificadoEntrega'],
+              Fecha: jsonData[i]['Fecha'],
+              Direccion: jsonData[i]['Direccion'],
+              Solicitante: jsonData[i]['Solicitante'],
+              Remitente: jsonData[i]['Remitente'],
+              Notes: jsonData[i]['Notes'],
+              entregasRelacionadas: jsonData[i]['EntregasRelacionadas']));
     } else if (res.statusCode == 404) {
       List<ClassCertificadoEntrega> notFound = [];
       return notFound;
@@ -550,8 +600,17 @@ class DataAccessObject {
   }
 
   //--------------------------- Update Entrega --------------------------
-  static Future<int> updateEntrega(id_OC, id_Entrega, CertificadoEntrega, Fecha,
-      direccion, solicitante, remitente, Notes) async {
+  static Future<int> updateEntrega(
+      id_OC,
+      id_Entrega,
+      id_Customer,
+      CertificadoEntrega,
+      Fecha,
+      direccion,
+      solicitante,
+      remitente,
+      Notes,
+      entregasRelacionadas) async {
     int code;
 
     var res = await http.post(
@@ -562,12 +621,14 @@ class DataAccessObject {
       body: jsonEncode(<String, dynamic>{
         'id_OC': id_OC,
         'id_Entrega': id_Entrega,
+        'id_Customer': id_Customer,
         'CertificadoEntrega': CertificadoEntrega,
         'fecha': Fecha,
         'direccion': direccion,
         'solicitante': solicitante,
         'remitente': remitente,
-        'notes': Notes
+        'notes': Notes,
+        'entregasRelacionadas': entregasRelacionadas
       }),
     );
 
@@ -660,7 +721,7 @@ class DataAccessObject {
     }
   }
 
-  //--------------------------- Select Prodcuto --------------------------
+  //--------------------------- Select Product --------------------------
   static Future<List<ProductCertificateDelivery>> selectProductOC(
       id_entrega) async {
     var res = await http.post(
@@ -670,6 +731,42 @@ class DataAccessObject {
       },
       body: jsonEncode(<String, dynamic>{
         'id_entrega': id_entrega,
+      }),
+    );
+
+    if (res.statusCode == 200) {
+      var jsonData = jsonDecode(res.body);
+      print("Data = $jsonData");
+      return List.generate(
+          jsonData.length,
+          (i) => ProductCertificateDelivery(
+              id_producto: jsonData[i]['id_producto'],
+              id_entrega: jsonData[i]['id_entrega'],
+              id_OC: jsonData[i]['id_OC'],
+              id_quote: jsonData[i]['id_quote'],
+              image: jsonData[i]['image'],
+              precioUnitario: jsonData[i]['precio_unitario'],
+              cantidad: jsonData[i]['cantidad'],
+              descripcion: jsonData[i]['descripcion'],
+              importe: jsonData[i]['importe']));
+    } else if (res.statusCode == 404) {
+      List<ProductCertificateDelivery> notFound = [];
+      return notFound;
+    } else {
+      throw res.statusCode;
+    }
+  }
+
+  //--------------------------- Select Product Per OC --------------------------
+  static Future<List<ProductCertificateDelivery>> selectProductPerOC(
+      id_OC) async {
+    var res = await http.post(
+      Uri.parse("${url}ProductosOC/select/oc"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'id_OC': id_OC,
       }),
     );
 

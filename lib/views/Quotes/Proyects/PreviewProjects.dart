@@ -1,9 +1,12 @@
 // ignore_for_file: must_be_immutable
+import 'dart:convert';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/utils/SuperGlobalVariables/ObjVar.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/Controllers/DAO.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/CustomerClass.dart';
+import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/productClass.dart';
 import 'package:guadalajarav2/views/Quotes/Assemblies/TextDialogWidget.dart';
 import 'package:guadalajarav2/views/Quotes/Clases/QuoteClass.dart';
 import 'package:guadalajarav2/views/Quotes/Text_Quotes.dart';
@@ -18,23 +21,23 @@ import '../../admin_view/admin_DeliverCertificate/LoadingData.dart';
 import '../Clases/QuoteTableClass.dart';
 import '../DesplegableQuotes.dart';
 
-class Preview_Assemblies extends StatefulWidget {
-  bool? isEdit;
+class PreviewProjects extends StatefulWidget {
   bool? isSavedQuote;
   QuoteClass? quote;
   CustomersClass? customer;
-  Preview_Assemblies(
+  Map<String, List<ProductCertificateDelivery>> productsGlobal = {};
+  PreviewProjects(
       {super.key,
-      this.quote,
-      this.customer,
-      this.isSavedQuote,
-      required this.isEdit});
+      required this.quote,
+      required this.productsGlobal,
+      required this.customer,
+      required this.isSavedQuote});
 
   @override
-  State<Preview_Assemblies> createState() => _Preview_AssembliesState();
+  State<PreviewProjects> createState() => _PreviewProjectsState();
 }
 
-class _Preview_AssembliesState extends State<Preview_Assemblies> {
+class _PreviewProjectsState extends State<PreviewProjects> {
   String? date;
   String currency = "MXN";
   String? conIva;
@@ -43,23 +46,21 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
     decimalDigits: 2,
   );
   List<QuoteTableClass> rows = [];
-  List<QuoteTableClass> editedList = [];
-  List<QuoteTableClass> preview = [];
   double total = 0.0;
   List<String> columns = [];
   bool onErrore = false;
   bool addComponents = true;
   bool addPCB = true;
   String? colorNameSpanish;
+  List<QuoteTableClass> preview = [];
   bool isUpdate = false;
   TextEditingController notes = TextEditingController();
-  int startValues = 0;
+  List<QuoteTableClass> startRows = [];
   List<QuoteTableClass> deleteList = [];
+  int startValues = 0;
   int timesToSavePreview = 0;
   bool isLoading = true;
-  int countRows = 0;
   AJRoute route = AJRoute.adminQuotes;
-  //Header variables
 
   @override
   void initState() {
@@ -68,78 +69,12 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
   }
 
   Future<void> loadData() async {
-    if (widget.quote!.PCBTotalMXN == 0) {
-      addPCB = false;
-    }
-    if (widget.quote!.totalComponentsMXN == 0) {
-      addComponents = false;
-    }
-    if (widget.isEdit!) {
-      date = DateFormat('MMMM d, yyyy').format(DateTime.now());
-      //Notes seran las de el preview
-      await getPreviewAndUpdate(widget.quote!.id_Quote);
-    } else {
-      date = DateFormat('MMMM d, yyyy')
-          .format(DateTime.parse(widget.quote!.date!));
-      if (widget.quote!.id_Quote == null) {
-        await getIdQuote();
-      }
-      await getPreview(0, widget.quote!.id_Quote);
-    }
-
+    date =
+        DateFormat('MMMM d, yyyy').format(DateTime.parse(widget.quote!.date!));
+    await getPreview(0);
     setState(() {
       isLoading = false;
     });
-  }
-
-  getPreviewAndUpdate(idQuote) async {
-    int countRowsBeforeEnvio = 0;
-    List<QuoteTableClass> previewLocal = [];
-    List<QuoteTableClass> preview1 =
-        await DataAccessObject.selectPreviewByQuote(idQuote);
-    List<QuoteTableClass> preview2 =
-        await DataAccessObject.selectPreviewByQuote(idQuote);
-    await fillColumnsSpanish();
-    setState(() {
-      preview = preview2;
-      //Contar filas antes del envio en preview
-      for (var i = 0; i < preview1.length; i++) {
-        if (preview1[i].description!.contains("Envío")) {
-          break;
-        } else {
-          countRowsBeforeEnvio += 1;
-        }
-      }
-      preview1.removeRange(0, countRowsBeforeEnvio);
-      for (var i = 0; i < editedList.length; i++) {
-        previewLocal.add(editedList[i]);
-      }
-      for (var i = 0; i < preview1.length; i++) {
-        previewLocal.add(preview1[i]);
-      }
-      rows = previewLocal;
-      notes.text = preview1[0].notas!;
-    });
-  }
-
-  getPreview(times, idQuote) async {
-    List<QuoteTableClass> preview1 =
-        await DataAccessObject.selectPreviewByQuote(idQuote);
-    setState(() {
-      preview = preview1;
-    });
-    if (times > 1) {
-      //Nothing to do
-    } else {
-      startValues = preview1.length;
-      if (preview1.isNotEmpty) {
-        notes.text = preview1[0].notas!;
-        rows = preview1;
-        isUpdate = true;
-      } else {
-        await fillColumnsSpanish();
-      }
-    }
   }
 
   getIdQuote() async {
@@ -149,138 +84,31 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
     });
   }
 
-  fillColumnsSpanish() async {
-    List<QuoteTableClass> fillingRows = [];
-    switch (widget.quote!.PCBColor) {
-      case "Green":
-        colorNameSpanish = "Verde";
-        break;
-      case "Purple":
-        colorNameSpanish = "Morado";
-        break;
-      case "Red":
-        colorNameSpanish = "Rojo";
-        break;
-      case "Yellow":
-        colorNameSpanish = "Amarillo";
-        break;
-      case "Blue":
-        colorNameSpanish = "Azul";
-        break;
-      case "White":
-        colorNameSpanish = "Blanco";
-        break;
-      default:
-        colorNameSpanish = "Negro";
-        break;
+  fillColumns() async {
+    notes.text =
+        "-Los costos son calculados de acuerdo con el volumen solicitado, en caso de necesitar diferente volumen favor de solicitar cotización\n-Componentes sujetos a disponibilidad y precio de mercado\n-Para poder manufacturar su pedido es necesario que genere una orden de compra firmada por el responsable de su empresa\n-Vigencia de cotización: 8 dìas hábiles\n-El cliente se hace responsable de los archivos entregados para la fabricación de su producto, en dado caso de tener algún error se debe hacer cargo de los gastos generados al 100%\n-Una vez iniciada el proceso de compra/fabricación, no se aceptan cambios en el diseño a menos de que se paguen los cambios a realizar.";
+    for (var i = 0; i < widget.productsGlobal.length; i++) {
+      rows.add(QuoteTableClass(
+          // description: widget.products![i].descripcion,
+          // cantidad: widget.products![i].cantidad.toString(),
+          // unitario: widget.products![i].precioUnitario.toString(),
+          // image: widget.products![i].image,
+          // total: widget.products![i].importe.toString(),
+          ));
     }
-    if (!widget.isEdit!) {
-      notes.text =
-          "-Los costos son calculados de acuerdo con el volumen solicitado, en caso de necesitar diferente volumen favor de solicitar cotización\n-Componentes sujetos a disponibilidad y precio de mercado\n-Para poder manufacturar su pedido es necesario que genere una orden de compra firmada por el responsable de su empresa\n-Vigencia de cotización: 8 dìas hábiles\n-El cliente se hace responsable de los archivos entregados para la fabricación de su producto, en dado caso de tener algún error se debe hacer cargo de los gastos generados al 100%\n-Una vez iniciada el proceso de compra/fabricación, no se aceptan cambios en el diseño a menos de que se paguen los cambios a realizar.";
-    }
-
-    if (!addComponents && !addPCB) {
-      fillingRows = [
-        QuoteTableClass(
-            description:
-                "Ensamble \"${widget.quote!.proyectName}\"\n               ${widget.quote!.assemblyLayers}\n               ${widget.quote!.assemblyMPN} MPN\n               ${widget.quote!.assemblySMT} SMT\nIncluye inspección visual, limpieza y empaque antiestático.\nTiempo de entrega ${widget.quote!.assemblyDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perAssemblyMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.assemblyTotalMXN)),
-        QuoteTableClass(
-            description: "Envío GDL – \nPAQUETE ASEGURADO",
-            unitario: "0.0",
-            cantidad: "1",
-            total: "0.0")
-      ];
-      setState(() {
-        countRows = 1;
-      });
-    } else if (!addComponents) {
-      fillingRows = [
-        QuoteTableClass(
-            description:
-                "Fabricación de PCB \"${widget.quote!.proyectName}\"\n                ${widget.quote!.PCBLayers}. Top y Bottom 1oz FR4 .062¨ Color: ${colorNameSpanish}\n                Size: ${widget.quote!.PCBSize}\nTiempo de entrega ${widget.quote!.PCBDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.PCBPerMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.PCBTotalMXN)),
-        QuoteTableClass(
-            description:
-                "Ensamble \"${widget.quote!.proyectName}\"\n               ${widget.quote!.assemblyLayers}\n               ${widget.quote!.assemblyMPN} MPN\n               ${widget.quote!.assemblySMT} SMT\nIncluye inspección visual, limpieza y empaque antiestático.\nTiempo de entrega ${widget.quote!.assemblyDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perAssemblyMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.assemblyTotalMXN)),
-        QuoteTableClass(
-            description: "Envío GDL – \nPAQUETE ASEGURADO",
-            unitario: "0.0",
-            cantidad: "1",
-            total: "0.0")
-      ];
-      setState(() {
-        countRows = 2;
-      });
-    } else if (!addPCB) {
-      fillingRows = [
-        QuoteTableClass(
-            description:
-                "Components \"${widget.quote!.excelName!}\"\n               ${widget.quote!.componentsMPN} MPN PUESTOS EN MEXICO\n               ${widget.quote!.componentsAvailables} no disponibles-envía ${widget.customer!.name}\nTiempo de entrega ${widget.quote!.componentsDeliverTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perComponentMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.totalComponentsMXN)),
-        QuoteTableClass(
-            description:
-                "Ensamble \"${widget.quote!.proyectName}\"\n               ${widget.quote!.assemblyLayers}\n               ${widget.quote!.assemblyMPN} MPN\n               ${widget.quote!.assemblySMT} SMT\n               ${widget.quote!.assemblyTH} TH\nIncluye inspección visual, limpieza y empaque antiestático.\nTiempo de entrega ${widget.quote!.assemblyDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perAssemblyMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.assemblyTotalMXN)),
-        QuoteTableClass(
-            description: "Envío GDL – \nPAQUETE ASEGURADO",
-            unitario: "0.0",
-            cantidad: "1",
-            total: "0.0")
-      ];
-      setState(() {
-        countRows = 2;
-      });
-    } else {
-      fillingRows = [
-        QuoteTableClass(
-            description:
-                "Components \"${widget.quote!.excelName!}\"\n               ${widget.quote!.componentsMPN} MPN PUESTOS EN MEXICO\n               ${widget.quote!.componentsAvailables} no disponibles-envía ${widget.customer!.name}\nTiempo de entrega ${widget.quote!.componentsDeliverTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perComponentMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.totalComponentsMXN)),
-        QuoteTableClass(
-            description:
-                "Fabricación de PCB \"${widget.quote!.proyectName}\"\n                ${widget.quote!.PCBLayers}. Top y Bottom 1oz FR4 .062¨ Color: ${colorNameSpanish}\n                Size: ${widget.quote!.PCBSize}\nTiempo de entrega ${widget.quote!.PCBDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.PCBPerMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.PCBTotalMXN)),
-        QuoteTableClass(
-            description:
-                "Ensamble \"${widget.quote!.proyectName}\"\n               ${widget.quote!.assemblyLayers}\n               ${widget.quote!.assemblyMPN} MPN\n               ${widget.quote!.assemblySMT} SMT\n               ${widget.quote!.assemblyTH} TH\nIncluye inspección visual, limpieza y empaque antiestático.\nTiempo de entrega ${widget.quote!.assemblyDeliveryTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
-            unitario: formatter.format(widget.quote!.perAssemblyMXN),
-            cantidad: widget.quote!.quantity.toString(),
-            total: formatter.format(widget.quote!.assemblyTotalMXN)),
-        QuoteTableClass(
-            description: "Envío GDL – \nPAQUETE ASEGURADO",
-            unitario: "0.0",
-            cantidad: "1",
-            total: "0.0")
-      ];
-      setState(() {
-        countRows = 3;
-      });
-    }
+    rows.add(QuoteTableClass(
+        description: "Envío GDL – \nPAQUETE ASEGURADO",
+        unitario: "0.0",
+        cantidad: "1",
+        image: "",
+        total: "0.0"));
     setState(() {
-      if (!widget.isEdit!) {
-        rows = fillingRows;
-      } else {
-        fillingRows.removeAt(fillingRows.length - 1);
-        editedList = fillingRows;
-      }
       startValues = rows.length;
+      startRows = rows;
     });
+    if (widget.quote!.id_Quote == null) {
+      await getIdQuote();
+    }
   }
 
   postPreview(List<QuoteTableClass> postList) async {
@@ -288,13 +116,14 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
       int code = 0;
       for (var i = 0; i < postList.length; i++) {
         code = await DataAccessObject.postPreview(
-            widget.quote!.id_Quote,
-            postList[i].description,
-            postList[i].unitario,
-            postList[i].cantidad,
-            postList[i].total,
-            notes.text,
-            " ");
+          widget.quote!.id_Quote,
+          postList[i].description,
+          postList[i].unitario,
+          postList[i].cantidad,
+          postList[i].total,
+          notes.text,
+          postList[i].image,
+        );
       }
       print("Code: $code");
       if (code == 200) {
@@ -316,6 +145,27 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
       });
       return 1005;
     }
+  }
+
+  getPreview(times) async {
+    List<QuoteTableClass> preview1 =
+        await DataAccessObject.selectPreviewByQuote(widget.quote!.id_Quote);
+    setState(() {
+      preview = preview1;
+      if (times > 1) {
+        //Nothing to do
+      } else {
+        startValues = preview1.length;
+        if (preview1.isNotEmpty) {
+          notes.text = preview1[0].notas!;
+          rows = preview1;
+          startRows = preview1;
+          isUpdate = true;
+        } else {
+          fillColumns();
+        }
+      }
+    });
   }
 
   updatePreview(List<QuoteTableClass> updateList) async {
@@ -330,7 +180,7 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
             updateList[i].cantidad,
             updateList[i].total,
             notes.text,
-            " ");
+            updateList[i].image);
       }
       print("Code: $code");
       if (code == 200) {
@@ -352,11 +202,6 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
       });
       return 1005;
     }
-  }
-
-  deleteAndPost() async {
-    await deleteRow(preview);
-    await postPreview(rows);
   }
 
   addAndUpdate(
@@ -393,7 +238,8 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
     }
   }
 
-  deleteRow(List<QuoteTableClass> deleteList) async {
+  deleteRow(
+      List<QuoteTableClass> deleteList, List<QuoteTableClass> sendList) async {
     try {
       int code = 0;
       for (var i = 0; i < deleteList.length; i++) {
@@ -428,45 +274,47 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
     timesToSavePreview += 1;
     if (timesToSavePreview > 1) {
       isUpdate = true;
-      await getPreview(timesToSavePreview, widget.quote!.id_Quote);
+      await getPreview(timesToSavePreview);
     } else {
       //Nothing to do
     }
-    if (!widget.isEdit!) {
-      //No es un caso real
-      List<QuoteTableClass> sendList = [];
-      List<QuoteTableClass> sendList2 = [];
-      if (isUpdate) {
-        //Update all
-        if (rows.length == startValues) {
-          sendList = rows;
-          print("Entre a update");
-          await updatePreview(sendList);
+    //if (widget.isSavedQuote!) {
+    List<QuoteTableClass> sendList = [];
+    List<QuoteTableClass> sendList2 = [];
+    if (isUpdate) {
+      //Update all
+      if (startRows.length == startValues) {
+        sendList = startRows;
+        print("Entre a update");
+        await updatePreview(sendList);
+      }
+      //Add Row and update
+      else if (startRows.length > startValues) {
+        print("Entre a update y add");
+        for (var i = 0; i < startValues; i++) {
+          sendList.add(startRows[i]);
         }
-        //Add Row and update
-        else if (rows.length > startValues) {
-          print("Entre a update y add");
-          for (var i = 0; i < startValues; i++) {
-            sendList.add(rows[i]);
-          }
-          for (var i = startValues; i < rows.length; i++) {
-            sendList2.add(rows[i]);
-          }
-          await addAndUpdate(sendList, sendList2);
+        for (var i = startValues; i < startRows.length; i++) {
+          sendList2.add(startRows[i]);
         }
-        //Delete row
-        else if (rows.length < startValues) {
-          print("Entre a delete");
-          await deleteRow(deleteList);
-        }
-      } else {
-        print("Entre a post");
-        sendList = rows;
-        await postPreview(sendList);
+        await addAndUpdate(sendList, sendList2);
+      }
+      //Delete row
+      else if (startRows.length < startValues) {
+        print("Entre a delete");
+        await deleteRow(deleteList, startRows);
       }
     } else {
-      await deleteAndPost();
+      print("Entre a post");
+      sendList = rows;
+      await postPreview(sendList);
     }
+    // } else {
+    //   wrongPopup(context, "Save the quote first");
+    //   Future.delayed(Duration(seconds: 3), () {
+    //     Navigator.of(context).pop();
+    //   });
+    // }
   }
 
   @override
@@ -507,7 +355,7 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
                   //for (var i = 0; i < rows.length; i++) {
                   deleteList.add(rows[rows.length - 1]);
                   //}
-                  rows.removeAt(rows.length - 1);
+                  startRows.removeAt(startRows.length - 1);
                 });
               },
               style: ElevatedButton.styleFrom(
@@ -518,10 +366,11 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
           ElevatedButton(
               onPressed: () {
                 setState(() {
-                  rows.add(QuoteTableClass(
+                  startRows.add(QuoteTableClass(
                       description: "",
                       unitario: "0.0",
                       cantidad: "0.0",
+                      image: "",
                       total: "0.0"));
                 });
               },
@@ -648,12 +497,12 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
                   context,
                   addPCB,
                   addComponents,
-                  rows,
+                  startRows,
                   widget.quote,
                   widget.customer,
                   true,
                   notes.text,
-                  "assemblies");
+                  "manofacture");
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -678,12 +527,12 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
                   context,
                   addPCB,
                   addComponents,
-                  rows,
+                  startRows,
                   widget.quote,
                   widget.customer,
                   false,
                   notes.text,
-                  "assemblies");
+                  "manofacture");
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -720,10 +569,22 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
   Widget table() {
     if (widget.quote!.currency == "MXN") {
       currency = "MXN";
-      columns = ['Descripción', 'Costo\nunitario', 'Cantidad', 'Total\nMXN'];
+      columns = [
+        'Descripción',
+        'Cantidad',
+        'Costo\nunitario',
+        'Imagen',
+        'Total\nMXN'
+      ];
     } else {
       currency = "USD";
-      columns = ['Descripción', 'Costo\nunitario', 'Cantidad', 'Total\nUSD'];
+      columns = [
+        'Descripción',
+        'Cantidad',
+        'Costo\nunitario',
+        'Imagen',
+        'Total\nUSD'
+      ];
     }
     if (widget.quote!.conIva!) {
       conIva = "* Con IVA";
@@ -731,7 +592,10 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
       conIva = "* Sin IVA";
     }
     setState(() {
-      List<QuoteTableClass> newQuote = rows;
+      // for (var i = 0; i < rows.length; i++) {
+      //   rows
+      // }
+      List<QuoteTableClass> newQuote = startRows;
       total = 0.0;
       double unitario = 0.0;
       int cantidad = 0;
@@ -776,7 +640,7 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
                 ),
                 dataRowMaxHeight: double.infinity, //Ajuste automatico
                 columns: getColumns(columns),
-                rows: getRows(rows)),
+                rows: getRows(startRows)),
           ),
           Container(
             width: (currentUser.width! - 500),
@@ -822,15 +686,30 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
   List<DataRow> getRows(List<QuoteTableClass> quotes) => quotes.map((quote) {
         final cells = [
           quote.description,
-          quote.unitario,
           quote.cantidad,
+          quote.unitario,
+          quote.image,
           quote.total
         ];
 
         return DataRow(
             cells: Utils.modelBuilder(cells, (index, cell) {
           return DataCell(
-            index == 2 || index == 0 ? Text("$cell") : Text("\$$cell"),
+            index == 3
+                ? cell!.isNotEmpty
+                    ? Center(
+                        child: Image.memory(
+                          base64.decode(cell),
+                          height: 100,
+                          width: 150,
+                        ),
+                      )
+                    : Text("")
+                : index == 0
+                    ? Container(child: Text("$cell"), width: 350)
+                    : index == 1
+                        ? Text("$cell")
+                        : Text("\$$cell"),
             //showEditIcon: true,
             onTap: () {
               switch (index) {
@@ -838,10 +717,10 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
                   editDescription(quote);
                   break;
                 case 1:
-                  editUnitario(quote);
+                  editCantidad(quote);
                   break;
                 case 2:
-                  editCantidad(quote);
+                  editUnitario(quote);
                   break;
                 case 3:
                   //editTotal(quote);
@@ -856,7 +735,7 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
   Future editDescription(QuoteTableClass editQuote) async {
     final description = await showTextDialog(context,
         title: "Descripcion", value: editQuote.description!);
-    setState(() => rows = rows.map((quote) {
+    setState(() => startRows = startRows.map((quote) {
           final isEditedDescription = quote == editQuote;
           return isEditedDescription
               ? quote.copy(description: description)
@@ -868,7 +747,7 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
     String unitarioString = editQuote.unitario!.replaceAll(",", "");
     final unitario = await showTextDialog(context,
         title: "Costo unitario", value: unitarioString);
-    setState(() => rows = rows.map((quote) {
+    setState(() => startRows = startRows.map((quote) {
           final isEditedUnitario = quote == editQuote;
           return isEditedUnitario ? quote.copy(unitario: unitario) : quote;
         }).toList());
@@ -877,7 +756,7 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
   Future editCantidad(QuoteTableClass editQuote) async {
     final cantidad = await showTextDialog(context,
         title: "Cantidad", value: editQuote.cantidad!);
-    setState(() => rows = rows.map((quote) {
+    setState(() => startRows = startRows.map((quote) {
           final isEditedCantidad = quote == editQuote;
           return isEditedCantidad ? quote.copy(cantidad: cantidad) : quote;
         }).toList());
@@ -886,7 +765,7 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
   Future editTotal(QuoteTableClass editQuote) async {
     final Total =
         await showTextDialog(context, title: "Total", value: editQuote.total!);
-    setState(() => rows = rows.map((quote) {
+    setState(() => startRows = startRows.map((quote) {
           final isEditedTotal = quote == editQuote;
           return isEditedTotal ? quote.copy(total: Total) : quote;
         }).toList());

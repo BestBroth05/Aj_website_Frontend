@@ -10,11 +10,14 @@ import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/productClas
 import 'package:guadalajarav2/views/Quotes/Assemblies/TextDialogWidget.dart';
 import 'package:guadalajarav2/views/Quotes/Clases/QuoteClass.dart';
 import 'package:guadalajarav2/views/Quotes/Text_Quotes.dart';
+import '../../../enums/route.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/tools.dart';
-import '../../Delivery_Certificate/widgets/Popups.dart';
+import '../../../Popups.dart';
+import '../../../utils/url_handlers.dart';
 import '../../Delivery_Certificate/widgets/Texts.dart';
 import '../../admin_view/Tools.dart';
+import '../../admin_view/admin_DeliverCertificate/LoadingData.dart';
 import '../Clases/QuoteTableClass.dart';
 import '../DesplegableQuotes.dart';
 
@@ -56,14 +59,22 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
   List<QuoteTableClass> deleteList = [];
   int startValues = 0;
   int timesToSavePreview = 0;
+  bool isLoading = true;
+  AJRoute route = AJRoute.adminQuotes;
 
   @override
   void initState() {
-    getPreview(0);
+    super.initState();
+    loadData();
+  }
 
+  Future<void> loadData() async {
     date =
         DateFormat('MMMM d, yyyy').format(DateTime.parse(widget.quote!.date!));
-    super.initState();
+    await getPreview(0);
+    setState(() {
+      isLoading = false;
+    });
   }
 
   getIdQuote() async {
@@ -310,6 +321,15 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          actions: [
+            IconButton(
+              onPressed: () => openLink(context, route.url, isRoute: true),
+              icon: Icon(Icons.home),
+              iconSize: 30,
+              tooltip: "Home",
+            ),
+            SizedBox(width: 25),
+          ],
           backgroundColor: teal.add(black, 0.3),
           foregroundColor: Colors.white,
           leading: IconButton(
@@ -325,6 +345,7 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
             "Preview",
             style: titleh1,
           ),
+          centerTitle: true,
         ),
         persistentFooterAlignment: AlignmentDirectional.center,
         persistentFooterButtons: [
@@ -359,19 +380,21 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
               ),
               child: Text("Add Row"))
         ],
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              header(),
-              table(),
-              editNotes(),
-              ButtonExport(),
-              SizedBox(
-                height: 50,
-              )
-            ],
-          ),
-        ));
+        body: isLoading
+            ? LoadingData()
+            : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    header(),
+                    table(),
+                    editNotes(),
+                    ButtonExport(),
+                    SizedBox(
+                      height: 50,
+                    )
+                  ],
+                ),
+              ));
   }
 
   Widget header() {

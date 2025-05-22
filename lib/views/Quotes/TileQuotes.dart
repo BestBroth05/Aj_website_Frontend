@@ -9,7 +9,7 @@ import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/productClas
 import 'package:guadalajarav2/views/Quotes/Clases/QuoteClass.dart';
 import 'package:guadalajarav2/views/Quotes/DesplegableQuotes.dart';
 import '../../../utils/colors.dart';
-import '../Delivery_Certificate/widgets/Popups.dart';
+import '../../Popups.dart';
 import '../Delivery_Certificate/widgets/Texts.dart';
 import 'Assemblies/EditAssembly.dart';
 import 'Assemblies/Preview_Assemblies.dart';
@@ -41,6 +41,7 @@ class _TileQuotesState extends State<TileQuotes> {
   String? fecha;
   List<ProductCertificateDelivery> productsQuotes = [];
   bool isServiceSavedQuote = false;
+  double valueLinearProgressIndicatorCopyQuote = 0;
   @override
   void initState() {
     getPreview();
@@ -68,9 +69,12 @@ class _TileQuotesState extends State<TileQuotes> {
         productsQuotes.add(productsQuotes1[i]);
       }
     }
+    setState(() => valueLinearProgressIndicatorCopyQuote += .1);
   }
 
   postQuote() async {
+    GeneralLinearProgressIndicator(context);
+    setState(() => valueLinearProgressIndicatorCopyQuote += .2);
     try {
       int code = await DataAccessObject.postQuote(
           widget.quote.id_Customer,
@@ -133,17 +137,27 @@ class _TileQuotesState extends State<TileQuotes> {
           widget.quote.assemblyDhlCost,
           widget.quote.assemblyTotalMXN,
           widget.quote.perAssemblyMXN);
+      setState(() => valueLinearProgressIndicatorCopyQuote += .2);
       print("Error numero: $code");
       if (code == 200) {
-        GoodPopup(context, "Quote duplicate succesfully!");
-        Future.delayed(Duration(seconds: 3), () {
-          Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                  builder: (context) => DesplegableQuotes(
-                        customer: widget.customer,
-                      )),
-              (route) => false);
-        });
+        if (widget.quote.quoteType == 1) {
+          setState(() => valueLinearProgressIndicatorCopyQuote += .6);
+          GoodPopup(context, "Quote duplicate succesfully!");
+          Future.delayed(Duration(seconds: 3), () {
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => DesplegableQuotes(
+                          customer: widget.customer,
+                        )),
+                (route) => false);
+          });
+        } else if (widget.quote.quoteType == 2) {
+          //Poryects quote type
+        } else {
+          await getProductsPerQuote();
+          int idQuote = await getIdQuote();
+          await postProducts(productsQuotes, idQuote);
+        }
       } else {
         wrongPopup(context, "Error to copy quote");
         Future.delayed(Duration(seconds: 3), () {
@@ -152,6 +166,68 @@ class _TileQuotesState extends State<TileQuotes> {
       }
     } catch (e) {
       wrongPopup(context, e);
+      Future.delayed(Duration(seconds: 3), () {
+        Navigator.of(context).pop();
+      });
+    }
+  }
+
+  getIdQuote() async {
+    int id_quote = 0;
+    List<QuoteClass> allQuotes = await DataAccessObject.getQuotes();
+
+    setState(() {
+      id_quote = allQuotes[allQuotes.length - 1].id_Quote!;
+    });
+    setState(() => valueLinearProgressIndicatorCopyQuote += .1);
+    return id_quote;
+  }
+
+  postProducts(
+      List<ProductCertificateDelivery> productstoPost, int id_quote) async {
+    int code = 0;
+    for (var i = 0; i < productstoPost.length; i++) {
+      productstoPost[i].id_quote = id_quote;
+    }
+    setState(() => valueLinearProgressIndicatorCopyQuote += .1);
+    for (var i = 0; i < productstoPost.length; i++) {
+      try {
+        code = await DataAccessObject.postProductoOC(
+            productstoPost[i].id_entrega,
+            productstoPost[i].id_OC,
+            productstoPost[i].id_quote,
+            productstoPost[i].image,
+            productstoPost[i].cantidad,
+            productstoPost[i].descripcion,
+            productstoPost[i].precioUnitario,
+            productstoPost[i].importe);
+        if (code != 200) {
+          wrongPopup(context, "Error to send products");
+          Future.delayed(Duration(seconds: 3), () {
+            Navigator.of(context).pop();
+          });
+        }
+      } catch (e) {
+        wrongPopup(context, "Error to send products $e");
+        Future.delayed(Duration(seconds: 3), () {
+          Navigator.of(context).pop();
+        });
+      }
+    }
+    setState(() => valueLinearProgressIndicatorCopyQuote += .2);
+    if (code == 200) {
+      setState(() => valueLinearProgressIndicatorCopyQuote += .1);
+      GoodPopup(context, "Quote duplicate succesfully!");
+      Future.delayed(Duration(seconds: 3), () {
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+                builder: (context) => DesplegableQuotes(
+                      customer: widget.customer,
+                    )),
+            (route) => false);
+      });
+    } else {
+      wrongPopup(context, "Error to send products");
       Future.delayed(Duration(seconds: 3), () {
         Navigator.of(context).pop();
       });
@@ -248,6 +324,7 @@ class _TileQuotesState extends State<TileQuotes> {
                                                 MaterialPageRoute(
                                                     builder: (context) =>
                                                         Preview_Assemblies(
+                                                            isEdit: false,
                                                             isSavedQuote: true,
                                                             quote: widget.quote,
                                                             customer: widget
@@ -303,12 +380,16 @@ class _TileQuotesState extends State<TileQuotes> {
               data: ThemeData(primaryColor: Colors.white24),
               child: CupertinoAlertDialog(
                 title: Text(
-                  'Do you want to copy the quote?',
+                  'Do you want to copy this quote? (${widget.quote.quoteNumber})',
                   style: titlePopUp,
                 ),
-                content: Text(
-                  "This quote will be duplicated",
-                  style: contentPopUp,
+                content: Column(
+                  children: [
+                    Text(
+                      "This quote will be duplicated",
+                      style: contentPopUp,
+                    ),
+                  ],
                 ),
                 actions: [
                   TextButton(

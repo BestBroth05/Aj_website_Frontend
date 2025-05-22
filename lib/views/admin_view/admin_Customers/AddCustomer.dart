@@ -11,7 +11,7 @@ import '../../../utils/colors.dart';
 import '../../Delivery_Certificate/adminClases/Places.dart';
 import '../../Delivery_Certificate/adminClases/Suggestion.dart';
 import '../../Delivery_Certificate/widgets/customCircleAvatar.dart';
-import '../../Delivery_Certificate/widgets/Popups.dart';
+import '../../../Popups.dart';
 import '../../Delivery_Certificate/widgets/Texts.dart';
 import 'CustomersView.dart';
 import 'package:http/http.dart' as http;

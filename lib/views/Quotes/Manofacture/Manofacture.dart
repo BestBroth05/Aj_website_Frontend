@@ -1,7 +1,6 @@
 // ignore_for_file: must_be_immutable
 
 import 'dart:convert';
-
 import 'package:datepicker_dropdown/datepicker_dropdown.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttericon/entypo_icons.dart';
 import 'package:guadalajarav2/utils/SuperGlobalVariables/ObjVar.dart';
 import 'package:guadalajarav2/utils/colors.dart';
+import 'package:guadalajarav2/utils/funcs.dart';
 import 'package:guadalajarav2/views/Quotes/Clases/QuoteClass.dart';
 import 'package:guadalajarav2/views/Quotes/Manofacture/PreviewManofacture.dart';
 
@@ -18,9 +18,10 @@ import '../../Delivery_Certificate/Controllers/DAO.dart';
 import '../../Delivery_Certificate/adminClases/CustomerClass.dart';
 import '../../Delivery_Certificate/adminClases/OrdenCompraClass.dart';
 import '../../Delivery_Certificate/adminClases/productClass.dart';
-import '../../Delivery_Certificate/widgets/Popups.dart';
+import '../../../Popups.dart';
 import '../../Delivery_Certificate/widgets/Texts.dart';
 import '../../Delivery_Certificate/widgets/deliverFieldWidget.dart';
+import '../../admin_view/admin_DeliverCertificate/LoadingData.dart';
 import '../Clases/PorcentajesClass.dart';
 
 class Manofacture extends StatefulWidget {
@@ -92,20 +93,34 @@ class _ManofactureState extends State<Manofacture> {
   ValueChanged<String>? onChanged;
   int? quoteType;
   int? id_customer;
+  bool isLoading = true;
 
 // ************************************************************************************* //
 // ************************************* InitState ************************************* //
 // ************************************************************************************* //
   @override
   void initState() {
-    getAllCustomers();
-    isEditing();
     super.initState();
+    loadData();
   }
 
 // ************************************************************************************ //
 // ************************************* Gobal Functions ****************************** //
 // ************************************************************************************ //
+  Future<void> loadData() async {
+    // ***** Getting date ***** \\
+    DateTime now = DateTime.now();
+    day = DateFormat.d().format(now);
+    month = DateFormat.M().format(now);
+    year = DateFormat.y().format(now);
+    fecha = now.toString();
+    await getAllCustomers();
+    await isEditing();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   isEditing() async {
     if (widget.isEdit) {
       setState(() => isPressedSave = true);
@@ -113,14 +128,10 @@ class _ManofactureState extends State<Manofacture> {
       id_customer = widget.quote!.id_Customer;
       customer = widget.customer;
       buttonText = "Update";
-      DateTime now = DateTime.parse(widget.quote!.date!);
-      day = DateFormat.d().format(now);
-      month = DateFormat.M().format(now);
-      year = DateFormat.y().format(now);
       //General data
       customerName = widget.quote!.customerName!;
       quoteNumber.text = widget.quote!.quoteNumber!;
-      fecha = widget.quote!.date!;
+
       attentionTo.text = widget.quote!.attentionTo!;
       requestedByName.text = widget.quote!.requestedByName!;
       requestedByEmail.text = widget.quote!.requestedByEmail!;
@@ -142,12 +153,7 @@ class _ManofactureState extends State<Manofacture> {
       id_customer = currentUser.customerNameQuotes!.id_customer;
       customer = currentUser.customerNameQuotes;
       buttonText = "Save";
-      // ***** Getting date ***** \\
-      DateTime now = DateTime.now();
-      day = DateFormat.d().format(now);
-      month = DateFormat.M().format(now);
-      year = DateFormat.y().format(now);
-      fecha = now.toString();
+
       attentionTo.text = "Departamento de Compras";
       customerName = currentUser.customerNameQuotes!.name;
       await getAllQuotesPerCustomer();
@@ -315,34 +321,50 @@ class _ManofactureState extends State<Manofacture> {
 
   getAllQuotesPerCustomer() async {
     String number;
-    int quoteNumberInt = 0;
+    int maxNumber = 0;
     List<QuoteClass> quotes =
         await DataAccessObject.getQuotesByCustomer(customer!.id_customer);
-    setState(() {
+    //Searching the major number
+    if (quotes.isNotEmpty) {
       List split = customerName!.split(' ');
-      if (quotes.isNotEmpty) {
-        quoteNumberInt = int.parse(quotes[quotes.length - 1]
-            .quoteNumber!
-            .replaceAll("${split[0]}_", ""));
-      }
-      switch (quoteNumberInt) {
-        case < 9:
-          number = "0000${quoteNumberInt + 1}";
-          break;
-        case < 99:
-          number = "000${quoteNumberInt + 1}";
-          break;
-        case < 999:
-          number = "00${quoteNumberInt + 1}";
-          break;
-        case < 9999:
-          number = "0${quoteNumberInt + 1}";
-          break;
-        default:
-          number = "${quoteNumberInt + 1}";
-      }
-      quoteNumber.text = "${split[0]}_$number";
-    });
+      QuoteClass searchingMaxNumber = quotes
+          .where((q) => contieneNumero(
+              q.quoteNumber ?? '')) // filtra los que tienen número
+          .reduce((actual, siguiente) {
+        int actualNum = int.parse(actual.quoteNumber!
+            .replaceAll("${split[0]}_", "")
+            .replaceAll("*", ""));
+        int siguienteNum = int.parse(siguiente.quoteNumber!
+            .replaceAll("${split[0]}_", "")
+            .replaceAll("*", ""));
+        return actualNum > siguienteNum ? actual : siguiente;
+      });
+
+      maxNumber = int.parse(searchingMaxNumber.quoteNumber!
+          .replaceAll("${split[0]}_", "")
+          .replaceAll("*", ""));
+      setState(() {
+        switch (maxNumber) {
+          case < 9:
+            number = "0000${maxNumber + 1}";
+            break;
+          case < 99:
+            number = "000${maxNumber + 1}";
+            break;
+          case < 999:
+            number = "00${maxNumber + 1}";
+            break;
+          case < 9999:
+            number = "0${maxNumber + 1}";
+            break;
+          default:
+            number = "${maxNumber + 1}";
+        }
+        quoteNumber.text = "${split[0]}_$number";
+      });
+    } else {
+      quoteNumber.text = "00001";
+    }
   }
 
   getIdQuote() async {
@@ -548,11 +570,18 @@ class _ManofactureState extends State<Manofacture> {
             style: titleh1,
           ),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [generalData(), informative(), addProduct(), buttons()],
-          ),
-        ));
+        body: isLoading
+            ? LoadingData()
+            : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    generalData(),
+                    informative(),
+                    addProduct(),
+                    buttons()
+                  ],
+                ),
+              ));
   }
 
   Widget generalData() {

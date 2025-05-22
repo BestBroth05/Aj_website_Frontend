@@ -13,7 +13,7 @@ import '../Controllers/DAO.dart';
 import '../adminClases/CertificadoEntregaClass.dart';
 import '../adminClases/OrdenCompraClass.dart';
 import '../../admin_view/admin_DeliverCertificate/LoadingData.dart';
-import '../widgets/Popups.dart';
+import '../../../Popups.dart';
 import 'ChooseCompany.dart';
 import '../Entregas/AddEntrega.dart';
 
@@ -90,7 +90,8 @@ class _OCListState extends State<OCList> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: teal.add(black, 0.3),
-          title: TitleH1(context, "${widget.customerName} Purchase Orders"),
+          title:
+              TitleH1(context, "${widget.customerName} Delivery Certificates"),
           leading: IconButton(
               onPressed: () {
                 Navigator.pushReplacement(

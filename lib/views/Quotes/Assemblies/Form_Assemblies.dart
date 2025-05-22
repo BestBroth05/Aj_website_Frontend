@@ -12,6 +12,7 @@ import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:guadalajarav2/utils/SuperGlobalVariables/ObjVar.dart';
 import 'package:guadalajarav2/utils/colors.dart';
+import 'package:guadalajarav2/utils/funcs.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/Controllers/DAO.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/widgets/deliverFieldWidget.dart';
 import 'package:guadalajarav2/views/Quotes/Clases/PorcentajesClass.dart';
@@ -20,8 +21,9 @@ import 'package:intl/intl.dart';
 import 'package:fluttericon/entypo_icons.dart';
 import '../../../utils/tools.dart';
 import '../../Delivery_Certificate/adminClases/CustomerClass.dart';
-import '../../Delivery_Certificate/widgets/Popups.dart';
+import '../../../Popups.dart';
 import '../../Delivery_Certificate/widgets/Texts.dart';
+import '../../admin_view/admin_DeliverCertificate/LoadingData.dart';
 import '../Clases/DigikeyClass.dart';
 import 'Preview_Assemblies.dart';
 
@@ -139,36 +141,43 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
   bool addPCB = true;
   PorcentajesClass? porcentajes;
   String usdOrMxn = "MXN";
+  bool isLoading = true;
 
 // ************************************************************************************* //
 // ************************************* InitState ************************************* //
 // ************************************************************************************* //
   @override
   void initState() {
-    getPercetages();
-    print("id customer = ${widget.customer.id_customer}");
-    getAllQuotesPerCustomer();
-    contarComas();
-
-    customerName = currentUser.customerNameQuotes!.name;
-    ensambleTime.text = "5 to 6 days";
-    pcbTime.text = "8 to 12 days";
-    deliverComponent.text = "3 to 6 days";
-    attentionTo.text = "Departamento de Compras";
-    getAllCustomers();
-    getDollarCost();
     super.initState();
+    loadData();
+  }
+
+// ************************************************************************************ //
+// ************************************* Gobal Functions ****************************** //
+// ************************************************************************************ //
+  Future<void> loadData() async {
     // ***** Getting date ***** \\
     DateTime now = DateTime.now();
     day = DateFormat.d().format(now);
     month = DateFormat.M().format(now);
     year = DateFormat.y().format(now);
     fecha = now.toString();
+    customerName = currentUser.customerNameQuotes!.name;
+    ensambleTime.text = "5 to 6 days";
+    pcbTime.text = "8 to 12 days";
+    deliverComponent.text = "3 to 6 days";
+    attentionTo.text = "Departamento de Compras";
+    await getPercetages();
+    await getAllQuotesPerCustomer();
+    await contarComas();
+    await getAllCustomers();
+    await getDollarCost();
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
-// ************************************************************************************ //
-// ************************************* Gobal Functions ****************************** //
-// ************************************************************************************ //
   getPercetages() async {
     List<PorcentajesClass> porcentajes1 =
         await DataAccessObject.selectPorcentajesByCustomer(
@@ -231,34 +240,49 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
 
   getAllQuotesPerCustomer() async {
     String number;
-    int quoteNumberInt = 0;
+    int maxNumber = 0;
     List<QuoteClass> quotes =
         await DataAccessObject.getQuotesByCustomer(widget.customer.id_customer);
-    setState(() {
+    //Searching the major number
+    if (quotes.isNotEmpty) {
       List split = customerName!.split(' ');
-      if (quotes.isNotEmpty) {
-        quoteNumberInt = int.parse(quotes[quotes.length - 1]
-            .quoteNumber!
-            .replaceAll("${split[0]}_", ""));
-      }
-      switch (quoteNumberInt) {
-        case < 9:
-          number = "0000${quoteNumberInt + 1}";
-          break;
-        case < 99:
-          number = "000${quoteNumberInt + 1}";
-          break;
-        case < 999:
-          number = "00${quoteNumberInt + 1}";
-          break;
-        case < 9999:
-          number = "0${quoteNumberInt + 1}";
-          break;
-        default:
-          number = "${quoteNumberInt + 1}";
-      }
-      quoteNumber.text = "${split[0]}_$number";
-    });
+      QuoteClass searchingMaxNumber = quotes
+          .where((q) => contieneNumero(
+              q.quoteNumber ?? '')) // filtra los que tienen número
+          .reduce((actual, siguiente) {
+        int actualNum = int.parse(actual.quoteNumber!
+            .replaceAll("${split[0]}_", "")
+            .replaceAll("*", ""));
+        int siguienteNum = int.parse(siguiente.quoteNumber!
+            .replaceAll("${split[0]}_", "")
+            .replaceAll("*", ""));
+        return actualNum > siguienteNum ? actual : siguiente;
+      });
+      maxNumber = int.parse(searchingMaxNumber.quoteNumber!
+          .replaceAll("${split[0]}_", "")
+          .replaceAll("*", ""));
+      setState(() {
+        switch (maxNumber) {
+          case < 9:
+            number = "0000${maxNumber + 1}";
+            break;
+          case < 99:
+            number = "000${maxNumber + 1}";
+            break;
+          case < 999:
+            number = "00${maxNumber + 1}";
+            break;
+          case < 9999:
+            number = "0${maxNumber + 1}";
+            break;
+          default:
+            number = "${maxNumber + 1}";
+        }
+        quoteNumber.text = "${split[0]}_$number";
+      });
+    } else {
+      quoteNumber.text = "00001";
+    }
   }
 
 // ************************************* Operations functions ************************************* //
@@ -1106,21 +1130,23 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
 // ************************************************************************************ //
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        child: Column(children: [
-      //General data
-      generalData(),
-      // Informative
-      Informative(),
-      // Components
-      Components(),
-      //PCB's
-      PCB(),
-      //Assembly
-      Assembly(),
-      //Buttons
-      buttons()
-    ]));
+    return isLoading
+        ? LoadingData()
+        : SingleChildScrollView(
+            child: Column(children: [
+            //General data
+            generalData(),
+            // Informative
+            Informative(),
+            // Components
+            Components(),
+            //PCB's
+            PCB(),
+            //Assembly
+            Assembly(),
+            //Buttons
+            buttons()
+          ]));
   }
 
   Widget buttons() {
@@ -1312,6 +1338,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 Preview_Assemblies(
+                                                    isEdit: false,
                                                     isSavedQuote: isPressed,
                                                     quote: quote!,
                                                     customer:
@@ -1404,6 +1431,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             Preview_Assemblies(
+                                                isEdit: false,
                                                 isSavedQuote: isPressed,
                                                 quote: quote!,
                                                 customer: widget.customer)));
@@ -1520,6 +1548,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
                                       MaterialPageRoute(
                                           builder: (context) =>
                                               Preview_Assemblies(
+                                                  isEdit: false,
                                                   isSavedQuote: isPressed,
                                                   quote: quote!,
                                                   customer: widget.customer)));
@@ -1606,6 +1635,7 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => Preview_Assemblies(
+                                          isEdit: false,
                                           isSavedQuote: isPressed,
                                           quote: quote!,
                                           customer: widget.customer)));

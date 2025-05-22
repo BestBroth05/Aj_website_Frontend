@@ -25,6 +25,7 @@ class RoutesName {
   static List<String> getMainMenuRoutes() {
     return [
       AJRoute.dashboard.url,
+      //AJRoute.arquiurbus.url,
       AJRoute.inventory.url,
       AJRoute.admin.url,
       AJRoute.bom.url,

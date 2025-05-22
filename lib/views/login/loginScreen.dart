@@ -14,6 +14,8 @@ import 'package:guadalajarav2/views/login/login_text_field.dart';
 import 'package:guadalajarav2/views/main_top_bar.dart/main_top_bar.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
 
+import '../ArquiurbusDemo/Dashboard_ab100.dart';
+
 class LoginScreen extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
@@ -105,14 +107,31 @@ class _LoginState extends State<LoginScreen> {
                                           userController.text,
                                           passwordController.text,
                                         )) {
-                                          openLink(
-                                            context,
-                                            user!.type == UserType.employee ||
-                                                    user!.type == UserType.admin
-                                                ? AJRoute.dashboard.url
-                                                : AJRoute.projects.url,
-                                            isRoute: true,
-                                          );
+                                          if (userController.text ==
+                                                  "Arquiurbus" &&
+                                              passwordController.text ==
+                                                  "ab100") {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        DashboardAb100()));
+                                            //  openLink(
+                                            // context,
+                                            // AJRoute.arquiurbus.url,
+                                            // isRoute: true,
+                                            //);
+                                          } else {
+                                            openLink(
+                                              context,
+                                              user!.type == UserType.employee ||
+                                                      user!.type ==
+                                                          UserType.admin
+                                                  ? AJRoute.dashboard.url
+                                                  : AJRoute.projects.url,
+                                              isRoute: true,
+                                            );
+                                          }
                                         } else {}
                                       },
                                     ),
@@ -145,17 +164,28 @@ class _LoginState extends State<LoginScreen> {
                                                 userController.text,
                                                 passwordController.text,
                                               )) {
-                                                openLink(
-                                                  context,
-                                                  user!.type ==
-                                                              UserType
-                                                                  .employee ||
-                                                          user!.type ==
-                                                              UserType.admin
-                                                      ? AJRoute.dashboard.url
-                                                      : AJRoute.projects.url,
-                                                  isRoute: true,
-                                                );
+                                                if (userController.text ==
+                                                        "Arquiurbus" &&
+                                                    passwordController.text ==
+                                                        "ab100") {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              DashboardAb100()));
+                                                } else {
+                                                  openLink(
+                                                    context,
+                                                    user!.type ==
+                                                                UserType
+                                                                    .employee ||
+                                                            user!.type ==
+                                                                UserType.admin
+                                                        ? AJRoute.dashboard.url
+                                                        : AJRoute.projects.url,
+                                                    isRoute: true,
+                                                  );
+                                                }
                                               } else {}
                                             },
                                           ),

@@ -56,7 +56,8 @@ class printPDFSpanish {
     List splitEntrega = entrega.Direccion!.split(',');
     if (int.parse(splitDate[1]) < 10) {
       date1 = "0${splitDate[1]}";
-    } else if (int.parse(splitDate[2]) < 10) {
+    }
+    if (int.parse(splitDate[2]) < 10) {
       date2 = "0${splitDate[2]}";
     }
     String newDate = "${splitDate[0]}-$date1-$date2";

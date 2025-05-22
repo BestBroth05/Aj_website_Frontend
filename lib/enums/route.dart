@@ -18,6 +18,7 @@ import 'package:guadalajarav2/views/about_view/about_view.dart';
 import 'package:guadalajarav2/views/home_screen_view/home_screen_view.dart';
 import 'package:guadalajarav2/views/projects_view/projects_view.dart';
 import 'package:guadalajarav2/views/services_view/services_view.dart';
+import '../views/ArquiurbusDemo/Dashboard_ab100.dart';
 import '../views/Quotes/Assemblies/Assemblies.dart';
 import '../views/Quotes/Manofacture/Manofacture.dart';
 import '../views/Quotes/Proyects/Proyects.dart';
@@ -28,6 +29,7 @@ enum AJRoute {
   home,
   about,
   login,
+  arquiurbus,
   bom,
   dashboard,
   inventory,
@@ -78,6 +80,7 @@ extension AJRouteExt on AJRoute {
         return 'Admin/${name.replaceAll("admin", "")}';
       case AJRoute.adminDeliverCertificate:
       case AJRoute.adminQuotes:
+      case AJRoute.arquiurbus:
       case AJRoute.assemblies:
       case AJRoute.proyects:
       case AJRoute.manofacture:
@@ -104,6 +107,8 @@ extension AJRouteExt on AJRoute {
         return AboutView();
       case AJRoute.login:
         return LoginScreen();
+      case AJRoute.arquiurbus:
+        return DashboardAb100();
       case AJRoute.bom:
         return BomView();
       case AJRoute.dashboard:
@@ -129,7 +134,9 @@ extension AJRouteExt on AJRoute {
       case AJRoute.assemblies:
         return Assemblies();
       case AJRoute.proyects:
-        return Projects();
+        return Projects(
+          isEdit: false,
+        );
       case AJRoute.manofacture:
         return Manofacture(
           isEdit: false,

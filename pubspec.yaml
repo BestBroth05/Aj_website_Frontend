@@ -66,6 +66,7 @@ dependencies:
   forex_currency_conversion: ^0.9.1
   docx_template: ^0.4.0
   aspose_words_cloud: ^24.10.0
+  data_table_2: ^2.5.18
   # flutter_icons: ^1.1.0
 
 dev_dependencies:

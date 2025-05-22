@@ -226,7 +226,6 @@ Widget textArea(controller, text, keyboardtype, filter) {
   return Container(
     child: Row(
       children: [
-        Text("$text:"),
         Container(
             child: Padding(
           padding: EdgeInsets.only(left: 10),
@@ -236,10 +235,13 @@ Widget textArea(controller, text, keyboardtype, filter) {
               keyboardType: keyboardtype,
               maxLines: 3,
               controller: controller,
+              textInputAction: TextInputAction.newline,
               inputFormatters: [filter],
               style: TextStyle(),
               decoration: InputDecoration(
-                hintText: "Notes...",
+                labelText: "$text",
+                labelStyle: TextStyle(
+                    color: Colors.teal, fontWeight: FontWeight.normal),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
                   borderSide: const BorderSide(color: Colors.grey),

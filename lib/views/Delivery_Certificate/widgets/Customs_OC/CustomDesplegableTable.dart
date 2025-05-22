@@ -32,7 +32,12 @@ class _CustomDesplegableState extends State<CustomDesplegable> {
   String? date_start;
   bool isAllCustomersLoaded = false;
   bool areThereData = false;
-  Map<String, int> headers = {'purchase order': 2, 'date': 2, 'actions': 2};
+  Map<String, int> headers = {
+    'purchase order': 2,
+    'date': 2,
+    'actions': 2,
+    'status': 1
+  };
   @override
   Widget build(BuildContext context) {
     return Scaffold(

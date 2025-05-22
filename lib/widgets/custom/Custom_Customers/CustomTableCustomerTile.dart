@@ -8,7 +8,7 @@ import 'package:guadalajarav2/views/admin_view/admin_Customers/CustomersView.dar
 import '../../../utils/colors.dart';
 import '../../../views/admin_view/Tools.dart';
 import '../../../views/admin_view/admin_Customers/EditCustomer.dart';
-import '../../../views/Delivery_Certificate/widgets/Popups.dart';
+import '../../../Popups.dart';
 import '../../../views/Delivery_Certificate/admin_OC/AddOC.dart';
 import '../../../views/Delivery_Certificate/admin_OC/OCList.dart';
 import '../../../views/Delivery_Certificate/widgets/customCircleAvatar.dart';
@@ -18,9 +18,11 @@ class CustomTableCustomerTile extends StatefulWidget {
   final Map<String, int> attributesFlex;
   final bool isOdd;
   final bool isOC;
+  Icon status;
   CustomTableCustomerTile(this.customers,
       {Key? key,
       this.isOdd = true,
+      required this.status,
       required this.attributesFlex,
       required this.isOC})
       : super(key: key);
@@ -55,97 +57,128 @@ class _CustomTableCustomerTileState extends State<CustomTableCustomerTile> {
                       color: gray,
                     )),
                   ),
-                  child: key == 'logo'
-                      ? CustomCicleAvatar(
-                          convertListToInt(widget.customers.logo!))
-                      : key == 'name'
-                          ? AutoSizeText(
-                              widget.customers.name.toString(),
-                              textAlign: TextAlign.center,
-                            )
-                          : widget.isOC
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => OCList(
-                                                      id_customer: widget
-                                                          .customers
-                                                          .id_customer!,
-                                                      customerName: widget
-                                                          .customers.name!)));
-                                        },
-                                        icon: Icon(Icons.view_headline)),
-                                    IconButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => AddOC(
-                                                      id_customer: widget
-                                                          .customers
-                                                          .id_customer!)));
-                                        },
-                                        icon: Icon(Icons.add)),
-                                  ],
+                  child:
+                      //Logo image
+                      key == 'logo'
+                          ? CustomCicleAvatar(
+                              convertListToInt(widget.customers.logo!))
+                          :
+                          //Name
+                          key == 'name'
+                              ? AutoSizeText(
+                                  widget.customers.name.toString(),
+                                  textAlign: TextAlign.center,
                                 )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    //Certificados de entrega
-                                    IconButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => OCList(
-                                                      id_customer: widget
-                                                          .customers
-                                                          .id_customer!,
-                                                      customerName: widget
-                                                          .customers.name!)));
-                                        },
-                                        icon: Icon(Icons.delivery_dining)),
-                                    //Quotes
-                                    IconButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      DesplegableQuotes(
-                                                          customer: widget
-                                                              .customers)));
-                                        },
-                                        icon: Icon(Icons.price_check)),
-                                    IconButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      EditCustomer(
+                              : widget.isOC
+                                  //Purch Orders
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        //List Buttom
+                                        IconButton(
+                                            tooltip:
+                                                "Delivery certificates list",
+                                            onPressed: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          OCList(
+                                                              id_customer: widget
+                                                                  .customers
+                                                                  .id_customer!,
+                                                              customerName:
+                                                                  widget
+                                                                      .customers
+                                                                      .name!)));
+                                            },
+                                            icon: Icon(
+                                              Icons.view_headline,
+                                              semanticLabel:
+                                                  "Delivery certificates list",
+                                            )),
+                                        //Add Buttom
+                                        IconButton(
+                                            tooltip: "Add a new purch order",
+                                            onPressed: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) => AddOC(
                                                           id_customer: widget
                                                               .customers
                                                               .id_customer!)));
-                                        },
-                                        icon: Icon(Icons.edit)),
+                                            },
+                                            icon: Icon(
+                                              Icons.add,
+                                              semanticLabel:
+                                                  "Add a new purch order",
+                                            )),
+                                        //Icon status buttom
+                                        widget.status
+                                      ],
+                                    )
+                                  :
+                                  //Actions
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        //Certificados de entrega
+                                        IconButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          OCList(
+                                                              id_customer: widget
+                                                                  .customers
+                                                                  .id_customer!,
+                                                              customerName:
+                                                                  widget
+                                                                      .customers
+                                                                      .name!)));
+                                            },
+                                            icon: Icon(Icons.delivery_dining)),
+                                        //Quotes
+                                        IconButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          DesplegableQuotes(
+                                                              customer: widget
+                                                                  .customers)));
+                                            },
+                                            icon: Icon(Icons.price_check)),
+                                        IconButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          EditCustomer(
+                                                              id_customer: widget
+                                                                  .customers
+                                                                  .id_customer!)));
+                                            },
+                                            icon: Icon(Icons.edit)),
 
-                                    //Delete
-                                    IconButton(
-                                        onPressed: () =>
-                                            confirmationDeleteCustomer(
-                                                context,
-                                                widget.customers.id_customer!,
-                                                "customer",
-                                                CustomersView()),
-                                        icon: Icon(Icons.delete)),
-                                  ],
-                                )),
+                                        //Delete
+                                        IconButton(
+                                            onPressed: () =>
+                                                confirmationDeleteCustomer(
+                                                    context,
+                                                    widget
+                                                        .customers.id_customer!,
+                                                    "customer",
+                                                    CustomersView()),
+                                            icon: Icon(Icons.delete)),
+                                      ],
+                                    )),
             );
           },
         ).toList(),

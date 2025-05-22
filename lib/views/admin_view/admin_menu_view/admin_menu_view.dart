@@ -42,7 +42,7 @@ class _AdminMenuViewState extends State<AdminMenuView> {
     },
     AJRoute.adminDeliverCertificate: {
       'name': 'Deliver Certificate',
-      'icon': Icons.delivery_dining,
+      'icon': Icons.shopping_cart_checkout_outlined,
       'isHovering': false,
     },
     AJRoute.adminQuotes: {

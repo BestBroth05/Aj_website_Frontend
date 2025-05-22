@@ -30,7 +30,7 @@ class _ChooseCompanyState extends State<ChooseCompany> {
     return Column(
       children: [
         DashboardTopBar(selected: 4),
-        TitleH1(context, "Delivery Certificates"),
+        TitleH1(context, "Purch Orders"),
         Container(
           height: 650,
           child: SetImages(),

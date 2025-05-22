@@ -15,6 +15,7 @@ class OrdenCompraClass {
   String? descripcion;
   int? cantidad;
   String? prefijo;
+  double? precioUnitario;
   OrdenCompraClass(
       {this.id_customer,
       this.id_OC,
@@ -31,7 +32,8 @@ class OrdenCompraClass {
       this.moneda,
       this.descripcion,
       this.cantidad,
-      this.prefijo});
+      this.prefijo,
+      this.precioUnitario});
 
   Map<String, dynamic> toMap() {
     var map = {
@@ -50,7 +52,8 @@ class OrdenCompraClass {
       'moneda': moneda,
       'descripcion': descripcion,
       'cantidad': cantidad,
-      'prefijo': prefijo
+      'prefijo': prefijo,
+      'precioUnitario': precioUnitario
     };
     return map;
   }
@@ -72,5 +75,6 @@ class OrdenCompraClass {
     descripcion = map['descripcion'];
     cantidad = map['cantidad'];
     prefijo = map['prefijo'];
+    precioUnitario = map['precioUnitario'];
   }
 }

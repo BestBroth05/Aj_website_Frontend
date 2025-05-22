@@ -18,8 +18,9 @@ import 'package:intl/intl.dart';
 import 'package:fluttericon/entypo_icons.dart';
 import '../../../utils/tools.dart';
 import '../../Delivery_Certificate/adminClases/CustomerClass.dart';
-import '../../Delivery_Certificate/widgets/Popups.dart';
+import '../../../Popups.dart';
 import '../../Delivery_Certificate/widgets/Texts.dart';
+import '../../admin_view/admin_DeliverCertificate/LoadingData.dart';
 import '../Clases/DigikeyClass.dart';
 import '../DesplegableQuotes.dart';
 import 'Preview_Assemblies.dart';
@@ -180,32 +181,36 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
   bool isPressed = false;
   bool isNewProducts = false;
   String? usdOrMxn;
+  bool isLoading = true;
 
 // ************************************************************************************* //
 // ************************************* InitState ************************************* //
 // ************************************************************************************* //
   @override
   void initState() {
-    print("image size = ${widget.quote.PCBImage!.length}");
-    fillFields();
-    if (widget.quote.totalComponentsMXN != 0) {
-      getDigikeys();
-    }
-
-    dhlCostEnsamble.text = "0";
-    getAllCustomers();
     super.initState();
-    // ***** Getting date ***** \\
+    loadData();
+  }
 
-    DateTime now = DateTime.parse(widget.quote.date!);
+// ************************************************************************************ //
+// ************************************* Gobal Functions ****************************** //
+// ************************************************************************************ //
+  Future<void> loadData() async {
+    DateTime now = DateTime.now();
     day = DateFormat.d().format(now);
     month = DateFormat.M().format(now);
     year = DateFormat.y().format(now);
     fecha = now.toString();
+    dhlCostEnsamble.text = "0";
+    await fillFields();
+    if (widget.quote.totalComponentsMXN != 0) {
+      await getDigikeys();
+    }
+    await getAllCustomers();
+    setState(() {
+      isLoading = false;
+    });
   }
-// ************************************************************************************ //
-// ************************************* Gobal Functions ****************************** //
-// ************************************************************************************ //
 
   Future getImage() async {
     FilePickerResult? fileResult =
@@ -248,7 +253,7 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
       //General data
       usdOrMxn = widget.quote.currency;
       quoteNumber.text = widget.quote.quoteNumber!;
-      fecha = widget.quote.date!;
+      //fecha = widget.quote.date!;
       attentionTo.text = widget.quote.attentionTo!;
       requestedByName.text = widget.quote.requestedByName!;
       requestedByEmail.text = widget.quote.requestedByEmail!;
@@ -1158,21 +1163,23 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
 // ************************************************************************************ //
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        child: Column(children: [
-      //General data
-      generalData(),
-      // Informative
-      Informative(),
-      // Components
-      Components(),
-      //PCB's
-      PCB(),
-      //Assembly
-      Assembly(),
-      //Buttons
-      buttons()
-    ]));
+    return isLoading
+        ? LoadingData()
+        : SingleChildScrollView(
+            child: Column(children: [
+            //General data
+            generalData(),
+            // Informative
+            Informative(),
+            // Components
+            Components(),
+            //PCB's
+            PCB(),
+            //Assembly
+            Assembly(),
+            //Buttons
+            buttons()
+          ]));
   }
 
   Widget buttons() {
@@ -1274,6 +1281,8 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
                                 if (_formKeyAssemblies.currentState!
                                     .validate()) {
                                   quote = QuoteClass(
+                                    id_Quote: widget.quote.id_Quote,
+                                    id_Percentages: widget.quote.id_Percentages,
                                     id_Customer: widget.customer.id_customer,
                                     iva: double.parse(porcentajeIva.text),
                                     isr: double.parse(porcentajeIsr.text),
@@ -1364,8 +1373,9 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
                                       MaterialPageRoute(
                                           builder: (context) =>
                                               Preview_Assemblies(
+                                                  isEdit: true,
                                                   isSavedQuote: true,
-                                                  quote: quote!,
+                                                  quote: quote,
                                                   customer: widget.customer)));
                                 }
                               }
@@ -1373,6 +1383,8 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
                           } else {
                             if (_formKeyAssemblies.currentState!.validate()) {
                               quote = QuoteClass(
+                                id_Quote: widget.quote.id_Quote,
+                                id_Percentages: widget.quote.id_Percentages,
                                 id_Customer: widget.customer.id_customer,
                                 iva: double.parse(porcentajeIva.text),
                                 isr: double.parse(porcentajeIsr.text),
@@ -1450,8 +1462,9 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => Preview_Assemblies(
+                                          isEdit: true,
                                           isSavedQuote: true,
-                                          quote: quote!,
+                                          quote: quote,
                                           customer: widget.customer)));
                             }
                           }
@@ -1475,6 +1488,8 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
                             if (_formKeyImage.currentState!.validate()) {
                               if (_formKeyAssemblies.currentState!.validate()) {
                                 quote = QuoteClass(
+                                  id_Quote: widget.quote.id_Quote,
+                                  id_Percentages: widget.quote.id_Percentages,
                                   id_Customer: widget.customer.id_customer,
                                   iva: double.parse(porcentajeIva.text),
                                   isr: double.parse(porcentajeIsr.text),
@@ -1562,8 +1577,9 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             Preview_Assemblies(
+                                                isEdit: true,
                                                 isSavedQuote: true,
-                                                quote: quote!,
+                                                quote: quote,
                                                 customer: widget.customer)));
                               }
                             }
@@ -1571,6 +1587,8 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
                         } else {
                           if (_formKeyAssemblies.currentState!.validate()) {
                             quote = QuoteClass(
+                              id_Quote: widget.quote.id_Quote,
+                              id_Percentages: widget.quote.id_Percentages,
                               id_Customer: widget.customer.id_customer,
                               iva: double.parse(porcentajeIva.text),
                               isr: double.parse(porcentajeIsr.text),
@@ -1644,8 +1662,9 @@ class _EditFormAssemblyState extends State<EditFormAssembly> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => Preview_Assemblies(
+                                        isEdit: true,
                                         isSavedQuote: true,
-                                        quote: quote!,
+                                        quote: quote,
                                         customer: widget.customer)));
                           }
                         }

@@ -20,6 +20,7 @@ import 'package:guadalajarav2/views/projects_view/project_editor/project_editor_
 import 'package:guadalajarav2/views/projects_view/project_employee/project_employee.dart';
 import 'package:guadalajarav2/views/projects_view/projects_table.dart';
 import 'package:guadalajarav2/widgets/custom/custom_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProjectsView extends StatefulWidget {
   ProjectsView({Key? key}) : super(key: key);
@@ -40,19 +41,39 @@ class _ProjectsViewState extends State<ProjectsView> {
   void initState() {
     super.initState();
     Timer.run(() async {
-      openDialog(context, container: BasicTextDialog('Loading'), block: true);
+      try {
+        openDialog(context, container: BasicTextDialog('Loading'), block: true);
 
-      user = await getUserFromToken();
-      while (user == null) {
         user = await getUserFromToken();
-        if (token == null) {
-          openLink(context, AJRoute.login.url, isRoute: true);
+        while (user == null) {
+          user = await getUserFromToken();
+          if (token == null) {
+            openLink(context, AJRoute.login.url, isRoute: true);
+          }
+          await Future.delayed(Duration(seconds: 1));
         }
-        await Future.delayed(Duration(seconds: 1));
+        await updateProjects();
+      } catch (e) {
+        openDialog(context,
+            container: BasicTextDialog('Error\nLogging out'), block: true);
+        await Future.delayed(Duration(seconds: 3));
+        logout();
       }
-      await updateProjects();
+
       // print(user);
     });
+  }
+
+  void logout() async {
+    removeTokenFromDatabase(context, token!);
+    SharedPreferences _preferences = await SharedPreferences.getInstance();
+    if (_preferences.containsKey('token')) {
+      _preferences.remove('token');
+    }
+    token = null;
+    user = null;
+    print('[WEBSITE] Logged out');
+    openLink(context, AJRoute.home.url, isRoute: true);
   }
 
   Future<void> updateProjects() async {
