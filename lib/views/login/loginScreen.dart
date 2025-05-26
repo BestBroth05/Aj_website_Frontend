@@ -1,9 +1,7 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/administration/user/userType.dart';
 import 'package:guadalajarav2/enums/route.dart';
 import 'package:guadalajarav2/main.dart';
-// import 'package:flutter_icons/flutter_icons.dart';
 import 'package:guadalajarav2/utils/colors.dart';
 import 'package:guadalajarav2/utils/url_handlers.dart';
 import 'package:guadalajarav2/views/footer/footer.dart';
@@ -12,7 +10,6 @@ import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/views/login/login_background.dart';
 import 'package:guadalajarav2/views/login/login_text_field.dart';
 import 'package:guadalajarav2/views/main_top_bar.dart/main_top_bar.dart';
-import 'package:guadalajarav2/widgets/custom/custom_button.dart';
 
 import '../ArquiurbusDemo/Dashboard_ab100.dart';
 
@@ -26,19 +23,33 @@ class _LoginState extends State<LoginScreen> {
   TextEditingController passwordController = new TextEditingController();
   bool willRemember = false;
 
+  Future onPressedAction() async {
+    if (await login(
+      context,
+      userController.text,
+      passwordController.text,
+    )) {
+      if (userController.text == "Arquiurbus" &&
+          passwordController.text == "ab100") {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => DashboardAb100()));
+      } else {
+        openLink(
+          context,
+          user!.type == UserType.employee || user!.type == UserType.admin
+              ? AJRoute.dashboard.url
+              : AJRoute.projects.url,
+          isRoute: true,
+        );
+      }
+    } else {}
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
+    return Scaffold(
+      body: Column(
         children: [
-          // Container(
-          //   width: width * 0.95,
-          //   height: height * 0.95,
-          //   child: Card(
-          //     elevation: 5,
-          //     child: LoginMinimalist(),
-          //   ),
-          // ),
           MainTopBar(),
           Expanded(
             child: SingleChildScrollView(
@@ -48,56 +59,41 @@ class _LoginState extends State<LoginScreen> {
                     height: height * 0.7,
                     child: Row(
                       children: [
-                        Expanded(flex: 4, child: LoginBackground()),
-                        // Expanded(
-                        //   flex: 2,
-                        //   child: Padding(
-                        //     padding:
-                        //         EdgeInsets.symmetric(horizontal: width * 0.025),
-                        //     child: Image.asset('assets/images/logo.png'),
-                        //   ),
-                        // ),
-                        // Container(
-                        //   width: width * 0.001,
-                        //   height: height * 0.5,
-                        //   decoration: BoxDecoration(gradient: fadedVertical),
-                        // ),
+                        Expanded(flex: 1, child: LoginBackground()),
                         Expanded(
-                          flex: 6,
-                          child: Container(
-                            padding:
-                                EdgeInsets.symmetric(vertical: height * 0.1),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.175),
-                              child: Column(
-                                children: [
-                                  AutoSizeText(
-                                    'Welcome',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: teal.add(black, 0.2),
-                                      fontSize: height * 0.05,
+                          flex: 1,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              //Headline
+                              Text(
+                                '',
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  children: [
+                                    //Headline
+                                    Text(
+                                      '¡Welcome!',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: teal.add(black, 0.2),
+                                        fontSize: height * 0.05,
+                                      ),
                                     ),
-                                    minFontSize: 10,
-                                    maxLines: 2,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      top: height * 0.1,
-                                      bottom: height * 0.025,
+                                    SizedBox(
+                                      height: 25,
                                     ),
-                                    child: LoginTextField(
+                                    //Form
+                                    LoginTextField(
                                       title: 'Username',
                                       controller: userController,
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      top: height * 0.025,
-                                      bottom: height * 0.05,
+                                    SizedBox(
+                                      height: 20,
                                     ),
-                                    child: LoginTextField(
+                                    LoginTextField(
                                       title: 'Password',
                                       controller: passwordController,
                                       isSecret: true,
@@ -116,11 +112,6 @@ class _LoginState extends State<LoginScreen> {
                                                 MaterialPageRoute(
                                                     builder: (context) =>
                                                         DashboardAb100()));
-                                            //  openLink(
-                                            // context,
-                                            // AJRoute.arquiurbus.url,
-                                            // isRoute: true,
-                                            //);
                                           } else {
                                             openLink(
                                               context,
@@ -135,69 +126,23 @@ class _LoginState extends State<LoginScreen> {
                                         } else {}
                                       },
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: width * 0.025),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        // CustomButton(
-                                        //   text: 'Return',
-                                        //   elevated: true,
-                                        //   color: white,
-                                        //   textColor: gray.add(black, 0.2),
-                                        //   onPressed: () => openLink(
-                                        //     context,
-                                        //     AJRoute.home.url,
-                                        //     isRoute: true,
-                                        //   ),
-                                        // ),
-                                        Expanded(
-                                          child: CustomButton(
-                                            text: 'Log in',
-                                            elevated: true,
-                                            onPressed: () async {
-                                              if (await login(
-                                                context,
-                                                userController.text,
-                                                passwordController.text,
-                                              )) {
-                                                if (userController.text ==
-                                                        "Arquiurbus" &&
-                                                    passwordController.text ==
-                                                        "ab100") {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              DashboardAb100()));
-                                                } else {
-                                                  openLink(
-                                                    context,
-                                                    user!.type ==
-                                                                UserType
-                                                                    .employee ||
-                                                            user!.type ==
-                                                                UserType.admin
-                                                        ? AJRoute.dashboard.url
-                                                        : AJRoute.projects.url,
-                                                    isRoute: true,
-                                                  );
-                                                }
-                                              } else {}
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+
+                                    //Button Login
+                                    SizedBox(height: 20),
+                                    buttonLogin()
+                                  ],
+                                ),
                               ),
-                            ),
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 40),
+                                child: Text(
+                                  '',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -206,6 +151,40 @@ class _LoginState extends State<LoginScreen> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget buttonLogin() {
+    return ElevatedButton(
+      onPressed: () async =>
+          await onPressedAction(), // Ejecutar la función pasada como parámetro
+      style: ElevatedButton.styleFrom(
+        minimumSize: Size(320, 44),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.teal, // Color del texto
+        //elevation: elevation, // Sombra
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            5.0,
+          ), // Bordes redondeados
+        ),
+        padding: EdgeInsets.symmetric(
+          vertical: 16.0, // Padding vertical
+          horizontal: 32.0, // Padding horizontal
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Log in',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.normal,
+            ),
+          ), // El texto que se pasa al botón
         ],
       ),
     );
