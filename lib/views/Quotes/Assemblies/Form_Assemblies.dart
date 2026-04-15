@@ -238,6 +238,15 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
     dollarBuy.text = currentUser.dollarBuy;
   }
 
+  int _extractQuoteNum(String quoteNumber) {
+    String cleaned = quoteNumber.replaceAll("*", "");
+    int underscoreIdx = cleaned.lastIndexOf('_');
+    if (underscoreIdx != -1 && underscoreIdx < cleaned.length - 1) {
+      cleaned = cleaned.substring(underscoreIdx + 1);
+    }
+    return int.tryParse(cleaned) ?? 0;
+  }
+
   getAllQuotesPerCustomer() async {
     String number;
     int maxNumber = 0;
@@ -246,21 +255,21 @@ class _Form_AssembliesState extends State<Form_Assemblies> {
     //Searching the major number
     if (quotes.isNotEmpty) {
       List split = customerName!.split(' ');
-      QuoteClass searchingMaxNumber = quotes
-          .where((q) => contieneNumero(
-              q.quoteNumber ?? '')) // filtra los que tienen número
-          .reduce((actual, siguiente) {
-        int actualNum = int.parse(actual.quoteNumber!
-            .replaceAll("${split[0]}_", "")
-            .replaceAll("*", ""));
-        int siguienteNum = int.parse(siguiente.quoteNumber!
-            .replaceAll("${split[0]}_", "")
-            .replaceAll("*", ""));
+      List<QuoteClass> quotesWithNumber = quotes
+          .where((q) => contieneNumero(q.quoteNumber ?? ''))
+          .toList();
+
+      if (quotesWithNumber.isEmpty) {
+        quoteNumber.text = "${split[0]}_00001";
+        return;
+      }
+
+      QuoteClass searchingMaxNumber = quotesWithNumber.reduce((actual, siguiente) {
+        int actualNum = _extractQuoteNum(actual.quoteNumber!);
+        int siguienteNum = _extractQuoteNum(siguiente.quoteNumber!);
         return actualNum > siguienteNum ? actual : siguiente;
       });
-      maxNumber = int.parse(searchingMaxNumber.quoteNumber!
-          .replaceAll("${split[0]}_", "")
-          .replaceAll("*", ""));
+      maxNumber = _extractQuoteNum(searchingMaxNumber.quoteNumber!);
       setState(() {
         switch (maxNumber) {
           case < 9:
