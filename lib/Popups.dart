@@ -3,20 +3,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/entypo_icons.dart';
+import 'package:guadalajarav2/utils/helperPDFExportQuotes.dart';
+import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/CustomerClass.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/productClass.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/widgets/Texts.dart';
-import 'package:guadalajarav2/views/Delivery_Certificate/PDF/PDFEnglish.dart';
-import 'package:guadalajarav2/views/Delivery_Certificate/PDF/PDFSpanish.dart';
-import 'package:guadalajarav2/views/Quotes/Manofacture/PDFManofacture.dart';
+import 'package:guadalajarav2/views/Delivery_Certificate/PDF/PDFDeliveryUnified.dart';
+import 'package:guadalajarav2/views/Quotes/Clases/QuoteClass.dart';
+import 'package:guadalajarav2/views/Quotes/Clases/QuoteTableClass.dart';
+import 'package:guadalajarav2/views/Quotes/PDFWidgets/ExportUnificatedPDF.dart';
 import 'package:pdf/pdf.dart';
 import 'utils/colors.dart';
 import 'utils/tools.dart';
-import 'views/Quotes/Assemblies/ExportToPDF.dart';
 import 'views/Delivery_Certificate/Controllers/DAO.dart';
-import 'views/Delivery_Certificate/admin_OC/ChooseCompany.dart';
 
 void PDFLanguage(context, id_OC, entrega, ordenCompra, nombreEmpresa,
-    List<ProductCertificateDelivery> productos, moneda) async {
+    List<ProductCertificateDelivery> productos, moneda, totalProducts) async {
   //DeviceAV device;
   return showDialog(
       context: context,
@@ -37,44 +38,155 @@ void PDFLanguage(context, id_OC, entrega, ordenCompra, nombreEmpresa,
                 TextButton(
                   child: Text('Spanish', style: buttonsPopUp),
                   onPressed: () async {
-                    printPDFSpanish(
-                            id_OC: id_OC,
-                            entrega: entrega,
-                            ordenCompra: ordenCompra.toString(),
-                            nombreEmpresa: nombreEmpresa,
-                            products: productos,
-                            moneda: moneda)
-                        .createPDF(PdfPageFormat.a3)
-                        .whenComplete(() {
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const ChooseCompany()));
+                    DeliveryCertificatePDF(
+                      isEnglish: false,
+                      idOC: id_OC,
+                      entrega: entrega,
+                      ordenCompra: ordenCompra.toString(),
+                      nombreEmpresa: nombreEmpresa,
+                      products: productos,
+                      totalProducts: totalProducts,
+                      moneda: moneda,
+                    ).createPDF(PdfPageFormat.a3).whenComplete(() {
+                      Navigator.pop(context);
                     });
                   },
                 ),
                 TextButton(
                   child: Text('English', style: buttonsPopUp),
                   onPressed: () async {
-                    printPDFEnglish(
-                            id_OC: id_OC,
-                            entrega: entrega,
-                            ordenCompra: ordenCompra.toString(),
-                            nombreEmpresa: nombreEmpresa,
-                            products: productos,
-                            moneda: moneda)
-                        .createPDF(PdfPageFormat.a3)
-                        .whenComplete(() {
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const ChooseCompany()));
+                    DeliveryCertificatePDF(
+                      isEnglish: true,
+                      idOC: id_OC,
+                      entrega: entrega,
+                      ordenCompra: ordenCompra.toString(),
+                      nombreEmpresa: nombreEmpresa,
+                      products: productos,
+                      totalProducts: totalProducts,
+                      moneda: moneda,
+                    ).createPDF(PdfPageFormat.a3).whenComplete(() {
+                      Navigator.pop(context);
                     });
                   },
-                )
+                ),
               ],
             ));
       });
+}
+
+Future<void> showQuoteExportDialog({
+  required BuildContext context,
+  required QuoteType type,
+  required bool isPDF,
+  required bool addPCB,
+  required bool addComponents,
+  required List<QuoteTableClass> dataTable,
+  required QuoteClass quote,
+  required CustomersClass customer,
+  String notes = '',
+  final bool notesEdited = false, // <-- NUEVO: true si el usuario modificó algo
+  PdfPageFormat pageFormat = PdfPageFormat.a3,
+}) async {
+  bool isExporting = false;
+
+  await showCupertinoDialog(
+    context: context,
+    barrierDismissible: !isExporting, // mientras exporta, no permitir cerrar
+    builder: (dialogCtx) {
+      return StatefulBuilder(
+        builder: (ctx, setState) {
+          Future<void> _doExport({required bool english}) async {
+            if (isExporting) return;
+            setState(() => isExporting = true);
+
+            try {
+              // Log útil para confirmar que sí entra aquí:
+              // ignore: avoid_print
+              print('[Export] start | type=$type | en=$english | isPDF=$isPDF');
+              final resolvedNotes = resolveNotesForExport(
+                currentNotes: notes,
+                isEnglish: english,
+              );
+              await ExportToPDFUnified(
+                      type: type,
+                      isPDF: isPDF,
+                      isEnglish: english,
+                      customer: customer,
+                      quote: quote,
+                      dataTable: dataTable,
+                      notes: resolvedNotes,
+                      addComponents: addComponents,
+                      addPCB: addPCB,
+                      notesEdited: notesEdited)
+                  .createPDF(pageFormat);
+
+              // ignore: avoid_print
+              print('[Export] done OK');
+              if (Navigator.of(dialogCtx).canPop()) {
+                Navigator.of(dialogCtx).pop(); // cerrar popup
+              }
+              // Aquí puedes enseñar un snackbar si quieres
+            } catch (e, st) {
+              // ignore: avoid_print
+              print('[Export] ERROR: $e\n$st');
+              if (Navigator.of(dialogCtx).canPop()) {
+                Navigator.of(dialogCtx).pop();
+              }
+              // Muestra un error rápido
+              // (ajústalo a tu propio PopupError si prefieres)
+              // ignore: use_build_context_synchronously
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error al exportar: $e')),
+              );
+            } finally {
+              // Por si el diálogo siguiera abierto por alguna razón:
+              if (Navigator.of(dialogCtx).canPop()) {
+                Navigator.of(dialogCtx).pop();
+              }
+            }
+          }
+
+          return CupertinoAlertDialog(
+            title: Text('Language / Idioma'),
+            content: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: isExporting
+                  ? Column(
+                      children: const [
+                        SizedBox(height: 8),
+                        CupertinoActivityIndicator(),
+                        SizedBox(height: 8),
+                        Text('Exportando…'),
+                      ],
+                    )
+                  : const Text('Select the language of the document please'),
+            ),
+            actions: isExporting
+                ? const [] // Mientras exporta, sin botones
+                : [
+                    CupertinoDialogAction(
+                      onPressed: () => _doExport(english: false),
+                      child: const Text('Español'),
+                    ),
+                    CupertinoDialogAction(
+                      onPressed: () => _doExport(english: true),
+                      child: const Text('English'),
+                    ),
+                    CupertinoDialogAction(
+                      isDestructiveAction: true,
+                      onPressed: () {
+                        if (!isExporting && Navigator.of(dialogCtx).canPop()) {
+                          Navigator.of(dialogCtx).pop();
+                        }
+                      },
+                      child: const Text('Cancelar'),
+                    ),
+                  ],
+          );
+        },
+      );
+    },
+  );
 }
 
 void PDFLanguageQuotes(context, addPCB, addComponents, dataTable, quote,
@@ -103,24 +215,34 @@ void PDFLanguageQuotes(context, addPCB, addComponents, dataTable, quote,
 
                     try {
                       if (type == "assemblies") {
-                        await ExportToPDFAssemblies(
-                                isPDF: isPDF,
+                        await ExportToPDFUnified(
+                                type:
+                                    QuoteType.assembly, // o QuoteType.assembly
+                                isPDF: true,
                                 isEnglish: false,
-                                addPCB: addPCB,
-                                addComponents: addComponents,
-                                dataTable: dataTable,
-                                quote: quote,
-                                customer: customer,
-                                notes: notes)
+                                customer: customer!,
+                                quote: quote!,
+                                dataTable: dataTable!,
+                                notes: notes ?? '',
+                                // solo si type == assembly:
+                                addComponents: true,
+                                addPCB: true,
+                                notesEdited: false)
                             .createPDF(PdfPageFormat.a3);
                       } else {
-                        await ExportToPDFManofacture(
-                                isPDF: isPDF,
+                        await ExportToPDFUnified(
+                                type: QuoteType
+                                    .manufacture, // o QuoteType.assembly
+                                isPDF: true,
                                 isEnglish: false,
-                                dataTable: dataTable,
-                                quote: quote,
-                                customer: customer,
-                                notes: notes)
+                                customer: customer!,
+                                quote: quote!,
+                                dataTable: dataTable!,
+                                notes: notes ?? '',
+                                // solo si type == assembly:
+                                addComponents: true,
+                                addPCB: true,
+                                notesEdited: false)
                             .createPDF(PdfPageFormat.a3);
                       }
                     } catch (e) {
@@ -148,24 +270,34 @@ void PDFLanguageQuotes(context, addPCB, addComponents, dataTable, quote,
                     bool onErrore = false;
                     try {
                       if (type == "assemblies") {
-                        await ExportToPDFAssemblies(
-                                isPDF: isPDF,
+                        await ExportToPDFUnified(
+                                type:
+                                    QuoteType.assembly, // o QuoteType.assembly
+                                isPDF: true,
                                 isEnglish: true,
-                                addPCB: addPCB,
-                                addComponents: addComponents,
-                                dataTable: dataTable,
-                                quote: quote,
-                                customer: customer,
-                                notes: notes)
+                                customer: customer!,
+                                quote: quote!,
+                                dataTable: dataTable!,
+                                notes: notes ?? '',
+                                // solo si type == assembly:
+                                addComponents: true,
+                                addPCB: true,
+                                notesEdited: false)
                             .createPDF(PdfPageFormat.a3);
                       } else {
-                        await ExportToPDFManofacture(
-                                isPDF: isPDF,
+                        await ExportToPDFUnified(
+                                type: QuoteType
+                                    .manufacture, // o QuoteType.assembly
+                                isPDF: true,
                                 isEnglish: true,
-                                dataTable: dataTable,
-                                quote: quote,
-                                customer: customer,
-                                notes: notes)
+                                customer: customer!,
+                                quote: quote!,
+                                dataTable: dataTable!,
+                                notes: notes ?? '',
+                                // solo si type == assembly:
+                                addComponents: true,
+                                addPCB: true,
+                                notesEdited: false)
                             .createPDF(PdfPageFormat.a3);
                       }
                     } catch (e) {

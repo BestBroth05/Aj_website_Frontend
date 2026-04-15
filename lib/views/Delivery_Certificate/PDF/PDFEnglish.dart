@@ -22,6 +22,7 @@ class printPDFEnglish {
   String? ordenCompra;
   String? nombreEmpresa;
   String? moneda;
+  int totalProducts;
   List<ProductCertificateDelivery> products = [];
 
   printPDFEnglish(
@@ -30,6 +31,7 @@ class printPDFEnglish {
       required this.ordenCompra,
       required this.nombreEmpresa,
       required this.products,
+      required this.totalProducts,
       required this.moneda});
   List<ClassCertificadoEntrega> entregas = [];
   getEntregas() async {
@@ -60,6 +62,9 @@ class printPDFEnglish {
     }
     if (int.parse(splitDate[2]) < 10) {
       date2 = "0${splitDate[2]}";
+    }
+    if (entrega.Notes!.contains("/")) {
+      entrega.Notes = "$totalProducts/${entrega.Notes!.split("/")[1]}";
     }
     String newDate = "${splitDate[0]}-$date1-$date2";
     DateTime newDateTime = DateTime.parse(newDate);

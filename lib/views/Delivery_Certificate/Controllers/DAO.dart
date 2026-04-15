@@ -215,8 +215,10 @@ class DataAccessObject {
       descripcion,
       cantidad,
       prefijo,
-      precioUnitario) async {
+      precioUnitario,
+      tag) async {
     int code;
+    int status = 0;
 
     var res = await http.post(
       Uri.parse("${url}OrdenCompra/post"),
@@ -238,8 +240,10 @@ class DataAccessObject {
         'moneda': moneda,
         'descripcion': descripcion,
         'cantidad': cantidad,
+        'status': status,
         'prefijo': prefijo,
-        'precioUnitario': precioUnitario
+        'precioUnitario': precioUnitario,
+        'tag': tag
       }),
     );
 
@@ -276,8 +280,10 @@ class DataAccessObject {
               street: jsonData[i]['street'],
               descripcion: jsonData[i]['descripcion'],
               cantidad: jsonData[i]['cantidad'],
+              status: jsonData[i]['status'],
               prefijo: jsonData[i]['prefijo'],
-              precioUnitario: jsonData[i]['precioUnitario']));
+              precioUnitario: jsonData[i]['precioUnitario'],
+              tag: jsonData[i]['tag']));
     } else {
       throw res.statusCode;
     }
@@ -322,23 +328,26 @@ class DataAccessObject {
       return List.generate(
           jsonData.length,
           (i) => OrdenCompraClass(
-              id_customer: jsonData[i]['id_customer'],
-              id_OC: jsonData[i]['id_OC'],
-              OC: jsonData[i]['OC'],
-              fecha_inicio: jsonData[i]['fecha_inicio'],
-              fecha_fin: jsonData[i]['fecha_fin'],
-              solicitante: jsonData[i]['solicitante'],
-              prioridad: jsonData[i]['prioridad'],
-              pais: jsonData[i]['pais'],
-              estado: jsonData[i]['estado'],
-              ciudad: jsonData[i]['ciudad'],
-              cp: jsonData[i]['cp'],
-              street: jsonData[i]['street'],
-              moneda: jsonData[i]['moneda'],
-              descripcion: jsonData[i]['descripcion'],
-              cantidad: jsonData[i]['cantidad'],
-              prefijo: jsonData[i]['prefijo'],
-              precioUnitario: jsonData[i]['precioUnitario']));
+                id_customer: jsonData[i]['id_customer'],
+                id_OC: jsonData[i]['id_OC'],
+                OC: jsonData[i]['OC'],
+                fecha_inicio: jsonData[i]['fecha_inicio'],
+                fecha_fin: jsonData[i]['fecha_fin'],
+                solicitante: jsonData[i]['solicitante'],
+                prioridad: jsonData[i]['prioridad'],
+                pais: jsonData[i]['pais'],
+                estado: jsonData[i]['estado'],
+                ciudad: jsonData[i]['ciudad'],
+                cp: jsonData[i]['cp'],
+                street: jsonData[i]['street'],
+                moneda: jsonData[i]['moneda'],
+                descripcion: jsonData[i]['descripcion'],
+                cantidad: jsonData[i]['cantidad'],
+                status: jsonData[i]['status'],
+                prefijo: jsonData[i]['prefijo'],
+                precioUnitario: jsonData[i]['precioUnitario'],
+                tag: jsonData[i]['tag'],
+              ));
     } else {
       throw res.statusCode;
     }
@@ -376,8 +385,10 @@ class DataAccessObject {
               moneda: jsonData[i]['moneda'],
               descripcion: jsonData[i]['descripcion'],
               cantidad: jsonData[i]['cantidad'],
+              status: jsonData[i]['status'],
               prefijo: jsonData[i]['prefijo'],
-              precioUnitario: jsonData[i]['precioUnitario']));
+              precioUnitario: jsonData[i]['precioUnitario'],
+              tag: jsonData[i]['tag']));
     }
     //Not found
     else if (res.statusCode == 404) {
@@ -405,8 +416,10 @@ class DataAccessObject {
       moneda,
       descripcion,
       cantidad,
+      status,
       prefijo,
-      precioUnitario) async {
+      precioUnitario,
+      tag) async {
     int code;
 
     var res = await http.post(
@@ -430,8 +443,10 @@ class DataAccessObject {
         'moneda': moneda,
         'descripcion': descripcion,
         'cantidad': cantidad,
+        'status': status,
         'prefijo': prefijo,
-        'precioUnitario': precioUnitario
+        'precioUnitario': precioUnitario,
+        'tag': tag
       }),
     );
 

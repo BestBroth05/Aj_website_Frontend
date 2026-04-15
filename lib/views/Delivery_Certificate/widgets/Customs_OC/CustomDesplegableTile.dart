@@ -35,6 +35,8 @@ class CustomDesplegableTile extends StatefulWidget {
 class _CustomDesplegableTileState extends State<CustomDesplegableTile> {
   Color get color => widget.isOdd ? backgroundColor : white;
   List<ProductCertificateDelivery> products = [];
+  TextEditingController status = TextEditingController();
+  int totalProducts = 0;
   String? date_start;
   List<Icon> statusList = [
     Icon(
@@ -66,22 +68,43 @@ class _CustomDesplegableTileState extends State<CustomDesplegableTile> {
   getProducts(id_entrega) async {
     List<ProductCertificateDelivery> products1 =
         await DataAccessObject.selectProductOC(id_entrega);
+
     setState(() {
       products = products1;
     });
   }
 
-  getStatus() async {
-    int totalProducts = 0;
-    List<ProductCertificateDelivery> products1 =
-        await DataAccessObject.selectProductPerOC(widget.OC.id_OC);
-    if (products1.isNotEmpty) {
-      for (var i = 0; i < products1.length; i++) {
-        totalProducts = totalProducts + products1[i].cantidad!;
-      }
+  Future updateOC(int status) async {
+    int result = await DataAccessObject.updateOC(
+        widget.OC.id_OC,
+        widget.OC.id_customer,
+        widget.OC.OC,
+        widget.OC.fecha_inicio,
+        widget.OC.fecha_fin,
+        widget.OC.solicitante,
+        widget.OC.pais,
+        widget.OC.estado,
+        widget.OC.ciudad,
+        widget.OC.cp,
+        widget.OC.street,
+        widget.OC.prioridad,
+        widget.OC.moneda,
+        widget.OC.descripcion,
+        widget.OC.cantidad,
+        status,
+        widget.OC.prefijo,
+        widget.OC.precioUnitario,
+        widget.OC.tag);
+    if (result == 200) {
+      setState(() {
+        totalProducts = status;
+      });
+      getIconStatus();
     }
+  }
+
+  void getIconStatus() {
     setState(() {
-      currentStatusProducts = "${totalProducts}/${widget.OC.cantidad}";
       //Por surtir
       if (totalProducts == 0) {
         currentStatusIcon = statusList[0];
@@ -95,6 +118,21 @@ class _CustomDesplegableTileState extends State<CustomDesplegableTile> {
         currentStatusIcon = statusList[2];
       }
     });
+  }
+
+  getStatus() async {
+    //if (widget.OC.status == null) {
+    List<ProductCertificateDelivery> products1 =
+        await DataAccessObject.selectProductPerOC(widget.OC.id_OC);
+    if (products1.isNotEmpty) {
+      for (var i = 0; i < products1.length; i++) {
+        totalProducts = totalProducts + products1[i].cantidad!;
+      }
+    }
+    // } else {
+    //   totalProducts = widget.OC.status!;
+    // }
+    getIconStatus();
   }
 
   @override
@@ -182,16 +220,38 @@ class _CustomDesplegableTileState extends State<CustomDesplegableTile> {
                                 textAlign: TextAlign.center,
                               )
                             : key == "purchase order"
-                                ? AutoSizeText(
-                                    widget.OC.OC.toString(),
-                                    textAlign: TextAlign.center,
+                                ? Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Container(
+                                        margin: EdgeInsets.only(bottom: 20),
+                                        child: Text(
+                                          widget.OC.OC.toString(),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 20),
+                                        child: Text(
+                                          widget.OC.tag == null
+                                              ? ""
+                                              : widget.OC.tag!,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      )
+                                    ],
                                   )
                                 : key == "status"
                                     ? Container(
                                         alignment: Alignment.center,
                                         child: Column(
                                           children: [
-                                            Text(currentStatusProducts),
+                                            EditableDeliveryCount(
+                                                entregados: totalProducts,
+                                                total: widget.OC.cantidad!,
+                                                onUpdated: (newValue) async {
+                                                  await updateOC(newValue);
+                                                }),
                                             IconButton(
                                                 onPressed: () {},
                                                 icon: currentStatusIcon),
@@ -243,10 +303,9 @@ class _CustomDesplegableTileState extends State<CustomDesplegableTile> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => EditEntrega(
-                                  id_customer: widget.id_customer,
-                                  id_OC: widget.OC.id_OC!,
-                                  id_entrega: entrega.certificadoEntrega!,
-                                ),
+                                    id_customer: widget.id_customer,
+                                    id_OC: widget.OC.id_OC!,
+                                    id_entrega: entrega.certificadoEntrega!),
                               ));
                         },
                         icon: Icon(Icons.edit)),
@@ -272,7 +331,8 @@ class _CustomDesplegableTileState extends State<CustomDesplegableTile> {
                               widget.OC.OC,
                               widget.customerName,
                               products,
-                              widget.OC.moneda);
+                              widget.OC.moneda,
+                              totalProducts);
                         },
                         // confirmationDeleteCustomer(context, id_customer),
                         icon: Icon(Icons.download)),
@@ -319,10 +379,9 @@ class _CustomDesplegableTileState extends State<CustomDesplegableTile> {
                 //Edit Button
                 IconButton(
                     onPressed: () => EditEntrega(
-                          id_customer: widget.id_customer,
-                          id_OC: widget.OC.id_OC!,
-                          id_entrega: entrega.certificadoEntrega!,
-                        ),
+                        id_customer: widget.id_customer,
+                        id_OC: widget.OC.id_OC!,
+                        id_entrega: entrega.certificadoEntrega!),
                     icon: Icon(Icons.edit)),
                 //Delete Button
                 IconButton(
@@ -342,5 +401,101 @@ class _CustomDesplegableTileState extends State<CustomDesplegableTile> {
             )),
           ]);
         }).toList());
+  }
+}
+
+class EditableDeliveryCount extends StatefulWidget {
+  final int entregados;
+  final int total;
+  final Function(int) onUpdated;
+
+  const EditableDeliveryCount({
+    required this.entregados,
+    required this.total,
+    required this.onUpdated,
+    super.key,
+  });
+
+  @override
+  State<EditableDeliveryCount> createState() => _EditableDeliveryCountState();
+}
+
+class _EditableDeliveryCountState extends State<EditableDeliveryCount> {
+  bool isEditing = false;
+  late TextEditingController controller;
+  late FocusNode focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.entregados.toString());
+    focusNode = FocusNode();
+
+    focusNode.addListener(() {
+      if (!focusNode.hasFocus && isEditing) {
+        _save();
+      }
+    });
+  }
+
+  Future<void> _save() async {
+    final value = int.tryParse(controller.text);
+    if (value != null) {
+      await widget.onUpdated(value);
+    }
+    setState(() {
+      isEditing = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onDoubleTap: () {
+        setState(() {
+          isEditing = true;
+          controller.text = widget.entregados.toString();
+        });
+        Future.delayed(Duration(milliseconds: 100), () {
+          focusNode.requestFocus();
+        });
+      },
+      child: isEditing
+          ? SizedBox(
+              width: 60,
+              child: TextField(
+                controller: controller,
+                focusNode: focusNode,
+                keyboardType: TextInputType.number,
+                onSubmitted: (_) => _save(),
+                autofocus: true,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                ),
+              ),
+            )
+          : RichText(
+              text: TextSpan(
+                style: DefaultTextStyle.of(context).style,
+                children: [
+                  TextSpan(
+                    text: '${widget.entregados}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const TextSpan(text: ' / '),
+                  TextSpan(text: '${widget.total}'),
+                ],
+              ),
+            ),
+    );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    focusNode.dispose();
+    super.dispose();
   }
 }

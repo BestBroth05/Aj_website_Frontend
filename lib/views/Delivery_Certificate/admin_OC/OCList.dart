@@ -253,11 +253,10 @@ class _OCListState extends State<OCList> {
                                 //Edit Button
                                 IconButton(
                                     onPressed: () => EditEntrega(
-                                          id_customer: widget.id_customer,
-                                          id_OC: OC[i].id_OC!,
-                                          id_entrega:
-                                              entrega.certificadoEntrega!,
-                                        ),
+                                        id_customer: widget.id_customer,
+                                        id_OC: OC[i].id_OC!,
+                                        id_entrega:
+                                            entrega.certificadoEntrega!),
                                     icon: Icon(Icons.edit)),
                                 //Delete Button
                                 IconButton(

@@ -1,12 +1,15 @@
 // ignore_for_file: must_be_immutable
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:guadalajarav2/utils/SuperGlobalVariables/ObjVar.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/Controllers/DAO.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/CustomerClass.dart';
 import 'package:guadalajarav2/views/Quotes/Assemblies/TextDialogWidget.dart';
 import 'package:guadalajarav2/views/Quotes/Clases/QuoteClass.dart';
+import 'package:guadalajarav2/views/Quotes/PDFWidgets/ExportUnificatedPDF.dart';
 import 'package:guadalajarav2/views/Quotes/Text_Quotes.dart';
+import 'package:pdf/pdf.dart';
 import '../../../enums/route.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/tools.dart';
@@ -223,7 +226,7 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
       fillingRows = [
         QuoteTableClass(
             description:
-                "Components \"${widget.quote!.excelName!}\"\n               ${widget.quote!.componentsMPN} MPN PUESTOS EN MEXICO\n               ${widget.quote!.componentsAvailables} no disponibles-envía ${widget.customer!.name}\nTiempo de entrega ${widget.quote!.componentsDeliverTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
+                "Componentes \"${widget.quote!.excelName!}\"\n               ${widget.quote!.componentsMPN} MPN PUESTOS EN MEXICO\n               ${widget.quote!.componentsAvailables} no disponibles-envía ${widget.customer!.name}\nTiempo de entrega ${widget.quote!.componentsDeliverTime!.replaceAll("to", "a").replaceAll("days", "dias")} hábiles",
             unitario: formatter.format(widget.quote!.perComponentMXN),
             cantidad: widget.quote!.quantity.toString(),
             total: formatter.format(widget.quote!.totalComponentsMXN)),
@@ -644,16 +647,18 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.red),
             onPressed: () {
-              PDFLanguageQuotes(
-                  context,
-                  addPCB,
-                  addComponents,
-                  rows,
-                  widget.quote,
-                  widget.customer,
-                  true,
-                  notes.text,
-                  "assemblies");
+              showQuoteExportDialog(
+                context: context,
+                type: QuoteType.assembly, // o QuoteType.manufacture
+                isPDF: true, // true = exportar PDF, false = exportar Word
+                addPCB: addPCB, // solo importa en assemblies
+                addComponents: addComponents, // solo importa en assemblies
+                dataTable: rows, // tu lista de QuoteTableClass
+                quote: widget.quote!, // tu objeto QuoteClass
+                customer: widget.customer!, // tu objeto CustomersClass
+                notes: notes.text, // opcional
+                pageFormat: PdfPageFormat.a3, // o .a4, según quieras
+              );
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -674,16 +679,18 @@ class _Preview_AssembliesState extends State<Preview_Assemblies> {
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.blue),
             onPressed: () {
-              PDFLanguageQuotes(
-                  context,
-                  addPCB,
-                  addComponents,
-                  rows,
-                  widget.quote,
-                  widget.customer,
-                  false,
-                  notes.text,
-                  "assemblies");
+              showQuoteExportDialog(
+                context: context,
+                type: QuoteType.assembly, // o QuoteType.manufacture
+                isPDF: false, // true = exportar PDF, false = exportar Word
+                addPCB: addPCB, // solo importa en assemblies
+                addComponents: addComponents, // solo importa en assemblies
+                dataTable: rows, // tu lista de QuoteTableClass
+                quote: widget.quote!, // tu objeto QuoteClass
+                customer: widget.customer!, // tu objeto CustomersClass
+                notes: notes.text, // opcional
+                pageFormat: PdfPageFormat.a3, // o .a4, según quieras
+              );
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,

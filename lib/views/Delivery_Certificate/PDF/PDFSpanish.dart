@@ -20,13 +20,14 @@ class printPDFSpanish {
   String? nombreEmpresa;
   String? moneda;
   List<ProductCertificateDelivery> products = [];
-
+  int totalProducts;
   printPDFSpanish(
       {required this.id_OC,
       required this.entrega,
       required this.ordenCompra,
       required this.nombreEmpresa,
       required this.products,
+      required this.totalProducts,
       required this.moneda});
   List<ClassCertificadoEntrega> entregas = [];
 
@@ -60,6 +61,10 @@ class printPDFSpanish {
     if (int.parse(splitDate[2]) < 10) {
       date2 = "0${splitDate[2]}";
     }
+    if (entrega.Notes!.contains("/")) {
+      entrega.Notes = "$totalProducts/${entrega.Notes!.split("/")[1]}";
+    }
+
     String newDate = "${splitDate[0]}-$date1-$date2";
     DateTime newDateTime = DateTime.parse(newDate);
     entrega.Fecha = DateFormat('MMMM/d/yyyy').format(newDateTime);

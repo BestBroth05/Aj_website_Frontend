@@ -13,6 +13,8 @@ import '../../admin_view/Tools.dart';
 import '../Clases/QuoteClass.dart';
 import '../Clases/QuoteTableClass.dart';
 import 'dart:html' as html;
+import 'dart:math' as math;
+import 'package:intl/date_symbol_data_local.dart';
 //import 'package:docx_template/docx_template.dart';
 
 class ExportToPDFManofacture {
@@ -31,12 +33,30 @@ class ExportToPDFManofacture {
       required this.notes});
 
   Future<void> createPDF(final PdfPageFormat format) async {
+    await initializeDateFormatting('es_MX');
+    await initializeDateFormatting('en_US');
+
     String? date;
     String nowTime = DateFormat('yyyy.M.d h:m:s').format(DateTime.now());
     NumberFormat formatter = NumberFormat.decimalPatternDigits(
-      locale: 'en_us',
+      locale: isEnglish! ? 'en_US' : 'es_MX',
       decimalDigits: 2,
     );
+    final dt = DateTime.parse(quote!.date!);
+
+    if (isEnglish!) {
+      date = DateFormat('MMMM d, yyyy', 'en_US').format(dt);
+    } else {
+      // Formateo base en ES
+      date = DateFormat('MMMM d, yyyy', 'es_MX')
+          .format(dt); // ej: "enero 21, 2025"
+      // Extrae el mes y lo capitaliza
+      final mes = DateFormat('MMMM', 'es_MX').format(dt); // "enero"
+      final mesCap = mes[0].toUpperCase() + mes.substring(1); // "Enero"
+      // Reemplaza solo el mes
+      date = date.replaceFirst(mes, mesCap);
+    }
+
     String? currency;
     String? conIva;
     List columns = [];
@@ -49,11 +69,9 @@ class ExportToPDFManofacture {
     String atencion;
     String firmado;
     String fecha;
-    int numberOfTables;
-    int numberOfSplits = 6;
+    //int numberOfSplits = 6;
     int splitsPerRow = 0;
     int splitsNotes = 0;
-    date = DateFormat('MMMM d, yyyy').format(DateTime.parse(quote!.date!));
     // ************ Get Images ************ //
     final logo = pw.MemoryImage(
         (await rootBundle.load('assets/images/HeaderAJ.png'))
@@ -99,73 +117,67 @@ class ExportToPDFManofacture {
       }
     }
 
-    if (isEnglish!) {
-      cotizacion = "Quotation";
-      nombreProyecto = "Proyect name";
-      empresa = "Company";
-      solicitud = "Requested by";
-      terminoPago = "Net terms";
-      atencion = "Attention to";
-      firmado = "Digitaly signed by";
-      fecha = "Date";
-      if (quote!.currency == "MXN") {
-        currency = "MXN";
-        columns = [
-          'Description',
-          'Unit\nprice',
-          'Quantity',
-          'Imagen',
-          'Total\nMXN'
-        ];
-      } else {
-        currency = "USD";
-        columns = [
-          'Description',
-          'Unit\nprice',
-          'Quantity',
-          'Imagen',
-          'Total\nUSD'
-        ];
-      }
-      if (quote!.conIva!) {
-        conIva = "* With IVA";
-      } else {
-        conIva = "* Without IVA";
-      }
+    final _en = {
+      'cotizacion': 'Quotation',
+      'nombreProyecto': 'Project name',
+      'empresa': 'Company',
+      'solicitud': 'Requested by',
+      'terminoPago': 'Net terms',
+      'atencion': 'Attention to',
+      'firmado': 'Digital signature',
+      'fecha': 'Date',
+      'desc': 'Description',
+      'unit': 'Unit price',
+      'qty': 'Quantity',
+      'img': 'Image',
+      'totalMXN': 'Total MXN',
+      'totalUSD': 'Total USD',
+      'withIva': '* With IVA',
+      'withoutIva': '* Without IVA',
+    };
+
+    final _es = {
+      'cotizacion': 'Cotización',
+      'nombreProyecto': 'Nombre proyecto',
+      'empresa': 'Empresa',
+      'solicitud': 'Solicitud por',
+      'terminoPago': 'Término de pago',
+      'atencion': 'Atención a',
+      'firmado': 'Firmado digitalmente por',
+      'fecha': 'Fecha',
+      'desc': 'Descripción',
+      'unit': 'Costo unitario',
+      'qty': 'Cantidad',
+      'img': 'Imagen',
+      'totalMXN': 'Total MXN',
+      'totalUSD': 'Total USD',
+      'withIva': '* Con IVA',
+      'withoutIva': '* Sin IVA',
+    };
+
+    final t = isEnglish! ? _en : _es;
+
+// Asigna tus variables existentes (mismos nombres que usabas):
+    cotizacion = t['cotizacion']!;
+    nombreProyecto = t['nombreProyecto']!;
+    empresa = t['empresa']!;
+    solicitud = t['solicitud']!;
+    terminoPago = t['terminoPago']!;
+    atencion = t['atencion']!;
+    firmado = t['firmado']!;
+    fecha = t['fecha']!;
+
+// Columnas según moneda, sin saltos '\n':
+    if (quote!.currency == 'MXN') {
+      currency = 'MXN';
+      columns = [t['desc']!, t['unit']!, t['qty']!, t['img']!, t['totalMXN']!];
     } else {
-      cotizacion = "Cotización";
-      nombreProyecto = "Nombre proyecto";
-      empresa = "Empresa";
-      solicitud = "Solicitud por";
-      terminoPago = "Termino de pago";
-      atencion = "Atención a";
-      firmado = "Firmado digitalmente por";
-      fecha = "Fecha";
-      if (quote!.currency == "MXN") {
-        currency = "MXN";
-        columns = [
-          'Descripción',
-          'Costo\nunitario',
-          'Cantidad',
-          'Imagen',
-          'Total\nMXN'
-        ];
-      } else {
-        currency = "USD";
-        columns = [
-          'Descripción',
-          'Costo\nunitario',
-          'Cantidad',
-          'Imagen',
-          'Total\nUSD'
-        ];
-      }
-      if (quote!.conIva!) {
-        conIva = "* Con IVA";
-      } else {
-        conIva = "* Sin IVA";
-      }
+      currency = 'USD';
+      columns = [t['desc']!, t['unit']!, t['qty']!, t['img']!, t['totalUSD']!];
     }
+
+// Nota IVA:
+    conIva = (quote!.conIva ?? false) ? t['withIva']! : t['withoutIva']!;
 
     // final data = dataTotal
     //     .map((quote) => [
@@ -177,9 +189,9 @@ class ExportToPDFManofacture {
     //     .toList();
 //Operations Total
     for (var i = 0; i < dataTable!.length; i++) {
-      if (dataTable![i].total!.isNotEmpty) {
-        total += double.parse(dataTable![i].total!.replaceAll(",", ""));
-      }
+      final txt = (dataTable![i].total ?? '').replaceAll(',', '').trim();
+      final val = double.tryParse(txt) ?? 0.0;
+      total += val;
     }
 
     //Height of the description per row table
@@ -200,29 +212,71 @@ class ExportToPDFManofacture {
     splitsNotes = no.length;
     print("notes cantidad de saltos de linea = ${splitsNotes}");
     if (splitsPerRow > 18) {
-      numberOfSplits -= 1;
+      //numberOfSplits -= 1;
     }
 
-    numberOfTables = (((dataTable!.length - 3) / numberOfSplits).ceil()) + 1;
-    List<List<QuoteTableClass>> dataTableTridimencional = [];
-    List<QuoteTableClass> dataTableBidemencional = [];
-    int count = 0;
-    for (var i = 0; i < numberOfTables; i++) {
-      if (i == 0) {
-        numberOfSplits = 4;
-      } else {
-        numberOfSplits = 6;
+    // ======= SPLIT ADAPTATIVO POR PESO =======
+// Idea: cada fila tiene un "peso" aproximado según si trae imagen y cuántas líneas ocupa la descripción.
+// Llenamos páginas sumando pesos hasta un umbral por página: si filas son ligeras caben más, si son pesadas caben menos.
+
+    double _rowWeight(QuoteTableClass r) {
+      // líneas por \n + penalización por líneas muy largas (rompe en ~78 chars)
+      final desc = (r.description ?? '');
+      final lines = desc.split('\n');
+      int extraWraps = 0;
+      for (final ln in lines) {
+        final len = ln.length;
+        if (len > 78) {
+          extraWraps += (len / 78).floor(); // aprox. wraps adicionales
+        }
       }
-      if (count == 0) {
-        dataTableBidemencional.addAll(dataTable!.take(numberOfSplits));
-      } else {
-        dataTableBidemencional
-            .addAll(dataTable!.skip(count).take(numberOfSplits));
-      }
-      count += numberOfSplits;
-      dataTableTridimencional.add(dataTableBidemencional);
-      dataTableBidemencional = [];
+      final hasImage = (r.image != null && r.image!.isNotEmpty);
+
+      // peso base 1.0 por fila
+      // +0.35 por cada wrap estimado
+      // +0.8 si trae imagen (sube el alto)
+      return 1.0 +
+          (0.35 * (lines.length - 1 + extraWraps)) +
+          (hasImage ? 0.8 : 0.0);
     }
+
+// Capacidad por página medida en "unidades de peso".
+// Ajusta estos números a tu gusto probando con tus PDFs reales.
+    final double firstPageCap =
+        6.0; // 1ª página (tu header/título ocupan espacio)
+    final double nextPageCap =
+        7.0; // páginas siguientes (hay un poco más de aire)
+
+    final List<List<QuoteTableClass>> dataTableTridimencional = [];
+    double cap = firstPageCap;
+    double acc = 0.0;
+    List<QuoteTableClass> bucket = [];
+
+    for (int i = 0; i < dataTable!.length; i++) {
+      final row = dataTable![i];
+      final w = _rowWeight(row);
+
+      // Si no cabe, cerramos página y arrancamos otra
+      if (acc + w > cap && bucket.isNotEmpty) {
+        dataTableTridimencional.add(bucket);
+        bucket = [];
+        acc = 0.0;
+        cap =
+            nextPageCap; // de aquí en adelante usamos el cap de páginas siguientes
+      }
+
+      bucket.add(row);
+      acc += w;
+    }
+
+// Último bucket
+    if (bucket.isNotEmpty) {
+      dataTableTridimencional.add(bucket);
+    }
+
+// Para mantener compatibilidad con tu variable:
+    final int numberOfTables = dataTableTridimencional.length;
+
     // ************ Creating Document ************ //
     final pdf = pw.Document();
     final pageTheme = await _mypageTheme(format);
@@ -393,7 +447,8 @@ class ExportToPDFManofacture {
 
                       // *************** Table *************** \\
                       pw.SizedBox(
-                          width: (currentUser.width! - 500),
+                          width:
+                              math.max(200, (currentUser.width ?? 800) - 500),
                           child: pw.Table(
                               border: pw.TableBorder.all(),
                               defaultVerticalAlignment:
@@ -417,21 +472,31 @@ class ExportToPDFManofacture {
                                       verticalAlignment:
                                           pw.TableCellVerticalAlignment.middle,
                                       children: [
-                                        pw.ListView.builder(
-                                          itemCount: split.length,
-                                          itemBuilder: (context, i) => pw.Container(
-                                              child: (split.length - 1) == i
-                                                  ? pw.Container(
-                                                      alignment: pw
-                                                          .Alignment.centerLeft,
-                                                      margin: pw.EdgeInsets.only(
-                                                          bottom: 5),
-                                                      child: pw.Container(
-                                                          child: pw.Text(split[i],
-                                                              style: description(
-                                                                  false)),
-                                                          width: 250))
-                                                  : pw.Container(alignment: pw.Alignment.centerLeft, child: pw.Text(split[i], style: description(false)))),
+                                        pw.Container(
+                                          padding: const pw.EdgeInsets.only(
+                                              bottom: 5),
+                                          child: pw.Column(
+                                            crossAxisAlignment:
+                                                pw.CrossAxisAlignment.start,
+                                            children: [
+                                              for (int i = 0;
+                                                  i < split.length;
+                                                  i++)
+                                                pw.Container(
+                                                  alignment:
+                                                      pw.Alignment.centerLeft,
+                                                  width: 250,
+                                                  margin: i == split.length - 1
+                                                      ? const pw
+                                                          .EdgeInsets.only(
+                                                          bottom: 5)
+                                                      : pw.EdgeInsets.zero,
+                                                  child: pw.Text(split[i],
+                                                      style:
+                                                          description(false)),
+                                                ),
+                                            ],
+                                          ),
                                         ),
                                         pw.Text(
                                             "\$${dataTableTridimencional[iMaster][index].unitario!}",
@@ -521,9 +586,6 @@ class ExportToPDFManofacture {
                 pw.Opacity(
                     opacity: iMaster == numberOfTables - 1 ? 1 : 0,
                     child: pw.Container(
-                        height: iMaster == numberOfTables - 1
-                            ? splitsNotes * 13.5
-                            : 0,
                         margin:
                             pw.EdgeInsets.only(left: 80, right: 30, top: 20),
                         child: pw.RichText(

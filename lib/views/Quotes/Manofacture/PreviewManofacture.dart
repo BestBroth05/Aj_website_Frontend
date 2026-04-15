@@ -9,7 +9,9 @@ import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/CustomerCla
 import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/productClass.dart';
 import 'package:guadalajarav2/views/Quotes/Assemblies/TextDialogWidget.dart';
 import 'package:guadalajarav2/views/Quotes/Clases/QuoteClass.dart';
+import 'package:guadalajarav2/views/Quotes/PDFWidgets/ExportUnificatedPDF.dart';
 import 'package:guadalajarav2/views/Quotes/Text_Quotes.dart';
+import 'package:pdf/pdf.dart';
 import '../../../enums/route.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/tools.dart';
@@ -493,16 +495,18 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.red),
             onPressed: () {
-              PDFLanguageQuotes(
-                  context,
-                  addPCB,
-                  addComponents,
-                  startRows,
-                  widget.quote,
-                  widget.customer,
-                  true,
-                  notes.text,
-                  "manofacture");
+              showQuoteExportDialog(
+                context: context,
+                type: QuoteType.manufacture, // o QuoteType.manufacture
+                isPDF: true, // true = exportar PDF, false = exportar Word
+                addPCB: addPCB, // solo importa en assemblies
+                addComponents: addComponents, // solo importa en assemblies
+                dataTable: rows, // tu lista de QuoteTableClass
+                quote: widget.quote!, // tu objeto QuoteClass
+                customer: widget.customer!, // tu objeto CustomersClass
+                notes: notes.text, // opcional
+                pageFormat: PdfPageFormat.a3, // o .a4, según quieras
+              );
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -523,16 +527,18 @@ class _PreviewManofactureState extends State<PreviewManofacture> {
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.blue),
             onPressed: () {
-              PDFLanguageQuotes(
-                  context,
-                  addPCB,
-                  addComponents,
-                  startRows,
-                  widget.quote,
-                  widget.customer,
-                  false,
-                  notes.text,
-                  "manofacture");
+              showQuoteExportDialog(
+                context: context,
+                type: QuoteType.manufacture, // o QuoteType.manufacture
+                isPDF: false, // true = exportar PDF, false = exportar Word
+                addPCB: addPCB, // solo importa en assemblies
+                addComponents: addComponents, // solo importa en assemblies
+                dataTable: rows, // tu lista de QuoteTableClass
+                quote: widget.quote!, // tu objeto QuoteClass
+                customer: widget.customer!, // tu objeto CustomersClass
+                notes: notes.text, // opcional
+                pageFormat: PdfPageFormat.a3, // o .a4, según quieras
+              );
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,

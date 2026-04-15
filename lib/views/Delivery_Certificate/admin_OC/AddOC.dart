@@ -48,6 +48,7 @@ class _AddOCState extends State<AddOC> {
   TextEditingController description = TextEditingController();
   TextEditingController cantidad = TextEditingController();
   TextEditingController precioUnitarioProducto = TextEditingController();
+  TextEditingController tag = TextEditingController();
   String? prioridad;
   String? moneda;
   bool isPressed = false;
@@ -230,6 +231,13 @@ class _AddOCState extends State<AddOC> {
                             TextInputType.numberWithOptions(decimal: true),
                             FilteringTextInputFormatter.allow(
                                 RegExp(r'^(\d+)?\.?\d{0,2}')),
+                            MediaQuery.of(context).size.width,
+                          ),
+                          fieldCustomer(
+                            tag,
+                            "Alias del producto",
+                            TextInputType.text,
+                            FilteringTextInputFormatter.singleLineFormatter,
                             MediaQuery.of(context).size.width,
                           ),
                           Container(
@@ -888,7 +896,8 @@ class _AddOCState extends State<AddOC> {
             description.text,
             int.parse(cantidad.text),
             prefijo.text,
-            precioUnitarioProducto.text);
+            precioUnitarioProducto.text,
+            tag.text);
       } catch (e) {
         wrongPopup(context, "Something went wrong $e");
         Future.delayed(const Duration(seconds: 3), () {

@@ -9,12 +9,14 @@ class QuoteTableClass {
   String? total;
   String? notas;
   String? image;
+  bool isDescEdited;
   QuoteTableClass(
       {this.id_quotePreview,
       this.id_quote,
       this.description,
       this.unitario,
       this.cantidad,
+      this.isDescEdited = false,
       this.total,
       this.notas,
       this.image});

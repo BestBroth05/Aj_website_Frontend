@@ -48,6 +48,7 @@ class _EditOCState extends State<EditOC> {
   TextEditingController description = TextEditingController();
   TextEditingController cantidad = TextEditingController();
   TextEditingController precioUnitarioProducto = TextEditingController();
+  TextEditingController tag = TextEditingController();
   String? prioridad;
   String? moneda;
   bool isPressed = false;
@@ -85,6 +86,8 @@ class _EditOCState extends State<EditOC> {
     month_fin = DateFormat.M().format(fecha_fin!);
     year_fin = DateFormat.y().format(fecha_fin!);
     solicitante.text = widget.OrdenCompra.solicitante!;
+    precioUnitarioProducto.text = widget.OrdenCompra.precioUnitario.toString();
+    tag.text = widget.OrdenCompra.tag == null ? "" : widget.OrdenCompra.tag!;
     moneda = widget.OrdenCompra.moneda;
     prioridad = widget.OrdenCompra.prioridad;
     pais.text = widget.OrdenCompra.pais!;
@@ -157,6 +160,13 @@ class _EditOCState extends State<EditOC> {
                             TextInputType.numberWithOptions(decimal: true),
                             FilteringTextInputFormatter.allow(
                                 RegExp(r'^(\d+)?\.?\d{0,2}')),
+                            MediaQuery.of(context).size.width,
+                          ),
+                          fieldCustomer(
+                            tag,
+                            "Alias del producto",
+                            TextInputType.text,
+                            FilteringTextInputFormatter.singleLineFormatter,
                             MediaQuery.of(context).size.width,
                           ),
                           Container(
@@ -746,8 +756,10 @@ class _EditOCState extends State<EditOC> {
           moneda,
           description.text,
           int.parse(cantidad.text),
+          widget.OrdenCompra.status == null ? 0 : widget.OrdenCompra.status,
           prefijo.text,
-          precioUnitarioProducto.text);
+          precioUnitarioProducto.text,
+          tag.text);
 
       if (result == 200) {
         succesfullyPopUp(context, "Succesfully edited");

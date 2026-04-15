@@ -12,6 +12,7 @@ import 'package:guadalajarav2/database.dart';
 import 'package:guadalajarav2/utils/tools.dart';
 import 'package:guadalajarav2/views/Delivery_Certificate/adminClases/Places.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 String? token;
 User? user;
@@ -19,6 +20,9 @@ late SharedPreferences prefs;
 MyPlace? myPlaceGlobal;
 
 void main() async {
+  // Inicializa los locales que vas a usar
+  await initializeDateFormatting('es_MX', null);
+  await initializeDateFormatting('en_US', null);
   prefs = await SharedPreferences.getInstance();
   if (prefs.containsKey('token')) {
     token = prefs.getString('token');

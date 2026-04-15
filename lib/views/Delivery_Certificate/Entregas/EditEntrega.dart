@@ -23,12 +23,14 @@ class EditEntrega extends StatefulWidget {
   int id_customer;
   int id_OC;
   String id_entrega;
-  EditEntrega(
-      {Key? key,
-      required this.id_customer,
-      required this.id_OC,
-      required this.id_entrega})
-      : super(key: key);
+  //int totalProducts;
+  EditEntrega({
+    Key? key,
+    required this.id_customer,
+    required this.id_OC,
+    required this.id_entrega,
+    //required this.totalProducts
+  }) : super(key: key);
 
   @override
   State<EditEntrega> createState() => _EditEntregaState();
